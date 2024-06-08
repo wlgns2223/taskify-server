@@ -1,7 +1,19 @@
-import { z } from 'zod';
-
 export class User {
-  private email: string;
-  private nicname: string;
-  private password: string;
+  constructor(
+    private _email: string,
+    private _nicname: string,
+    private _password: string,
+  ) {}
+
+  get email() {
+    return this._email;
+  }
+
+  get nickname() {
+    return this._nicname;
+  }
+
+  get password() {
+    return this._password;
+  }
 }
