@@ -8,6 +8,8 @@ import {
 } from 'mysql2/promise';
 import { RowQueryResult } from './types';
 
+type Maybe<T> = T | undefined;
+
 @Injectable()
 export class DBConnectionService implements OnModuleInit {
   private pool: Pool;
@@ -44,8 +46,8 @@ export class DBConnectionService implements OnModuleInit {
     return result;
   }
 
-  async select<T = any>(sql: string, values?: any): Promise<T> {
+  async select<T = any>(sql: string, values?: any) {
     const result = await this.query<T[]>(sql, values);
-    return result[0];
+    return result;
   }
 }

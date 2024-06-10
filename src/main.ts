@@ -2,7 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { Logger } from '@nestjs/common';
 
-const logger = new Logger('bootstrap');
+export const globalLogger = new Logger('bootstrap');
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
@@ -11,7 +11,7 @@ async function bootstrap() {
   });
 
   const port = process.env.PORT || 4000;
-  logger.log(`Application listening on port ${port}`);
+  globalLogger.log(`Application listening on port ${port}`);
   await app.listen(port);
 }
 bootstrap();

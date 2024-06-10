@@ -1,4 +1,8 @@
-import { Injectable, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+} from '@nestjs/common';
 import { DBConnectionService } from '../db/db.service';
 import { User } from './users.model';
 
@@ -10,29 +14,29 @@ export class UsersRepository {
   private async getData(id: number) {
     const query = `SELECT * FROM users WHERE id = ?`;
 
-    try {
-      const result = await this.dbService.select<User>(query, [id]);
-      return result;
-    } catch (error) {
-      this.logger.error(error);
-    }
+    const result = await this.dbService.select<User>(query, [id]);
+    return result;
+  }
+
+  async findUserByEmail(email: string): Promise<User[]> {
+    const query = `select id,email, nickname,password, created_at as createdAt,updated_at as updatedAt 
+    FROM users where email = ?`;
+    const result = await this.dbService.select<User>(query, [email]);
+
+    return result;
   }
 
   async createUser(user: User) {
     const query = `INSERT INTO users (email, nickname, password) VALUES (?, ?, ?)`;
 
-    try {
-      const result = await this.dbService.insert(query, [
-        user.email,
-        user.nickname,
-        user.password,
-      ]);
+    const result = await this.dbService.insert(query, [
+      user.email,
+      user.nickname,
+      user.password,
+    ]);
 
-      const insertedUser = await this.getData(result.insertId);
+    const insertedUser = await this.getData(result.insertId);
 
-      return insertedUser;
-    } catch (error) {
-      this.logger.error(error);
-    }
+    return insertedUser;
   }
 }

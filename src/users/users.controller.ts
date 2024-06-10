@@ -1,6 +1,7 @@
-import { Body, Controller, Logger, Post } from '@nestjs/common';
+import { Body, Controller, Get, Logger, Param, Post } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/createUser.dto';
+import { UserDto } from './dto/user.dto';
 
 @Controller('users')
 export class UsersController {
@@ -9,12 +10,16 @@ export class UsersController {
 
   @Post()
   async createUser(@Body() createUserDto: CreateUserDto) {
-    console.log(createUserDto);
-
     return await this.usersService.createUser(
       createUserDto.email,
       createUserDto.nickname,
       createUserDto.password,
     );
+  }
+
+  @Get(':email')
+  async findUserByEmail(@Param('email') email: string) {
+    const user = await this.usersService.findUserByEmail(email);
+    return UserDto.serialize(user);
   }
 }
