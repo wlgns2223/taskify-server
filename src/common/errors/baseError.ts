@@ -12,7 +12,7 @@ import { HttpStatus } from '@nestjs/common';
  * 일단 완성하는게 중요하다.
  */
 
-export class baseError {
+export class BaseError {
   protected _message: string;
   protected _status: HttpStatus;
 
