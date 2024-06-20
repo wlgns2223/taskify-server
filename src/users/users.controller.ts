@@ -17,6 +17,13 @@ export class UsersController {
     );
   }
 
+  @Get('test')
+  async test() {
+    return {
+      message: 'Hello world',
+    };
+  }
+
   @Get(':email')
   async findUserByEmail(@Param('email') email: string) {
     const user = await this.usersService.findUserByEmail(email);

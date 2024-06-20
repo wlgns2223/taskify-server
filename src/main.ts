@@ -12,6 +12,7 @@ async function bootstrap() {
   });
 
   app.useGlobalFilters(new ServiceExceptionFilter());
+  app.setGlobalPrefix('api');
 
   const port = process.env.PORT || 4000;
   globalLogger.log(`Application listening on port ${port}`);
