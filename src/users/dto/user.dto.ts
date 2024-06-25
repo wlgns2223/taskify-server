@@ -45,8 +45,4 @@ export class UserDto {
   get updatedAt() {
     return this._updatedAt;
   }
-
-  static serialize(data: User) {
-    return instanceToPlain(new UserDto(data));
-  }
 }

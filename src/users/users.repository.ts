@@ -12,7 +12,10 @@ export class UsersRepository {
   constructor(private dbService: DBConnectionService) {}
 
   private async getData(id: number) {
-    const query = `SELECT * FROM users WHERE id = ?`;
+    const query = `SELECT 
+    id,email,password,created_at as createdAt, updated_at as updatedAt 
+    FROM users 
+    WHERE id = ?`;
 
     const result = await this.dbService.select<User>(query, [id]);
     return result;
@@ -37,6 +40,6 @@ export class UsersRepository {
 
     const insertedUser = await this.getData(result.insertId);
 
-    return insertedUser;
+    return insertedUser[0];
   }
 }

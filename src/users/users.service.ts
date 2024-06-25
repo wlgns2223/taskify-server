@@ -3,6 +3,7 @@ import { UsersRepository } from './users.repository';
 import { User } from './users.model';
 import { EntityNotFoundException } from '../common/exceptions/exceptions';
 import { EntityAlreadyExists } from './exceptions/entity.exception';
+import { UserMapper } from './dto/mapper.user';
 
 @Injectable()
 export class UsersService {
@@ -16,14 +17,15 @@ export class UsersService {
     }
 
     const newUser = new User(email, nickname, password);
-    return await this.usersRepository.createUser(newUser);
+    const createdUser = await this.usersRepository.createUser(newUser);
+    return UserMapper.toDto(createdUser);
   }
 
-  async findUserByEmail(email: string): Promise<User> {
+  async findUserByEmail(email: string) {
     const user = await this.usersRepository.findUserByEmail(email);
     if (user.length === 0) {
       throw EntityNotFoundException(`User with email ${email} not found`);
     }
-    return user[0];
+    return UserMapper.toDto(user[0]);
   }
 }

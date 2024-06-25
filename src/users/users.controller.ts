@@ -26,7 +26,6 @@ export class UsersController {
 
   @Get(':email')
   async findUserByEmail(@Param('email') email: string) {
-    const user = await this.usersService.findUserByEmail(email);
-    return UserDto.serialize(user);
+    return await this.usersService.findUserByEmail(email);
   }
 }
