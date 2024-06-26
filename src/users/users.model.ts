@@ -1,14 +1,14 @@
 export class User {
   private _id: number;
   private _email: string;
-  private _nicname: string;
+  private _nickname: string;
   private _password: string;
   private _updatedAt: string;
   private _createdAt: string;
 
   constructor(email: string, nickname: string, password: string) {
     this._email = email;
-    this._nicname = nickname;
+    this._nickname = nickname;
     this._password = password;
   }
 
@@ -21,7 +21,7 @@ export class User {
   }
 
   get nickname() {
-    return this._nicname;
+    return this._nickname;
   }
 
   get password() {
