@@ -6,10 +6,20 @@ export class User {
   private _updatedAt: string;
   private _createdAt: string;
 
-  constructor(email: string, nickname: string, password: string) {
+  constructor(
+    email: string,
+    nickname: string,
+    password: string,
+    id?: number,
+    createdAt?: string,
+    updatedAt?: string,
+  ) {
+    this._id = id;
     this._email = email;
     this._nickname = nickname;
     this._password = password;
+    this._createdAt = createdAt;
+    this._updatedAt = updatedAt;
   }
 
   get id() {
