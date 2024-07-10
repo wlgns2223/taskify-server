@@ -74,7 +74,36 @@ describe('users uservice', () => {
     expect(actual).toEqual(expectedDto);
   });
 
-  it.todo('should find an user by email and return the found user');
+  it('should find an user by email and return the found user', async () => {
+    const fakeEmail = 'test@gmail.com';
+    const user = new User(
+      fakeEmail,
+      'fakeNickname',
+      'fakePassword',
+      1,
+      mockDate.toISOString(),
+      mockDate.toISOString(),
+    );
+
+    const expected = UserMapper.toDto(user);
+
+    findUserByEmailMock.mockResolvedValue([user]);
+
+    const actual = await usersService.findUserByEmail(fakeEmail);
+
+    expect(actual).toEqual(expected);
+    expect(findUserByEmailMock).toHaveBeenCalledWith(fakeEmail);
+  });
+
+  it('should throw an error when user is not found with by given email', async () => {
+    const fakeEmail = 'test@gmail.com';
+    findUserByEmailMock.mockResolvedValue([]);
+
+    await expect(usersService.findUserByEmail(fakeEmail)).rejects.toThrow(
+      ServiceException,
+    );
+    expect(findUserByEmailMock).toHaveBeenCalledWith(fakeEmail);
+  });
 
   it('should create a user', async () => {
     const fakeId = 1;
