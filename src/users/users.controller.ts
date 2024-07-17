@@ -1,5 +1,6 @@
 import { Body, Controller, Get, Logger, Param, Post } from '@nestjs/common';
 import { UsersService } from './users.service';
+import { UserMapper } from './dto/mapper.user';
 
 @Controller('users')
 export class UsersController {
@@ -15,6 +16,7 @@ export class UsersController {
 
   @Get(':email')
   async findUserByEmail(@Param('email') email: string) {
-    return await this.usersService.findUserByEmail(email);
+    const user = await this.usersService.findUserByEmail(email);
+    return UserMapper.toDto(user);
   }
 }

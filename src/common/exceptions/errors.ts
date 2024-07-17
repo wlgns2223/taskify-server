@@ -10,3 +10,8 @@ export const DATA_ALREADY_EXISTS = new BaseError(
   'Data already exists',
   HttpStatus.CONFLICT,
 );
+
+export const INVALID_INPUT = new BaseError(
+  'Invalid input',
+  HttpStatus.BAD_REQUEST,
+);

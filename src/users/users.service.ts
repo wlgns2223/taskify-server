@@ -26,6 +26,6 @@ export class UsersService {
     if (user.length === 0) {
       throw EntityNotFoundException(`User with email ${email} not found`);
     }
-    return UserMapper.toDto(user[0]);
+    return user[0];
   }
 }

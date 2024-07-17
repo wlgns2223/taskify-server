@@ -3,8 +3,8 @@ import { DBConnectionService } from '../db/db.service';
 import { RefreshToken } from './refresh-token.model';
 
 @Injectable()
-export class AuthRepository {
-  private logger = new Logger(AuthRepository.name);
+export class TokenRepository {
+  private logger = new Logger(TokenRepository.name);
   constructor(private dbService: DBConnectionService) {}
 
   async saveRefreshToken(refreshToken: RefreshToken) {

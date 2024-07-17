@@ -1,13 +1,7 @@
-import {
-  Body,
-  Controller,
-  Logger,
-  NotImplementedException,
-  Post,
-} from '@nestjs/common';
-import { UsersService } from '../users/users.service';
+import { Body, Controller, Logger, Post } from '@nestjs/common';
 import { SignUpDto } from '../users/dto/createUser.dto';
 import { AuthService } from './auth.service';
+import { SignInDto } from './dto/signIn.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -23,10 +17,12 @@ export class AuthController {
     );
   }
 
-  @Post('signin')
-  async signIn() {
-    return {
-      message: 'sign in',
-    };
+  @Post('signIn')
+  async signIn(@Body() signInDto: SignInDto) {
+    const tokens = await this.authService.signIn(
+      signInDto.email,
+      signInDto.password,
+    );
+    return tokens;
   }
 }

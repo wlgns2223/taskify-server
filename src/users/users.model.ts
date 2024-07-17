@@ -56,4 +56,19 @@ export class User {
   set createdAt(createdAt: string) {
     this._createdAt = createdAt;
   }
+
+  static from(data: User): User {
+    return new User(
+      data.email,
+      data.nickname,
+      data.password,
+      data.id,
+      data.createdAt,
+      data.updatedAt,
+    );
+  }
+
+  public comparePassword(password: string): boolean {
+    return this._password === password;
+  }
 }
