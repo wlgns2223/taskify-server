@@ -8,11 +8,21 @@ export class TokenRepository {
   constructor(private dbService: DBConnectionService) {}
 
   async saveRefreshToken(refreshToken: RefreshToken) {
-    const query = `INSERT INTO refresh_tokens (user_id, token, expires_at) VALUES (?, ?, ?)`;
-    await this.dbService.insert(query, [
+    const query = `
+    INSERT INTO refresh_tokens (user_id, token, expires_at) 
+    VALUES (?, ?, from_unixtime( ? ))`;
+
+    const result = await this.dbService.insert(query, [
       refreshToken.userId,
       refreshToken.token,
       refreshToken.expiresAt,
     ]);
+
+    const select = `SELECT * FROM refresh_tokens WHERE id = ?`;
+    const insertedToken = await this.dbService.select<RefreshToken>(select, [
+      result.insertId,
+    ]);
+
+    return insertedToken[0];
   }
 }

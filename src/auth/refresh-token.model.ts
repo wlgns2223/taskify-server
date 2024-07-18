@@ -35,7 +35,7 @@ export class RefreshToken {
   }
 
   get expiresAt() {
-    return this.expiresAt;
+    return this._expiresAt;
   }
 
   get createdAt() {

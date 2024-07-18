@@ -23,13 +23,10 @@ export class AuthService {
     if (!result) {
       throw InvalidInputException('Invalid password');
     }
-    const accessToken = await this.tokenService.signToken({
-      email: user.email,
-    });
-    const refreshToken = await this.tokenService.signToken(
-      { email: user.email },
-      '1m',
-    );
+    const accessToken = await this.tokenService.signAccessToken(user.email);
+    const refreshToken = await this.tokenService.signRefreshToken(user.email);
+
+    await this.tokenService.saveRefreshToken(user.id, refreshToken);
 
     return { accessToken, refreshToken };
   }
