@@ -46,6 +46,18 @@ export class RefreshToken {
     return this._updatedAt;
   }
 
+  set userId(userId: number) {
+    this._userId = userId;
+  }
+
+  set token(token: string) {
+    this._token = token;
+  }
+
+  set expiresAt(expiresAt: string) {
+    this._expiresAt = expiresAt;
+  }
+
   set id(id: number) {
     this._id = id;
   }

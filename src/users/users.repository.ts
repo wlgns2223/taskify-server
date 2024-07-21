@@ -21,7 +21,7 @@ export class UsersRepository {
     return result;
   }
 
-  async findUserByEmail(email: string): Promise<User[]> {
+  async findUserByEmail(email: string) {
     const query = `select id,email, nickname,password, created_at as createdAt,updated_at as updatedAt 
     FROM users where email = ?`;
     const result = await this.dbService.select<User>(query, [email]);

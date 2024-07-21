@@ -49,12 +49,35 @@ export class User {
     this._id = id;
   }
 
+  set email(email: string) {
+    this._email = email;
+  }
+
+  set nickname(nickname: string) {
+    this._nickname = nickname;
+  }
+
+  set password(password: string) {
+    this._password = password;
+  }
+
   set updatedAt(updatedAt: string) {
     this._updatedAt = updatedAt;
   }
 
   set createdAt(createdAt: string) {
     this._createdAt = createdAt;
+  }
+
+  toJSON() {
+    return {
+      id: this._id,
+      email: this._email,
+      nickname: this._nickname,
+      password: this._password,
+      updatedAt: this._updatedAt,
+      createdAt: this._createdAt,
+    };
   }
 
   static from(data: User): User {

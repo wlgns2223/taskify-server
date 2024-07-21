@@ -4,7 +4,6 @@ import { UsersRepository } from '../../src/users/users.repository';
 import { User } from '../../src/users/users.model';
 import { UserDto } from '../../src/users/dto/user.dto';
 import { ServiceException } from '../../src/common/exceptions/serviceException';
-
 import { UserMapper } from '../../src/users/dto/mapper.user';
 
 type UserDtoInstanceType = Pick<UserDto, keyof UserDto>;
@@ -91,7 +90,8 @@ describe('users uservice', () => {
 
     const actual = await usersService.findUserByEmail(fakeEmail);
 
-    expect(actual).toEqual(expected);
+    const actualDto = UserMapper.toDto(actual);
+    expect(actualDto).toEqual(expected);
     expect(findUserByEmailMock).toHaveBeenCalledWith(fakeEmail);
   });
 

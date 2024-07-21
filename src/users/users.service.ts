@@ -17,8 +17,8 @@ export class UsersService {
     }
 
     const newUser = new User(email, nickname, password);
-    const createdUser = await this.usersRepository.createUser(newUser);
-    return UserMapper.toDto(createdUser);
+
+    return await this.usersRepository.createUser(newUser);
   }
 
   async findUserByEmail(email: string) {
