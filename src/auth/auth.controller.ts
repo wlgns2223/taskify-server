@@ -9,9 +9,9 @@ import { ConfigService } from '@nestjs/config';
 export class AuthController {
   private logger = new Logger(AuthController.name);
   private cookieOptions: CookieOptions = {
-    httpOnly: true,
+    httpOnly: false,
     secure: false,
-    sameSite: 'none',
+    sameSite: 'lax',
   };
 
   constructor(
