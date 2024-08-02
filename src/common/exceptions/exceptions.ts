@@ -4,7 +4,12 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { ServiceException } from './serviceException';
-import { DATA_ALREADY_EXISTS, DATA_NOT_FOUND, INVALID_INPUT } from './errors';
+import {
+  DATA_ALREADY_EXISTS,
+  DATA_NOT_FOUND,
+  INVALID_INPUT,
+  UNAUTHORIZED,
+} from './errors';
 
 export const DatabaseError = (query?: string) => {
   return new InternalServerErrorException(`Database Error: ${query}`);

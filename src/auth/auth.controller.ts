@@ -1,9 +1,11 @@
-import { Body, Controller, Logger, Post, Res } from '@nestjs/common';
+import { Body, Controller, Logger, Post, Req, Res } from '@nestjs/common';
 import { SignUpDto } from '../users/dto/createUser.dto';
 import { AuthService } from './auth.service';
 import { SignInDto } from './dto/signIn.dto';
-import { CookieOptions, Response } from 'express';
+import { CookieOptions, Response, Request } from 'express';
 import { ConfigService } from '@nestjs/config';
+import { TokenFromReq } from './decorators/tokenFromReq.decorator';
+import { TokenType } from './types/type';
 
 @Controller('auth')
 export class AuthController {
@@ -36,7 +38,7 @@ export class AuthController {
     );
     const { accessTokenName, refreshTokenName } = this.getTokenNames();
 
-    this.setCookie(res, accessTokenName, tokens.refreshToken);
+    this.setCookie(res, accessTokenName, tokens.accessToken);
     this.setCookie(res, refreshTokenName, tokens.refreshToken);
 
     return res.json({ message: 'Successfully signed in' });
@@ -54,5 +56,23 @@ export class AuthController {
       accessTokenName,
       refreshTokenName,
     };
+  }
+
+  @Post('verify')
+  async verifyToken(@TokenFromReq(TokenType.ACCESS) accessToken: string) {
+    return await this.authService.verify(accessToken, TokenType.ACCESS);
+  }
+
+  @Post('refresh')
+  async renewToken(
+    @TokenFromReq(TokenType.REFRESH) refreshToken: string,
+    @Res() res: Response,
+  ) {
+    const { email } = await this.authService.verify(
+      refreshToken,
+      TokenType.REFRESH,
+    );
+
+    return res.json({ message: 'Successfully renewed' });
   }
 }

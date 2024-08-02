@@ -15,3 +15,8 @@ export const INVALID_INPUT = new BaseError(
   'Invalid input',
   HttpStatus.BAD_REQUEST,
 );
+
+export const UNAUTHORIZED = new BaseError(
+  'Unauthorized',
+  HttpStatus.UNAUTHORIZED,
+);

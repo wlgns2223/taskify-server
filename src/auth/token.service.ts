@@ -33,7 +33,7 @@ export class TokenService {
     );
   }
 
-  private async signToken(payload: TokenPayload, expiresIn: string = '10s') {
+  private async signToken(payload: TokenPayload, expiresIn: string = '60s') {
     return await this.jwtService.signAsync(payload, {
       expiresIn,
     });
@@ -51,5 +51,13 @@ export class TokenService {
 
   async verifyToken(token: string): Promise<VerifiedTokenPayLoad> {
     return await this.jwtService.verifyAsync(token);
+  }
+
+  async findRefreshToken(userId: number): Promise<RefreshToken | null> {
+    const token = await this.tokenRepository.findRefreshToken(userId);
+    if (token.length === 0) {
+      return null;
+    }
+    return token[0];
   }
 }

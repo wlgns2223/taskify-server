@@ -25,4 +25,11 @@ export class TokenRepository {
 
     return insertedToken[0];
   }
+
+  async findRefreshToken(userId: number) {
+    const query = `SELECT * FROM refresh_tokens WHERE user_id = ?`;
+    const tokens = await this.dbService.select<RefreshToken>(query, [userId]);
+
+    return tokens;
+  }
 }
