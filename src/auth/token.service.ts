@@ -21,7 +21,7 @@ export class TokenService {
   ) {}
 
   async signAccessToken(email: string) {
-    return await this.signToken({ email });
+    return await this.signToken({ email }, '10s');
   }
 
   async signRefreshToken(email: string) {
@@ -33,7 +33,7 @@ export class TokenService {
     );
   }
 
-  private async signToken(payload: TokenPayload, expiresIn: string = '60s') {
+  private async signToken(payload: TokenPayload, expiresIn: string) {
     return await this.jwtService.signAsync(payload, {
       expiresIn,
     });

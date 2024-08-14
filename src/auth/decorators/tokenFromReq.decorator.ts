@@ -8,9 +8,10 @@ export const TokenFromReq = createParamDecorator(
     const key = data === 'access' ? 'ACCESS_TOKEN_NAME' : 'REFRESH_TOKEN_NAME';
     const tokenName = process.env[key];
     const token = request.cookies[tokenName] as string | undefined;
+    const type = data === 'access' ? TokenType.ACCESS : TokenType.REFRESH;
 
     if (!token) {
-      throw TokenException(TokenType.ACCESS, TokenExceptionType.UNDEFINED);
+      throw TokenException(type, TokenExceptionType.UNDEFINED);
     }
 
     return token;

@@ -1,4 +1,14 @@
-import { Body, Controller, Logger, Post, Req, Res } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Logger,
+  Post,
+  Req,
+  Res,
+} from '@nestjs/common';
 import { SignUpDto } from '../users/dto/createUser.dto';
 import { AuthService } from './auth.service';
 import { SignInDto } from './dto/signIn.dto';
@@ -59,8 +69,12 @@ export class AuthController {
   }
 
   @Post('verify')
-  async verifyToken(@TokenFromReq(TokenType.ACCESS) accessToken: string) {
-    return await this.authService.verify(accessToken, TokenType.ACCESS);
+  async verifyToken(
+    @TokenFromReq(TokenType.ACCESS) accessToken: string,
+    @Res() res: Response,
+  ) {
+    await this.authService.verify(accessToken, TokenType.ACCESS);
+    return res.status(HttpStatus.OK).json({ message: 'Valid token' });
   }
 
   @Post('refresh')
@@ -68,11 +82,19 @@ export class AuthController {
     @TokenFromReq(TokenType.REFRESH) refreshToken: string,
     @Res() res: Response,
   ) {
-    const { email } = await this.authService.verify(
-      refreshToken,
-      TokenType.REFRESH,
-    );
+    // const { email } = await this.authService.verify(
+    //   refreshToken,
+    //   TokenType.REFRESH,
+    // );
 
     return res.json({ message: 'Successfully renewed' });
+  }
+
+  @Post('cookie-delete')
+  async deleteCookie(@Res() res: Response) {
+    const { accessTokenName, refreshTokenName } = this.getTokenNames();
+    res.clearCookie(accessTokenName);
+    res.clearCookie(refreshTokenName);
+    return res.json({ message: 'Successfully deleted' });
   }
 }
