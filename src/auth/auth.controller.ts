@@ -1,18 +1,8 @@
-import {
-  Body,
-  Controller,
-  Get,
-  HttpCode,
-  HttpStatus,
-  Logger,
-  Post,
-  Req,
-  Res,
-} from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Logger, Post, Req, Res } from '@nestjs/common';
 import { SignUpDto } from '../users/dto/createUser.dto';
 import { AuthService } from './auth.service';
 import { SignInDto } from './dto/signIn.dto';
-import { CookieOptions, Response, Request } from 'express';
+import { CookieOptions, Response } from 'express';
 import { ConfigService } from '@nestjs/config';
 import { TokenFromReq } from './decorators/tokenFromReq.decorator';
 import { TokenType } from './types/type';
@@ -21,9 +11,10 @@ import { TokenType } from './types/type';
 export class AuthController {
   private logger = new Logger(AuthController.name);
   private cookieOptions: CookieOptions = {
-    httpOnly: false,
+    httpOnly: true,
     secure: false,
     sameSite: 'lax',
+    expires: new Date(Date.now() + 1000 * 60 * 10),
   };
 
   constructor(
@@ -33,29 +24,40 @@ export class AuthController {
 
   @Post('signup')
   async signUp(@Body() signUpDto: SignUpDto) {
-    return await this.authService.signUp(
-      signUpDto.email,
-      signUpDto.nickname,
-      signUpDto.password,
-    );
+    return await this.authService.signUp(signUpDto.email, signUpDto.nickname, signUpDto.password);
   }
 
   @Post('signIn')
   async signIn(@Res() res: Response, @Body() signInDto: SignInDto) {
-    const tokens = await this.authService.signIn(
-      signInDto.email,
-      signInDto.password,
-    );
+    const { accessToken, refreshToken } = await this.authService.signIn(signInDto.email, signInDto.password);
     const { accessTokenName, refreshTokenName } = this.getTokenNames();
 
-    this.setCookie(res, accessTokenName, tokens.accessToken);
-    this.setCookie(res, refreshTokenName, tokens.refreshToken);
+    const accessTokenCookie = this.getCookiePayload(
+      accessTokenName,
+      accessToken.token,
+      accessToken.expiresTime.timeInMs,
+    );
+    const refreshTokenCookie = this.getCookiePayload(
+      refreshTokenName,
+      refreshToken.token,
+      refreshToken.expiresTime.timeInMs,
+    );
+
+    res.cookie(accessTokenCookie.tokenName, accessTokenCookie.token, accessTokenCookie.cookieOptions);
+    res.cookie(refreshTokenCookie.tokenName, refreshTokenCookie.token, refreshTokenCookie.cookieOptions);
 
     return res.json({ message: 'Successfully signed in' });
   }
 
-  private setCookie(res: Response, tokenName: string, token: string) {
-    res.cookie(tokenName, token, this.cookieOptions);
+  private getCookiePayload(tokenName: string, token: string, expiresIn: number) {
+    return {
+      tokenName,
+      token,
+      cookieOptions: {
+        ...this.cookieOptions,
+        expires: new Date(Date.now() + expiresIn),
+      },
+    };
   }
 
   private getTokenNames() {
@@ -69,32 +71,32 @@ export class AuthController {
   }
 
   @Post('verify')
-  async verifyToken(
-    @TokenFromReq(TokenType.ACCESS) accessToken: string,
-    @Res() res: Response,
-  ) {
+  async verifyToken(@TokenFromReq(TokenType.ACCESS) accessToken: string, @Res() res: Response) {
     await this.authService.verify(accessToken, TokenType.ACCESS);
     return res.status(HttpStatus.OK).json({ message: 'Valid token' });
   }
 
-  @Post('refresh')
-  async renewToken(
-    @TokenFromReq(TokenType.REFRESH) refreshToken: string,
-    @Res() res: Response,
-  ) {
-    // const { email } = await this.authService.verify(
-    //   refreshToken,
-    //   TokenType.REFRESH,
-    // );
+  @Get('renew')
+  async renewTokens(@TokenFromReq(TokenType.REFRESH) refreshToken: string, @Res() res: Response) {
+    const { accessToken, refreshToken: newRefreshToken } = await this.authService.renewToken(refreshToken);
 
-    return res.json({ message: 'Successfully renewed' });
-  }
-
-  @Post('cookie-delete')
-  async deleteCookie(@Res() res: Response) {
     const { accessTokenName, refreshTokenName } = this.getTokenNames();
-    res.clearCookie(accessTokenName);
-    res.clearCookie(refreshTokenName);
-    return res.json({ message: 'Successfully deleted' });
+
+    const accessTokenCookie = this.getCookiePayload(
+      accessTokenName,
+      accessToken.token,
+      accessToken.expiresTime.timeInMs,
+    );
+
+    const refreshTokenCookie = this.getCookiePayload(
+      refreshTokenName,
+      newRefreshToken.token,
+      newRefreshToken.expiresTime.timeInMs,
+    );
+
+    return res.json({
+      accessTokenCookie,
+      refreshTokenCookie,
+    });
   }
 }

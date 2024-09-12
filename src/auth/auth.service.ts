@@ -6,14 +6,33 @@ import { TokenService } from './token.service';
 import { JsonWebTokenError, TokenExpiredError } from '@nestjs/jwt';
 import { TokenExceptionType, TokenType } from './types/type';
 import { TokenException } from '../common/exceptions/auth.exception';
+import { ConfigService } from '@nestjs/config';
+import { Token } from './vo/token';
 
 @Injectable()
 export class AuthService {
   private logger = new Logger(AuthService.name);
+  private accessToken: Token;
+  private refreshToken: Token;
+
   constructor(
     private usersService: UsersService,
     private tokenService: TokenService,
-  ) {}
+    private configService: ConfigService,
+  ) {
+    const accessTokenName = this.configService.get<string>('ACCESS_TOKEN_NAME');
+    const refreshTokenName = this.configService.get<string>('REFRESH_TOKEN_NAME');
+
+    this.accessToken = new Token(accessTokenName, {
+      timeInSec: '10s',
+      timeInMs: 1000 * 10,
+    });
+
+    this.refreshToken = new Token(refreshTokenName, {
+      timeInSec: '10m',
+      timeInMs: 1000 * 60 * 10,
+    });
+  }
 
   async signUp(email: string, nickname: string, password: string) {
     return await this.usersService.createUser(email, nickname, password);
@@ -27,12 +46,20 @@ export class AuthService {
     if (!result) {
       throw InvalidInputException('Invalid password');
     }
-    const accessToken = await this.tokenService.signAccessToken(user.email);
-    const refreshToken = await this.tokenService.signRefreshToken(user.email);
 
-    await this.tokenService.saveRefreshToken(user.id, refreshToken);
+    const accessToken = await this.tokenService.getSignedToken(user.email, this.accessToken);
+    const refreshToken = await this.tokenService.getSignedToken(user.email, this.refreshToken);
 
-    return { accessToken, refreshToken };
+    const storedRefreshToken = await this.tokenService.findRefreshToken(user.id);
+    if (storedRefreshToken !== null) {
+      await this.tokenService.deleteAllStoredRefreshTokens(user.id);
+    }
+
+    await this.tokenService.saveRefreshToken(user.id, refreshToken.token);
+    return {
+      accessToken,
+      refreshToken,
+    };
   }
 
   async verify(token: string, tokenType: TokenType) {
@@ -51,28 +78,35 @@ export class AuthService {
     }
   }
 
-  async refreshToken(userEmail: string, refreshToken: string) {
-    const isTokenValid = await this.compareRefreshToken(
-      userEmail,
-      refreshToken,
-    );
+  async renewToken(refreshToken: string) {
+    const payload = await this.verify(refreshToken, TokenType.REFRESH);
+    const { oldToken, user } = await this.compareRefreshTokenAndGetOldToken(payload.email, refreshToken);
 
-    if (!isTokenValid) {
-      throw TokenException(TokenType.REFRESH, TokenExceptionType.INVALID_TOKEN);
-    }
+    await this.tokenService.deleteStoredRefreshToken(oldToken.id);
 
-    // access token, refresh token 재발급
-    // refresh token은 새로 발급된 토큰으로 교체 후 디비에 저장
+    const accessToken = await this.tokenService.getSignedToken(payload.email, this.accessToken);
 
-    return 'new token';
+    const newRefreshToken = await this.tokenService.getSignedToken(payload.email, this.refreshToken);
+
+    await this.tokenService.saveRefreshToken(user.id, newRefreshToken.token);
+
+    return {
+      accessToken,
+      refreshToken: newRefreshToken,
+    };
   }
-  private async compareRefreshToken(userEmail: string, refreshToken: string) {
+
+  private async compareRefreshTokenAndGetOldToken(userEmail: string, refreshToken: string) {
     const user = await this.usersService.findUserByEmail(userEmail);
     const token = await this.tokenService.findRefreshToken(user.id);
     if (token === null) {
       throw TokenException(TokenType.REFRESH, TokenExceptionType.UNDEFINED);
     }
 
-    return token.token === refreshToken;
+    if (token.token !== refreshToken) {
+      throw TokenException(TokenType.REFRESH, TokenExceptionType.INVALID_TOKEN);
+    }
+
+    return { oldToken: token, user };
   }
 }

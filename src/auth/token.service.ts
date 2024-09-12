@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { TokenRepository } from './token.repository';
 import { JwtService } from '@nestjs/jwt';
 import { RefreshToken } from './refresh-token.model';
+import { Token } from './vo/token';
 
 type TokenPayload = {
   email: string;
@@ -20,17 +21,15 @@ export class TokenService {
     private jwtService: JwtService,
   ) {}
 
-  async signAccessToken(email: string) {
-    return await this.signToken({ email }, '10s');
-  }
-
-  async signRefreshToken(email: string) {
-    return await this.signToken(
+  async getSignedToken(email: string, token: Token) {
+    const jwtToken = await this.signToken(
       {
         email,
       },
-      '10m',
+      token.expiresTime.timeInSec,
     );
+    token.token = jwtToken;
+    return token;
   }
 
   private async signToken(payload: TokenPayload, expiresIn: string) {
@@ -59,5 +58,13 @@ export class TokenService {
       return null;
     }
     return token[0];
+  }
+
+  async deleteStoredRefreshToken(tokenId: number) {
+    return await this.tokenRepository.deleteRefreshToken(tokenId);
+  }
+
+  async deleteAllStoredRefreshTokens(userId: number) {
+    return await this.tokenRepository.deleteAllRefreshTokens(userId);
   }
 }

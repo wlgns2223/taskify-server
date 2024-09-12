@@ -32,4 +32,14 @@ export class TokenRepository {
 
     return tokens;
   }
+
+  async deleteRefreshToken(tokenId: number) {
+    const query = `DELETE FROM refresh_tokens WHERE id = ?`;
+    await this.dbService.delete(query, [tokenId]);
+  }
+
+  async deleteAllRefreshTokens(userId: number) {
+    const query = `DELETE FROM refresh_tokens WHERE user_id = ?`;
+    await this.dbService.delete(query, [userId]);
+  }
 }

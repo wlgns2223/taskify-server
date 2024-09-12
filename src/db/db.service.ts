@@ -50,4 +50,9 @@ export class DBConnectionService implements OnModuleInit {
     const result = await this.query<T[]>(sql, values);
     return result;
   }
+
+  async delete(sql: string, values?: any) {
+    const result = await this.query<ResultSetHeader>(sql, values);
+    return result;
+  }
 }
