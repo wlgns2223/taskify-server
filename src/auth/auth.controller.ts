@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Logger, Post, Req, Res } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Logger, Param, Post, Req, Res } from '@nestjs/common';
 import { SignUpDto } from '../users/dto/createUser.dto';
 import { AuthService } from './auth.service';
 import { SignInDto } from './dto/signIn.dto';
@@ -6,8 +6,9 @@ import { CookieOptions, Response } from 'express';
 import { ConfigService } from '@nestjs/config';
 import { TokenFromReq } from './decorators/tokenFromReq.decorator';
 import { TokenType } from './types/type';
+import { appendTeamIdTo } from '../common/utils/routeGenerator';
 
-@Controller('auth')
+@Controller(appendTeamIdTo('auth'))
 export class AuthController {
   private logger = new Logger(AuthController.name);
   private cookieOptions: CookieOptions = {
@@ -23,14 +24,16 @@ export class AuthController {
   ) {}
 
   @Post('signup')
-  async signUp(@Body() signUpDto: SignUpDto) {
-    return await this.authService.signUp(signUpDto.email, signUpDto.nickname, signUpDto.password);
+  async signUp(@Body() signUpDto: SignUpDto, @Param('teamId') teamId: string) {
+    return await this.authService.signUp(signUpDto.email, signUpDto.nickname, signUpDto.password, teamId);
   }
 
   @Post('signIn')
   async signIn(@Res() res: Response, @Body() signInDto: SignInDto) {
     const { accessToken, refreshToken } = await this.authService.signIn(signInDto.email, signInDto.password);
     const { accessTokenName, refreshTokenName } = this.getTokenNames();
+
+    console.log({ accessToken });
 
     const accessTokenCookie = this.getCookiePayload(
       accessTokenName,

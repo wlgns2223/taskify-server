@@ -24,18 +24,18 @@ export class AuthService {
     const refreshTokenName = this.configService.get<string>('REFRESH_TOKEN_NAME');
 
     this.accessToken = new Token(accessTokenName, {
-      timeInSec: '10s',
+      timeInSec: '1h',
       timeInMs: 1000 * 10,
     });
 
     this.refreshToken = new Token(refreshTokenName, {
-      timeInSec: '10m',
+      timeInSec: '3h',
       timeInMs: 1000 * 60 * 10,
     });
   }
 
-  async signUp(email: string, nickname: string, password: string) {
-    return await this.usersService.createUser(email, nickname, password);
+  async signUp(email: string, nickname: string, password: string, teamId: string) {
+    return await this.usersService.createUser(email, nickname, password, teamId);
   }
 
   async signIn(email: string, password: string) {

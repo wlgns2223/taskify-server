@@ -5,18 +5,11 @@ import { JwtModule } from '@nestjs/jwt';
 import { TokenService } from './token.service';
 import { TokenRepository } from './token.repository';
 import { AuthService } from './auth.service';
+import { TokenModule } from '../token/token.module';
 
 @Module({
-  imports: [
-    UsersModule,
-    JwtModule.registerAsync({
-      useFactory: () => ({
-        global: true,
-        secret: 'secret',
-      }),
-    }),
-  ],
+  imports: [UsersModule, TokenModule],
   controllers: [AuthController],
-  providers: [AuthService, TokenService, TokenRepository],
+  providers: [AuthService],
 })
 export class AuthModule {}

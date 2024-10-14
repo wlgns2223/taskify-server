@@ -4,11 +4,11 @@ import { JwtService } from '@nestjs/jwt';
 import { RefreshToken } from './refresh-token.model';
 import { Token } from './vo/token';
 
-type TokenPayload = {
+type SignTokenPayload = {
   email: string;
 };
 
-export type VerifiedTokenPayLoad = {
+export type TokenPayload = {
   email: string;
   iat: number;
   exp: number;
@@ -32,7 +32,7 @@ export class TokenService {
     return token;
   }
 
-  private async signToken(payload: TokenPayload, expiresIn: string) {
+  private async signToken(payload: SignTokenPayload, expiresIn: string) {
     return await this.jwtService.signAsync(payload, {
       expiresIn,
     });
@@ -40,16 +40,16 @@ export class TokenService {
 
   async saveRefreshToken(userId: number, refreshToken: string) {
     const verified = await this.verifyToken(refreshToken);
-    const payload = new RefreshToken(
-      userId,
-      refreshToken,
-      verified.exp.toString(),
-    );
+    const payload = new RefreshToken(userId, refreshToken, verified.exp.toString());
     return await this.tokenRepository.saveRefreshToken(payload);
   }
 
-  async verifyToken(token: string): Promise<VerifiedTokenPayLoad> {
+  async verifyToken(token: string): Promise<TokenPayload> {
     return await this.jwtService.verifyAsync(token);
+  }
+
+  decodeToken(token: string): TokenPayload {
+    return this.jwtService.decode(token);
   }
 
   async findRefreshToken(userId: number): Promise<RefreshToken | null> {

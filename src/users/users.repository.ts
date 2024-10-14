@@ -1,8 +1,4 @@
-import {
-  Injectable,
-  InternalServerErrorException,
-  Logger,
-} from '@nestjs/common';
+import { Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
 import { DBConnectionService } from '../db/db.service';
 import { User } from './users.model';
 
@@ -30,13 +26,9 @@ export class UsersRepository {
   }
 
   async createUser(user: User) {
-    const query = `INSERT INTO users (email, nickname, password) VALUES (?, ?, ?)`;
+    const query = `INSERT INTO users (email, nickname, password, team_id) VALUES (?, ?, ?, ?)`;
 
-    const result = await this.dbService.insert(query, [
-      user.email,
-      user.nickname,
-      user.password,
-    ]);
+    const result = await this.dbService.insert(query, [user.email, user.nickname, user.password, user.teamId]);
 
     const insertedUser = await this.getData(result.insertId);
 

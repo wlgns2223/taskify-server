@@ -5,11 +5,13 @@ export class User {
   private _password: string;
   private _updatedAt: string;
   private _createdAt: string;
+  private _teamId: string;
 
   constructor(
     email: string,
     nickname: string,
     password: string,
+    teamId: string,
     id?: number,
     createdAt?: string,
     updatedAt?: string,
@@ -20,6 +22,11 @@ export class User {
     this._password = password;
     this._createdAt = createdAt;
     this._updatedAt = updatedAt;
+    this._teamId = teamId;
+  }
+
+  get teamId() {
+    return this._teamId;
   }
 
   get id() {
@@ -69,6 +76,10 @@ export class User {
     this._createdAt = createdAt;
   }
 
+  set teamId(teamId: string) {
+    this._teamId = teamId;
+  }
+
   toJSON() {
     return {
       id: this._id,
@@ -77,18 +88,12 @@ export class User {
       password: this._password,
       updatedAt: this._updatedAt,
       createdAt: this._createdAt,
+      teamId: this._teamId,
     };
   }
 
   static from(data: User): User {
-    return new User(
-      data.email,
-      data.nickname,
-      data.password,
-      data.id,
-      data.createdAt,
-      data.updatedAt,
-    );
+    return new User(data.email, data.nickname, data.password, data.teamId, data.id, data.createdAt, data.updatedAt);
   }
 
   public comparePassword(password: string): boolean {
