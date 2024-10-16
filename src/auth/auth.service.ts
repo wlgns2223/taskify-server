@@ -25,12 +25,12 @@ export class AuthService {
 
     this.accessToken = new Token(accessTokenName, {
       timeInSec: '1h',
-      timeInMs: 1000 * 10,
+      timeInMs: 1000 * 60 * 10,
     });
 
     this.refreshToken = new Token(refreshTokenName, {
       timeInSec: '3h',
-      timeInMs: 1000 * 60 * 10,
+      timeInMs: 1000 * 60 * 60 * 3,
     });
   }
 

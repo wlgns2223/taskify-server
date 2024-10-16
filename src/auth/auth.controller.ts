@@ -33,8 +33,6 @@ export class AuthController {
     const { accessToken, refreshToken } = await this.authService.signIn(signInDto.email, signInDto.password);
     const { accessTokenName, refreshTokenName } = this.getTokenNames();
 
-    console.log({ accessToken });
-
     const accessTokenCookie = this.getCookiePayload(
       accessTokenName,
       accessToken.token,
