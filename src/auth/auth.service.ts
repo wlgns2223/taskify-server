@@ -8,6 +8,7 @@ import { TokenExceptionType, TokenType } from './types/type';
 import { TokenException } from '../common/exceptions/auth.exception';
 import { ConfigService } from '@nestjs/config';
 import { Token } from './vo/token';
+import ms from 'ms';
 
 @Injectable()
 export class AuthService {
@@ -23,14 +24,17 @@ export class AuthService {
     const accessTokenName = this.configService.get<string>('ACCESS_TOKEN_NAME');
     const refreshTokenName = this.configService.get<string>('REFRESH_TOKEN_NAME');
 
+    const accessTokenTime = '1h';
+    const refreshTokenTime = '3h';
+
     this.accessToken = new Token(accessTokenName, {
-      timeInSec: '1h',
-      timeInMs: 1000 * 60 * 10,
+      timeInSec: accessTokenTime,
+      timeInMs: ms(accessTokenTime),
     });
 
     this.refreshToken = new Token(refreshTokenName, {
-      timeInSec: '3h',
-      timeInMs: 1000 * 60 * 60 * 3,
+      timeInSec: refreshTokenTime,
+      timeInMs: ms(refreshTokenTime),
     });
   }
 

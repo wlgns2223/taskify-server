@@ -100,4 +100,28 @@ export class AuthController {
       refreshTokenCookie,
     });
   }
+
+  @Get('client-renew')
+  async renewTokensFromClient(@TokenFromReq(TokenType.REFRESH) refreshToken: string, @Res() res: Response) {
+    const { accessToken, refreshToken: newRefreshToken } = await this.authService.renewToken(refreshToken);
+
+    const { accessTokenName, refreshTokenName } = this.getTokenNames();
+
+    const accessTokenCookie = this.getCookiePayload(
+      accessTokenName,
+      accessToken.token,
+      accessToken.expiresTime.timeInMs,
+    );
+
+    const refreshTokenCookie = this.getCookiePayload(
+      refreshTokenName,
+      newRefreshToken.token,
+      newRefreshToken.expiresTime.timeInMs,
+    );
+
+    res.cookie(accessTokenCookie.tokenName, accessTokenCookie.token, accessTokenCookie.cookieOptions);
+    res.cookie(refreshTokenCookie.tokenName, refreshTokenCookie.token, refreshTokenCookie.cookieOptions);
+
+    return res.json({ message: 'Successfully refreshed' });
+  }
 }
