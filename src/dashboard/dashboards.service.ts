@@ -1,9 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { DashboardsRepository } from './dashboards.repository';
+import { CursorPaginationDirection, DashboardsRepository } from './dashboards.repository';
 import { Dashboard } from './dashboards.model';
-import { JwtService } from '@nestjs/jwt';
 import { TokenService } from '../auth/token.service';
 import { UsersService } from '../users/users.service';
+import { ReadDashboardsDto } from './dto/readDashboards.dto';
+import { instanceToPlain } from 'class-transformer';
 
 @Injectable()
 export class DashboardsService {
@@ -19,5 +20,11 @@ export class DashboardsService {
     const user = await this.userService.findUserByEmail(decodedToken.email);
     const newDashboard = new Dashboard(title, color, user.id);
     return await this.dashBoardRepository.createDashboard(newDashboard);
+  }
+
+  async getDashboards(cursor: string, limit: string, direction: CursorPaginationDirection) {
+    const dashboards = await this.dashBoardRepository.getDashboards(cursor, limit, direction);
+    const dashboardsDto = new ReadDashboardsDto(dashboards);
+    return instanceToPlain(dashboardsDto);
   }
 }
