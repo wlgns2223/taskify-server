@@ -21,10 +21,11 @@ export class DashboardsController {
 
   @Get()
   async getDashboards(
-    @Query('cursor') cursor: string,
     @Query('limit') limit: string,
     @Query('direction') direction: CursorPaginationDirection,
+    @Query('cursor') cursor: string | undefined,
   ) {
-    return await this.dashBoardService.getDashboards(cursor, limit, direction);
+    const res = await this.dashBoardService.getDashboards(limit, direction, cursor);
+    return res;
   }
 }

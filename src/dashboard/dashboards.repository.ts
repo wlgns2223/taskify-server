@@ -27,7 +27,24 @@ export class DashboardsRepository {
     return insertedDashboard[0];
   }
 
-  async getDashboards(cursor: string, limit: string, direction: CursorPaginationDirection) {
+  async getFirstLastCursor() {
+    const firstCursorQuery = `SELECT id FROM dashboards ORDER BY id ASC LIMIT 1`;
+    const lastCursorQuery = `SELECT id FROM dashboards ORDER BY id DESC LIMIT 1`;
+    const firstCursor = await this.dbService.select<{ id: number }>(firstCursorQuery);
+    const lastCursor = await this.dbService.select<{ id: number }>(lastCursorQuery);
+    return {
+      firstCursor: firstCursor.length ? firstCursor[0].id : null,
+      lastCursor: lastCursor.length ? lastCursor[0].id : null,
+    };
+  }
+
+  async getTotalNumberOfDashboards() {
+    const query = `SELECT COUNT(*) as total FROM dashboards`;
+    const result = await this.dbService.select<{ total: number }>(query);
+    return result[0].total;
+  }
+
+  async getDashboards(cursor: string | undefined, limit: string, direction: CursorPaginationDirection) {
     const baseQuery = `
     SELECT id,title,color,owner_id as ownerId, created_at as createdAt, updated_at as updatedAt 
     FROM dashboards
@@ -38,7 +55,7 @@ export class DashboardsRepository {
 
     const query = direction === 'prev' ? `SELECT * FROM (${baseQuery}) AS subquery ORDER BY id ASC` : baseQuery;
 
-    const result = await this.dbService.select<Dashboard>(query, [cursor, limit]);
+    const result = await this.dbService.select<Dashboard>(query, [cursor ?? 0, limit]);
 
     return result;
   }

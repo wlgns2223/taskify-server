@@ -22,9 +22,11 @@ export class DashboardsService {
     return await this.dashBoardRepository.createDashboard(newDashboard);
   }
 
-  async getDashboards(cursor: string, limit: string, direction: CursorPaginationDirection) {
+  async getDashboards(limit: string, direction: CursorPaginationDirection, cursor: string | undefined) {
     const dashboards = await this.dashBoardRepository.getDashboards(cursor, limit, direction);
-    const dashboardsDto = new ReadDashboardsDto(dashboards);
+    const cursors = await this.dashBoardRepository.getFirstLastCursor();
+    const totalNumberOfDashboards = await this.dashBoardRepository.getTotalNumberOfDashboards();
+    const dashboardsDto = new ReadDashboardsDto(dashboards, cursors, totalNumberOfDashboards);
     return instanceToPlain(dashboardsDto);
   }
 }

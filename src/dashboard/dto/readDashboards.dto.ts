@@ -1,30 +1,56 @@
 import { Exclude, Expose } from 'class-transformer';
 import { Dashboard } from '../dashboards.model';
+import { CursorPaginationDirection } from '../dashboards.repository';
+import { match } from 'ts-pattern';
 
 export class ReadDashboardsDto {
   @Exclude()
-  private _cursor: number;
+  private _cursor: {
+    next: number;
+    prev: number;
+  };
 
   @Exclude()
-  private _numberOfDashboards: number;
+  private _totalNumberOfData: number;
 
   @Exclude()
   private _dashboards: Dashboard[];
 
-  constructor(dashboards: Dashboard[]) {
+  constructor(
+    dashboards: Dashboard[],
+    cursors: { firstCursor: number; lastCursor: number },
+    totalNumberOfData: number,
+  ) {
     this._dashboards = dashboards;
-    this._cursor = dashboards.length > 0 ? dashboards[dashboards.length - 1].id : null;
-    this._numberOfDashboards = dashboards.length;
+    this._totalNumberOfData = totalNumberOfData;
+
+    this._cursor = match(dashboards.length)
+      .with(0, () => ({
+        next: null,
+        prev: null,
+      }))
+      .otherwise(() => {
+        const isLastPage = dashboards[dashboards.length - 1].id === cursors.lastCursor;
+        const isFirstPage = dashboards[0].id === cursors.firstCursor;
+
+        return {
+          next: isLastPage ? null : dashboards[dashboards.length - 1].id,
+          prev: isFirstPage ? null : dashboards[0].id,
+        };
+      });
   }
 
   @Expose()
-  get cursor(): number {
+  get cursor(): {
+    next: number;
+    prev: number;
+  } {
     return this._cursor;
   }
 
   @Expose()
-  get numberOfDashboards(): number {
-    return this._numberOfDashboards;
+  get totalNumberOfData(): number {
+    return this._totalNumberOfData;
   }
 
   @Expose()

@@ -7,6 +7,7 @@ import { DBConnectionService } from './db/db.service';
 import { DBModule } from './db/db.module';
 import { AuthModule } from './auth/auth.module';
 import { DashboardsModule } from './dashboard/dashboards.module';
+import { ColumnsModule } from './columns/columns.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { DashboardsModule } from './dashboard/dashboards.module';
     DBModule,
     AuthModule,
     DashboardsModule,
+    ColumnsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
