@@ -1,11 +1,6 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import {
-  QueryResult,
-  ResultSetHeader,
-  createPool,
-  type Pool,
-} from 'mysql2/promise';
+import { QueryResult, ResultSetHeader, createPool, type Pool } from 'mysql2/promise';
 import { RowQueryResult } from './types';
 
 type Maybe<T> = T | undefined;
@@ -54,5 +49,26 @@ export class DBConnectionService implements OnModuleInit {
   async delete(sql: string, values?: any) {
     const result = await this.query<ResultSetHeader>(sql, values);
     return result;
+  }
+
+  async update(sql: string, values?: any) {
+    const result = await this.query<ResultSetHeader>(sql, values);
+    return result;
+  }
+
+  async transaction<T>(queries: () => T) {
+    const conn = await this.pool.getConnection();
+    await conn.beginTransaction();
+
+    try {
+      const result = await queries();
+      await conn.commit();
+      return result;
+    } catch (error) {
+      await conn.rollback();
+      throw new Error(error);
+    } finally {
+      conn.release();
+    }
   }
 }

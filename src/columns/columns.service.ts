@@ -11,4 +11,12 @@ export class ColumnsService {
     const newColumn = new Column({ ...columnDto });
     return await this.columnsRepository.createColumn(newColumn);
   }
+
+  async getColumnsByDashboardId(dashboardId: number) {
+    return await this.columnsRepository.getColumnsByDashboardId(dashboardId);
+  }
+
+  async swapColumnsPosition(dashboardId: number, from: number, to: number) {
+    return await this.columnsRepository.swapColumnsPosition(dashboardId, from, to);
+  }
 }
