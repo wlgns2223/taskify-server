@@ -20,7 +20,6 @@ export class ColumnsController {
 
   @Put('swap/:dashboardId')
   async swapColumnsPosition(@Param('dashboardId') dashboardId: string, @Body() swapColumnsDto: SwapColumnPositionDto) {
-    console.log(swapColumnsDto);
     return await this.columnsService.swapColumnsPosition(
       parseInt(dashboardId, 10),
       swapColumnsDto.from,
