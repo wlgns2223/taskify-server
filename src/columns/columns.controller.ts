@@ -1,8 +1,10 @@
-import { Body, Controller, Get, Param, Post, Put, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Query } from '@nestjs/common';
 import { appendTeamIdTo } from '../common/utils/routeGenerator';
 import { ColumnsService } from './columns.service';
 import { CreateColumnsDto } from './dto/createColumns.dto';
 import { SwapColumnPositionDto } from './dto/swapColumnPosition.dto';
+import { UpdateColumnsDto } from './dto/updateColumns.dto';
+import { Column } from './columns.model';
 
 @Controller(appendTeamIdTo('columns'))
 export class ColumnsController {
@@ -25,5 +27,15 @@ export class ColumnsController {
       swapColumnsDto.from,
       swapColumnsDto.to,
     );
+  }
+
+  @Put(':columnId')
+  async updateColumn(@Param('columnId') columnId: string, @Body() columnDto: Column) {
+    return await this.columnsService.updateColumn(columnId, columnDto);
+  }
+
+  @Delete(':columnId')
+  async deleteAndReorderColumns(@Param('columnId') columnId: string, @Query('dashboardId') dashboardId: number) {
+    return await this.columnsService.deleteAndReorderColumns(dashboardId, parseInt(columnId, 10));
   }
 }

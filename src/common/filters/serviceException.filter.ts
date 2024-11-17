@@ -1,10 +1,4 @@
-import {
-  ArgumentsHost,
-  Catch,
-  ExceptionFilter,
-  HttpException,
-  Logger,
-} from '@nestjs/common';
+import { ArgumentsHost, Catch, ExceptionFilter, HttpException, Logger } from '@nestjs/common';
 import { ServiceException } from '../exceptions/serviceException';
 import type { Request, Response } from 'express';
 import { AuthServiceException } from '../exceptions/auth.exception';
@@ -73,14 +67,11 @@ export class ServiceExceptionFilter implements ExceptionFilter {
     const headerBody = `Bearer realm=${realm},error=${
       this._exception.message
     },errorDescription=${JSON.stringify(this._exception.cause)}`;
-    return this._response
-      .status(this._exception.error.status)
-      .header(headerName, headerBody)
-      .json({
-        statusCode: this._exception.error.status,
-        message: this._exception.error.message,
-        path: this._request.url,
-      });
+    return this._response.status(this._exception.error.status).header(headerName, headerBody).json({
+      statusCode: this._exception.error.status,
+      message: this._exception.error.message,
+      path: this._request.url,
+    });
   }
 
   private handleServiceException() {

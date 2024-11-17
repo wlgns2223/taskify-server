@@ -64,4 +64,35 @@ export class ColumnsRepository {
 
     return await this.dbService.transaction(queries);
   }
+
+  async updateColumn(columnId: string, newColumn: Column) {
+    const query = `UPDATE columns SET name = ? WHERE id = ?`;
+    await this.dbService.update(query, [newColumn.name, columnId]);
+    const updatedColumn = await this.getData(newColumn.id);
+
+    return updatedColumn[0];
+  }
+
+  async deleteColumn(columnId: number) {
+    const query = `DELETE FROM columns WHERE id = ?`;
+    await this.dbService.delete(query, [columnId]);
+  }
+
+  async reorderColumns(dashboardId: number, position: number) {
+    const updateQuery = `
+      UPDATE columns
+      SET position = position - 1
+      WHERE dashboard_id = ? AND position > ?
+    `;
+    await this.dbService.update(updateQuery, [dashboardId, position]);
+  }
+
+  async deleteAndReorderColumns(dashboardId: number, columnId: number) {
+    const quries = async () => {
+      const column = await this.getData(columnId);
+      await this.deleteColumn(columnId);
+      await this.reorderColumns(dashboardId, column[0].position);
+    };
+    return await this.dbService.transaction(quries);
+  }
 }
