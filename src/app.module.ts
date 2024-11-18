@@ -8,6 +8,7 @@ import { DBModule } from './db/db.module';
 import { AuthModule } from './auth/auth.module';
 import { DashboardsModule } from './dashboard/dashboards.module';
 import { ColumnsModule } from './columns/columns.module';
+import { TodosModule } from './todos/todos.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { ColumnsModule } from './columns/columns.module';
     AuthModule,
     DashboardsModule,
     ColumnsModule,
+    TodosModule,
   ],
   controllers: [AppController],
   providers: [AppService],
