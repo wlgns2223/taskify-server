@@ -23,7 +23,7 @@ export class AuthController {
     private configService: ConfigService,
   ) {}
 
-  @Post('signup')
+  @Post('signUp')
   async signUp(@Body() signUpDto: SignUpDto, @Param('teamId') teamId: string) {
     return await this.authService.signUp(signUpDto.email, signUpDto.nickname, signUpDto.password, teamId);
   }

@@ -1,8 +1,6 @@
-import { Body, Controller, Get, Logger, Param, Post, Query } from '@nestjs/common';
+import { Controller, Get, Logger, Query } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UserMapper } from './dto/mapper.user';
-import { TokenFromReq } from '../auth/decorators/tokenFromReq.decorator';
-import { TokenType } from '../auth/types/type';
 import { TokenService } from '../auth/token.service';
 import { appendTeamIdTo } from '../common/utils/routeGenerator';
 
