@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { DBConnectionService } from '../db/db.service';
 import { Dashboard } from './dashboards.model';
+import { OffsetPaginationRequestDto } from './dto/offsetPagination.dto';
 
 export type CursorPaginationDirection = 'prev' | 'next';
 
@@ -9,20 +10,20 @@ export class DashboardsRepository {
   private logger = new Logger(DashboardsRepository.name);
   constructor(private dbService: DBConnectionService) {}
 
-  private async getData(id: number) {
+  private async getData<T>(id: number) {
     const query = `SELECT 
     id,title,color,owner_id as ownerId, created_at as createdAt, updated_at as updatedAt 
     FROM dashboards 
     WHERE id = ?`;
 
-    const result = await this.dbService.select(query, [id]);
+    const result = await this.dbService.select<T>(query, [id]);
     return result;
   }
 
   async createDashboard(dashBoard: Dashboard) {
     const query = `INSERT INTO dashboards (title, color, owner_id) VALUES (?, ?, ?)`;
     const result = await this.dbService.insert(query, [dashBoard.title, dashBoard.color, dashBoard.ownerId]);
-    const insertedDashboard = await this.getData(result.insertId);
+    const insertedDashboard = await this.getData<Dashboard>(result.insertId);
 
     return insertedDashboard[0];
   }
@@ -38,24 +39,42 @@ export class DashboardsRepository {
     };
   }
 
-  async getTotalNumberOfDashboards() {
-    const query = `SELECT COUNT(*) as total FROM dashboards`;
-    const result = await this.dbService.select<{ total: number }>(query);
+  async getTotalNumberOfDashboards(userId: number) {
+    const query = `
+    SELECT 
+    COUNT(*) as total
+    FROM members as M
+    JOIN dashboards as D ON D.id = M.dashboard_id
+    where M.member_id = ?
+    `;
+    const result = await this.dbService.select<{ total: number }>(query, [userId]);
     return result[0].total;
   }
 
-  async getDashboards(cursor: string | undefined, limit: string, direction: CursorPaginationDirection) {
-    const baseQuery = `
-    SELECT id,title,color,owner_id as ownerId, created_at as createdAt, updated_at as updatedAt 
-    FROM dashboards
-    WHERE id ${direction === 'next' ? '>' : '<'} ?
-    ORDER BY id ${direction === 'next' ? 'ASC' : 'DESC'}
-    LIMIT ?
-    `;
+  async getDashboards(offsetPaginationParam: {
+    offsetPaginationRequestDto: OffsetPaginationRequestDto;
+    userId: number;
+  }) {
+    const {
+      offsetPaginationRequestDto: { page, pageSize },
+      userId,
+    } = offsetPaginationParam;
+    const query = `
+    SELECT 
+    D.id as id,
+    D.title,
+    D.color,
+    D.owner_id as ownerId,
+    D.created_at as createdAt,
+    D.updated_at as updatedAt
+    FROM members as M
+    JOIN dashboards as D ON D.id = M.dashboard_id
+    WHERE M.member_id = ${userId}
+    ORDER BY D.id DESC
+    LIMIT ${pageSize} OFFSET ${(page - 1) * pageSize}
+  `;
 
-    const query = direction === 'prev' ? `SELECT * FROM (${baseQuery}) AS subquery ORDER BY id ASC` : baseQuery;
-
-    const result = await this.dbService.select<Dashboard>(query, [cursor ?? 0, limit]);
+    const result = await this.dbService.select<Dashboard>(query);
 
     return result;
   }

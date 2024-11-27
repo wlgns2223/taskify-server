@@ -5,10 +5,7 @@ import { match } from 'ts-pattern';
 
 export class ReadDashboardsDto {
   @Exclude()
-  private _cursor: {
-    next: number;
-    prev: number;
-  };
+  private _previousOffset: number;
 
   @Exclude()
   private _totalNumberOfData: number;
@@ -16,36 +13,15 @@ export class ReadDashboardsDto {
   @Exclude()
   private _dashboards: Dashboard[];
 
-  constructor(
-    dashboards: Dashboard[],
-    cursors: { firstCursor: number; lastCursor: number },
-    totalNumberOfData: number,
-  ) {
-    this._dashboards = dashboards;
-    this._totalNumberOfData = totalNumberOfData;
-
-    this._cursor = match(dashboards.length)
-      .with(0, () => ({
-        next: null,
-        prev: null,
-      }))
-      .otherwise(() => {
-        const isLastPage = dashboards[dashboards.length - 1].id === cursors.lastCursor;
-        const isFirstPage = dashboards[0].id === cursors.firstCursor;
-
-        return {
-          next: isLastPage ? null : dashboards[dashboards.length - 1].id,
-          prev: isFirstPage ? null : dashboards[0].id,
-        };
-      });
+  constructor(param: { dashboards: Dashboard[]; previousOffset: number; totalNumberOfData: number }) {
+    this._dashboards = param.dashboards;
+    this._totalNumberOfData = param.totalNumberOfData;
+    this._previousOffset = param.previousOffset;
   }
 
   @Expose()
-  get cursor(): {
-    next: number;
-    prev: number;
-  } {
-    return this._cursor;
+  get previousOffset(): number {
+    return this._previousOffset;
   }
 
   @Expose()

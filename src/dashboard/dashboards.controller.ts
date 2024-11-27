@@ -21,11 +21,14 @@ export class DashboardsController {
 
   @Get()
   async getDashboards(
-    @Query('limit') limit: string,
-    @Query('direction') direction: CursorPaginationDirection,
-    @Query('cursor') cursor: string | undefined,
+    @Query('page') page: string,
+    @Query('pageSize') pageSize: string,
+    @TokenFromReq(TokenType.ACCESS) accessToken: string,
   ) {
-    const res = await this.dashBoardService.getDashboards(limit, direction, cursor);
+    const res = await this.dashBoardService.getDashboards(
+      { page: parseInt(page, 10), pageSize: parseInt(pageSize, 10) },
+      accessToken,
+    );
     return res;
   }
 }
