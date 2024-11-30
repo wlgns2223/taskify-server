@@ -78,4 +78,15 @@ export class DashboardsRepository {
 
     return result;
   }
+
+  async getDashboardById(id: number) {
+    const query = `
+    SELECT 
+    id,title,color,owner_id as ownerId, created_at as createdAt, updated_at as updatedAt 
+    FROM dashboards 
+    WHERE id = ?
+  `;
+    const result = await this.dbService.select<Dashboard>(query, [id]);
+    return result[0];
+  }
 }

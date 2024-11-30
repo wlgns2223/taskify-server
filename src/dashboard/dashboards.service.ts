@@ -51,4 +51,8 @@ export class DashboardsService {
     });
     return instanceToPlain(offsetPaginationResponseDto);
   }
+
+  async getDashboardById(id: number) {
+    return await this.dashBoardRepository.getDashboardById(id);
+  }
 }

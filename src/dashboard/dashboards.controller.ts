@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Logger, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Logger, Param, Post, Query } from '@nestjs/common';
 import { appendTeamIdTo } from '../common/utils/routeGenerator';
 import { DashboardsService } from './dashboards.service';
 import { CreateDashBoardDto } from './dto/createDashBoard.dto';
@@ -30,5 +30,10 @@ export class DashboardsController {
       accessToken,
     );
     return res;
+  }
+
+  @Get(':id')
+  async getDashboardById(@Param('id') id: string) {
+    return await this.dashBoardService.getDashboardById(parseInt(id, 10));
   }
 }
