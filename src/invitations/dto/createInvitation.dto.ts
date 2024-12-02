@@ -14,4 +14,8 @@ export class CreateInvitationDto extends PickType(Invitation, ['dashboardId', 'i
   @IsNotEmpty()
   @IsNumber()
   dashboardId: number;
+
+  @IsNotEmpty()
+  @IsString()
+  title: string;
 }
