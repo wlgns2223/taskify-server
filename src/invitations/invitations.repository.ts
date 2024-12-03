@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { DBConnectionService } from '../db/db.service';
 import { Invitation } from './invitations.model';
+import { OffsetPaginationRequestDto } from '../dashboard/dto/offsetPagination.dto';
 
 @Injectable()
 export class InvitationsRepository {
@@ -37,18 +38,32 @@ export class InvitationsRepository {
     return insertedInvitation[0];
   }
 
-  async getInvitationsByEmail(email: string) {
+  async getTotalNumberOfInvitations(email: string) {
     const query = `
-      SELECT
-      I.id as id,
-      D.title as title,
-      U.nickname as nickname
-      FROM invitations AS I
-      JOIN dashboards AS D ON D.id = I.dashboard_id
-      JOIN users AS U ON U.id = I.inviter_id
-      WHERE I.status = "pending" AND I.invitee_email = ?;
-      `;
-    const result = await this.dbService.select(query, [email]);
+    SELECT COUNT(*) as total
+    FROM invitations
+    WHERE invitee_email = ?;
+    `;
+    const result = await this.dbService.select<{ total: number }>(query, [email]);
+    return result[0].total;
+  }
+
+  async getInvitationsByEmailWithPagination(offsetPaginationRequestDto: OffsetPaginationRequestDto, email: string) {
+    const { page, pageSize } = offsetPaginationRequestDto;
+    const query = `
+    SELECT 
+    I.id as id,
+    D.title as dashboardTitle,
+    U.nickname as inviterNickname,
+    I.created_at as createdAt
+    FROM invitations AS I
+    JOIN dashboards AS D ON D.id = I.dashboard_id
+    JOIN users AS U ON U.id = I.inviter_id
+    WHERE I.status = "pending" AND I.invitee_email = "${email}"
+    ORDER BY I.id DESC
+    LIMIT ${pageSize} OFFSET ${(page - 1) * pageSize}
+    `;
+    const result = await this.dbService.select(query);
     return result;
   }
 }

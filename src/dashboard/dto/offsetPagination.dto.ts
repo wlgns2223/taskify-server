@@ -1,4 +1,4 @@
-import { Exclude, Expose } from 'class-transformer';
+import { Exclude, Expose, Type } from 'class-transformer';
 import { IsInt, Min } from 'class-validator';
 
 export class OffsetPaginationResponseDto<T> {
@@ -50,9 +50,11 @@ export class OffsetPaginationResponseDto<T> {
 export class OffsetPaginationRequestDto {
   @IsInt()
   @Min(1)
+  @Type(() => Number)
   page: number;
 
   @IsInt()
   @Min(1)
+  @Type(() => Number)
   pageSize: number;
 }

@@ -4,7 +4,6 @@ import { DashboardsService } from './dashboards.service';
 import { CreateDashBoardDto } from './dto/createDashBoard.dto';
 import { TokenFromReq } from '../auth/decorators/tokenFromReq.decorator';
 import { TokenType } from '../auth/types/type';
-import { CursorPaginationDirection } from './dashboards.repository';
 
 @Controller(appendTeamIdTo('dashboards'))
 export class DashboardsController {
