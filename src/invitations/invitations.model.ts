@@ -1,4 +1,9 @@
 export type InvitationStatus = 'pending' | 'accepted' | 'declined';
+export enum InvitationStatusEnum {
+  PENDING = 'pending',
+  ACCEPTED = 'accepted',
+  DECLINED = 'declined',
+}
 
 export class Invitation {
   private _id: number;

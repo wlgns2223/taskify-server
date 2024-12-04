@@ -1,12 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { InvitationsRepository } from './invitations.repository';
 import { CreateInvitationDto } from './dto/createInvitation.dto';
-import { Invitation } from './invitations.model';
+import { Invitation, InvitationStatus } from './invitations.model';
 import { EmailService } from './email.service';
 import { TokenService } from '../auth/token.service';
 import { OffsetPaginationRequestDto, OffsetPaginationResponseDto } from '../dashboard/dto/offsetPagination.dto';
 import { UsersService } from '../users/users.service';
 import { instanceToPlain } from 'class-transformer';
+import { InvitationOffsetPaginationWithSearchRequestDto } from './dto/readhInvitation.dto';
 
 @Injectable()
 export class InvitationsService {
@@ -33,7 +34,7 @@ export class InvitationsService {
   }
 
   async getInvitationsByEmailWithPagination(
-    offsetPaginationRequestDto: OffsetPaginationRequestDto,
+    offsetPaginationRequestDto: InvitationOffsetPaginationWithSearchRequestDto,
     accessToken: string,
   ) {
     const decodedToken = this.tokenService.decodeToken(accessToken);
@@ -52,5 +53,9 @@ export class InvitationsService {
     });
 
     return instanceToPlain(offsetPaginationResponseDto);
+  }
+
+  async updateInvitationStatus(id: number, status: InvitationStatus) {
+    return await this.invitationRepository.updateInvitationStatus(id, status);
   }
 }

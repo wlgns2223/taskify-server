@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { DBConnectionService } from '../db/db.service';
-import { Invitation } from './invitations.model';
+import { Invitation, InvitationStatus } from './invitations.model';
 import { OffsetPaginationRequestDto } from '../dashboard/dto/offsetPagination.dto';
+import { InvitationOffsetPaginationWithSearchRequestDto } from './dto/readhInvitation.dto';
 
 @Injectable()
 export class InvitationsRepository {
@@ -48,9 +49,13 @@ export class InvitationsRepository {
     return result[0].total;
   }
 
-  async getInvitationsByEmailWithPagination(offsetPaginationRequestDto: OffsetPaginationRequestDto, email: string) {
-    const { page, pageSize } = offsetPaginationRequestDto;
-    const query = `
+  async getInvitationsByEmailWithPagination(
+    offsetPaginationRequestDto: InvitationOffsetPaginationWithSearchRequestDto,
+    email: string,
+  ) {
+    const { page, pageSize, search } = offsetPaginationRequestDto;
+    const param = [email];
+    let query = `
     SELECT 
     I.id as id,
     D.title as dashboardTitle,
@@ -59,11 +64,30 @@ export class InvitationsRepository {
     FROM invitations AS I
     JOIN dashboards AS D ON D.id = I.dashboard_id
     JOIN users AS U ON U.id = I.inviter_id
-    WHERE I.status = "pending" AND I.invitee_email = "${email}"
-    ORDER BY I.id DESC
-    LIMIT ${pageSize} OFFSET ${(page - 1) * pageSize}
+    WHERE I.status = "pending" AND I.invitee_email = ?
     `;
-    const result = await this.dbService.select(query);
+
+    if (search) {
+      query += ` AND D.title LIKE ?`;
+      param.push(`%${search}%`);
+    }
+
+    const offsetQuery = `
+    ORDER BY I.id DESC
+    LIMIT ? OFFSET ?`;
+
+    query += offsetQuery;
+    const offset = (page - 1) * pageSize;
+    param.push(pageSize.toString(), offset.toString());
+
+    const result = await this.dbService.select(query, param);
     return result;
+  }
+
+  async updateInvitationStatus(id: number, status: InvitationStatus) {
+    const query = `UPDATE invitations SET status = ? WHERE id = ?`;
+    await this.dbService.update(query, [status, id]);
+    const updatedInvitation = await this.getData(id);
+    return updatedInvitation[0];
   }
 }
