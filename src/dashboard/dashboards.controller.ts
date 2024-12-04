@@ -1,9 +1,10 @@
-import { Body, Controller, Get, Logger, Param, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Logger, Param, Post, Query, UsePipes, ValidationPipe } from '@nestjs/common';
 import { appendTeamIdTo } from '../common/utils/routeGenerator';
 import { DashboardsService } from './dashboards.service';
 import { CreateDashBoardDto } from './dto/createDashBoard.dto';
 import { TokenFromReq } from '../auth/decorators/tokenFromReq.decorator';
 import { TokenType } from '../auth/types/type';
+import { OffsetPaginationRequestDto } from './dto/offsetPagination.dto';
 
 @Controller(appendTeamIdTo('dashboards'))
 export class DashboardsController {
@@ -19,15 +20,12 @@ export class DashboardsController {
   }
 
   @Get()
+  @UsePipes(new ValidationPipe({ transform: true }))
   async getDashboards(
-    @Query('page') page: string,
-    @Query('pageSize') pageSize: string,
+    @Query() paginationQuery: OffsetPaginationRequestDto,
     @TokenFromReq(TokenType.ACCESS) accessToken: string,
   ) {
-    const res = await this.dashBoardService.getDashboards(
-      { page: parseInt(page, 10), pageSize: parseInt(pageSize, 10) },
-      accessToken,
-    );
+    const res = await this.dashBoardService.getDashboards(paginationQuery, accessToken);
     return res;
   }
 
