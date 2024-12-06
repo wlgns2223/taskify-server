@@ -8,15 +8,15 @@ import { OffsetPaginationResponseDto } from '../dashboard/dto/offsetPagination.d
 import { UsersService } from '../users/users.service';
 import { instanceToPlain } from 'class-transformer';
 import { InvitationOffsetPaginationWithSearchRequestDto } from './dto/readhInvitation.dto';
-import { MembersRepository } from '../dashboard/members.repository';
 import { DBConnectionService } from '../db/db.service';
-import { Member } from '../dashboard/members.model';
+import { Member } from '../members/members.model';
+import { MembersService } from '../members/members.service';
 
 @Injectable()
 export class InvitationsService {
   constructor(
     private invitationRepository: InvitationsRepository,
-    private memberRepository: MembersRepository,
+    private memberService: MembersService,
     private dbService: DBConnectionService,
     private emailService: EmailService,
     private tokenService: TokenService,
@@ -66,7 +66,7 @@ export class InvitationsService {
     const queries = async () => {
       const invitation = await this.invitationRepository.updateInvitationStatus(id, status);
       const newMember = new Member(invitation.dashboardId, user.id);
-      await this.memberRepository.createMember(newMember);
+      await this.memberService.createMember(newMember);
       return invitation;
     };
     return await this.dbService.transaction(queries);

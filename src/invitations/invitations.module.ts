@@ -5,11 +5,11 @@ import { InvitationsService } from './invitations.service';
 import { EmailService } from './email.service';
 import { TokenModule } from '../token/token.module';
 import { UsersModule } from '../users/users.module';
-import { MembersRepository } from '../dashboard/members.repository';
+import { MembersModule } from '../members/members.module';
 
 @Module({
-  imports: [TokenModule, UsersModule],
+  imports: [TokenModule, UsersModule, MembersModule],
   controllers: [InvitationsController],
-  providers: [InvitationsRepository, InvitationsService, EmailService, MembersRepository],
+  providers: [InvitationsRepository, InvitationsService, EmailService],
 })
 export class InvitationsModule {}
