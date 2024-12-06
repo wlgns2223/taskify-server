@@ -3,6 +3,7 @@ import { DBConnectionService } from '../db/db.service';
 import { Invitation, InvitationStatus } from './invitations.model';
 import { OffsetPaginationRequestDto } from '../dashboard/dto/offsetPagination.dto';
 import { InvitationOffsetPaginationWithSearchRequestDto } from './dto/readhInvitation.dto';
+import { InvitationDto } from './dto/invitation.dto';
 
 @Injectable()
 export class InvitationsRepository {
@@ -60,6 +61,7 @@ export class InvitationsRepository {
     I.id as id,
     D.title as dashboardTitle,
     U.nickname as inviterNickname,
+    I.status,
     I.created_at as createdAt
     FROM invitations AS I
     JOIN dashboards AS D ON D.id = I.dashboard_id
@@ -80,7 +82,7 @@ export class InvitationsRepository {
     const offset = (page - 1) * pageSize;
     param.push(pageSize.toString(), offset.toString());
 
-    const result = await this.dbService.select(query, param);
+    const result = await this.dbService.select<InvitationDto>(query, param);
     return result;
   }
 

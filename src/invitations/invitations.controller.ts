@@ -27,7 +27,11 @@ export class InvitationsController {
 
   @Put(':id')
   @UsePipes(new ValidationPipe({ transform: true }))
-  async updateInvitationStatus(@Param('id', ParseIntPipe) id: number, @Body() body: UpdateInvitationDto) {
-    return await this.invitationService.updateInvitationStatus(id, body.status);
+  async updateInvitationStatus(
+    @Param('id', ParseIntPipe) dashboardId: number,
+    @Body() body: UpdateInvitationDto,
+    @TokenFromReq(TokenType.ACCESS) accessToken: string,
+  ) {
+    return await this.invitationService.updateInvitationStatus(dashboardId, body.status, accessToken);
   }
 }

@@ -4,15 +4,20 @@ import { CreateInvitationDto } from './dto/createInvitation.dto';
 import { Invitation, InvitationStatus } from './invitations.model';
 import { EmailService } from './email.service';
 import { TokenService } from '../auth/token.service';
-import { OffsetPaginationRequestDto, OffsetPaginationResponseDto } from '../dashboard/dto/offsetPagination.dto';
+import { OffsetPaginationResponseDto } from '../dashboard/dto/offsetPagination.dto';
 import { UsersService } from '../users/users.service';
 import { instanceToPlain } from 'class-transformer';
 import { InvitationOffsetPaginationWithSearchRequestDto } from './dto/readhInvitation.dto';
+import { MembersRepository } from '../dashboard/members.repository';
+import { DBConnectionService } from '../db/db.service';
+import { Member } from '../dashboard/members.model';
 
 @Injectable()
 export class InvitationsService {
   constructor(
     private invitationRepository: InvitationsRepository,
+    private memberRepository: MembersRepository,
+    private dbService: DBConnectionService,
     private emailService: EmailService,
     private tokenService: TokenService,
     private usersService: UsersService,
@@ -55,7 +60,15 @@ export class InvitationsService {
     return instanceToPlain(offsetPaginationResponseDto);
   }
 
-  async updateInvitationStatus(id: number, status: InvitationStatus) {
-    return await this.invitationRepository.updateInvitationStatus(id, status);
+  async updateInvitationStatus(id: number, status: InvitationStatus, accessToken: string) {
+    const decodedToken = this.tokenService.decodeToken(accessToken);
+    const user = await this.usersService.findUserByEmail(decodedToken.email);
+    const queries = async () => {
+      const invitation = await this.invitationRepository.updateInvitationStatus(id, status);
+      const newMember = new Member(invitation.dashboardId, user.id);
+      await this.memberRepository.createMember(newMember);
+      return invitation;
+    };
+    return await this.dbService.transaction(queries);
   }
 }
