@@ -44,7 +44,7 @@ export class InvitationsRepository {
     const query = `
     SELECT COUNT(*) as total
     FROM invitations
-    WHERE invitee_email = ?;
+    WHERE status='pending' and invitee_email = ?;
     `;
     const result = await this.dbService.select<{ total: number }>(query, [email]);
     return result[0].total;

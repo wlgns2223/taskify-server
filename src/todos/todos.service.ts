@@ -8,8 +8,9 @@ export class TodosService {
   constructor(private todosRepository: TodosRepository) {}
 
   async createTodo(createTodoDto: CreateTodoDto) {
+    const { imageFile, ...rest } = createTodoDto;
     const newTodo = new Todo({
-      ...createTodoDto,
+      ...rest,
     });
     return await this.todosRepository.createTodo(newTodo);
   }

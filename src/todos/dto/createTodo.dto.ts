@@ -34,5 +34,5 @@ export class CreateTodoDto {
   position: number;
 
   @IsOptional()
-  imageUrl?: string;
+  imageFile?: File;
 }

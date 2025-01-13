@@ -64,14 +64,16 @@ export class ServiceExceptionFilter implements ExceptionFilter {
     const tokenType = authError.tokenType;
     const realm = tokenType === 'access' ? 'ACCESS_TOKEN' : 'REFRESH_TOKEN';
     const headerName = 'WWW-Authenticate';
-    const headerBody = `Bearer realm=${realm},error=${
+    const headerBody = `Bearer realm=${realm};error=${
       this._exception.message
     },errorDescription=${JSON.stringify(this._exception.cause)}`;
-    return this._response.status(this._exception.error.status).header(headerName, headerBody).json({
-      statusCode: this._exception.error.status,
+
+    const body: ExceptionResponseBody = {
       message: this._exception.error.message,
       path: this._request.url,
-    });
+    };
+
+    return this._response.status(this._exception.error.status).header(headerName, headerBody).json(body);
   }
 
   private handleServiceException() {

@@ -72,8 +72,12 @@ export class AuthService {
     } catch (e) {
       this.logger.error(e);
       this.logger.error(`${tokenType} : ${token} is invalid or expired`);
+
+      // TokenExpiredError: jwt expired
       if (e instanceof TokenExpiredError) {
         throw TokenException(tokenType, TokenExceptionType.EXPIRED);
+
+        // Invalid Token Error
       } else if (e instanceof JsonWebTokenError) {
         throw TokenException(tokenType, TokenExceptionType.INVALID_TOKEN);
       } else {
