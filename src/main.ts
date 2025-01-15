@@ -1,6 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { Logger } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import { ServiceExceptionFilter } from './common/filters/serviceException.filter';
 import cookieParser from 'cookie-parser';
 
@@ -13,6 +13,12 @@ async function bootstrap() {
     origin: 'http://localhost:3000',
   });
   app.use(cookieParser());
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      transform: true,
+    }),
+  );
   app.useGlobalFilters(new ServiceExceptionFilter());
   app.setGlobalPrefix('api');
 

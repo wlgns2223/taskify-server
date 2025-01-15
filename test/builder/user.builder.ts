@@ -3,14 +3,7 @@ import { User } from '../../src/users/users.model';
 export class UserBuilder {
   #user: User;
   constructor() {
-    this.#user = new User(
-      'fakeEmail',
-      'fakeNickName',
-      'fakePassword',
-      1,
-      'fakeCreatedAt',
-      'fakeUpdatedAt',
-    );
+    this.#user = new User('fakeEmail', 'fakeNickName', 'fakePassword', 'fakeTeamId', 1, 'fakeUpdatedAt');
   }
 
   withEmail(email: string): UserBuilder {

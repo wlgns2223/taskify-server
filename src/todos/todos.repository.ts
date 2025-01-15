@@ -23,7 +23,7 @@ export class TodosRepository {
         FROM todos 
         WHERE id = ?`;
 
-    const result = await this.dbService.select(query, [id]);
+    const result = await this.dbService.select<Todo>(query, [id]);
     return result;
   }
 

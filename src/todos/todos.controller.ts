@@ -11,10 +11,8 @@ export class TodosController {
   @Post()
   @UseInterceptors(FileInterceptor('imageFile'))
   async createTodo(@UploadedFile() file: Express.Multer.File, @Body() createTodoDto: CreateTodoDto) {
-    // return await this.todosService.createTodo(createTodoDto);
-    console.log({ file, createTodoDto });
-
-    return '1';
+    console.log({ createTodoDto });
+    return await this.todosService.createTodo(file, createTodoDto);
   }
 
   @Get()

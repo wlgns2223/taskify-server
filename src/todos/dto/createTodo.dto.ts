@@ -1,20 +1,25 @@
-import { IsInt, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsDate, IsInt, IsNotEmpty, IsString } from 'class-validator';
 
 export class CreateTodoDto {
   @IsInt()
   @IsNotEmpty()
+  @Type(() => Number)
   assigneeUserId: number;
 
   @IsInt()
   @IsNotEmpty()
+  @Type(() => Number)
   assignerUserId: number;
 
   @IsInt()
   @IsNotEmpty()
+  @Type(() => Number)
   dashboardId: number;
 
   @IsInt()
   @IsNotEmpty()
+  @Type(() => Number)
   columnId: number;
 
   @IsString()
@@ -25,14 +30,13 @@ export class CreateTodoDto {
   @IsNotEmpty()
   content: string;
 
-  @IsString()
+  @IsDate()
   @IsNotEmpty()
-  dueDate: string;
+  @Type(() => Date)
+  dueDate: Date;
 
   @IsInt()
   @IsNotEmpty()
+  @Type(() => Number)
   position: number;
-
-  @IsOptional()
-  imageFile?: File;
 }

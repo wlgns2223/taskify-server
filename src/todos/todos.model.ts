@@ -6,7 +6,7 @@ export class Todo {
   private _columnId: number;
   private _title: string;
   private _content: string;
-  private _dueDate: string;
+  private _dueDate: Date;
   private _imageUrl: string;
   private _position: number;
   private _createdAt: string;
@@ -19,7 +19,7 @@ export class Todo {
     columnId: number;
     title: string;
     content: string;
-    dueDate: string;
+    dueDate: Date;
     position: number;
     id?: number;
     imageUrl?: string;
@@ -116,7 +116,7 @@ export class Todo {
     this._content = content;
   }
 
-  set dueDate(dueDate: string) {
+  set dueDate(dueDate: Date) {
     this._dueDate = dueDate;
   }
 

@@ -1,18 +1,9 @@
-import {
-  HttpCode,
-  HttpStatus,
-  InternalServerErrorException,
-} from '@nestjs/common';
+import { HttpCode, HttpStatus, InternalServerErrorException } from '@nestjs/common';
 import { ServiceException } from './serviceException';
-import {
-  DATA_ALREADY_EXISTS,
-  DATA_NOT_FOUND,
-  INVALID_INPUT,
-  UNAUTHORIZED,
-} from './errors';
+import { DATA_ALREADY_EXISTS, DATA_NOT_FOUND, INTERNAL_SERVER_ERROR, INVALID_INPUT, UNAUTHORIZED } from './errors';
 
-export const DatabaseError = (query?: string) => {
-  return new InternalServerErrorException(`Database Error: ${query}`);
+export const InternalServerException = (message?: string) => {
+  return new InternalServerErrorException(INTERNAL_SERVER_ERROR, message);
 };
 
 export const EntityNotFoundException = (message?: string) => {
