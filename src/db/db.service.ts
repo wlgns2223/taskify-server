@@ -66,7 +66,7 @@ export class DBConnectionService implements OnModuleInit {
       return result;
     } catch (error) {
       await conn.rollback();
-      throw new Error(error);
+      throw error;
     } finally {
       conn.release();
     }

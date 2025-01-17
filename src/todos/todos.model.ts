@@ -1,3 +1,20 @@
+import { instanceToPlain, plainToInstance } from 'class-transformer';
+
+type TTodo = {
+  id?: number;
+  assigneeUserId: number;
+  assignerUserId: number;
+  dashboardId: number;
+  columnId: number;
+  title: string;
+  content: string;
+  dueDate: Date;
+  imageUrl?: string;
+  position: number;
+  createdAt?: string;
+  updatedAt?: string;
+};
+
 export class Todo {
   private _id: number;
   private _assigneeUserId: number;
@@ -12,20 +29,7 @@ export class Todo {
   private _createdAt: string;
   private _updatedAt: string;
 
-  constructor(param: {
-    assigneeUserId: number;
-    assignerUserId: number;
-    dashboardId: number;
-    columnId: number;
-    title: string;
-    content: string;
-    dueDate: Date;
-    position: number;
-    id?: number;
-    imageUrl?: string;
-    createdAt?: string;
-    updatedAt?: string;
-  }) {
+  constructor(param: TTodo) {
     this._id = param.id;
     this._assigneeUserId = param.assigneeUserId;
     this._assignerUserId = param.assignerUserId;
@@ -137,19 +141,24 @@ export class Todo {
   }
 
   toJSON() {
-    return {
-      id: this.id,
-      assigneeUserId: this.assigneeUserId,
-      assignerUserId: this.assignerUserId,
-      dashboardId: this.dashboardId,
-      columnId: this.columnId,
-      title: this.title,
-      content: this.content,
-      dueDate: this.dueDate,
-      imageUrl: this.imageUrl,
-      position: this.position,
-      createdAt: this.createdAt,
-      updatedAt: this.updatedAt,
-    };
+    // return {
+    //   id: this.id,
+    //   assigneeUserId: this.assigneeUserId,
+    //   assignerUserId: this.assignerUserId,
+    //   dashboardId: this.dashboardId,
+    //   columnId: this.columnId,
+    //   title: this.title,
+    //   content: this.content,
+    //   dueDate: this.dueDate,
+    //   imageUrl: this.imageUrl,
+    //   position: this.position,
+    //   createdAt: this.createdAt,
+    //   updatedAt: this.updatedAt,
+    // };
+    return instanceToPlain(this);
+  }
+
+  static from(data: TTodo) {
+    return new Todo(data);
   }
 }

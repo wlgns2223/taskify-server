@@ -46,7 +46,7 @@ export class TodosRepository {
     ]);
     const insertedTodo = await this.getData(result.insertId);
 
-    return insertedTodo[0];
+    return Todo.from(insertedTodo[0]);
   }
 
   async getTodosByColumnId(columnId: string) {
