@@ -1,16 +1,12 @@
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { QueryResult, ResultSetHeader, createPool, type Pool } from 'mysql2/promise';
-import { RowQueryResult } from './types';
-
-type Maybe<T> = T | undefined;
+import { ResultSetHeader, createPool, type Pool } from 'mysql2/promise';
 
 @Injectable()
-export class DBConnectionService implements OnModuleInit {
+export class DBConnectionService {
   private pool: Pool;
   private readonly logger = new Logger(DBConnectionService.name);
-  constructor(private configService: ConfigService) {}
-  async onModuleInit() {
+  constructor(private configService: ConfigService) {
     this.pool = createPool({
       host: this.configService.get('DB_HOST'),
       user: this.configService.get('DB_USERNAME'),

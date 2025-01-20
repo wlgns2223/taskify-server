@@ -1,10 +1,13 @@
 import { Module } from '@nestjs/common';
-import { TagRepository } from './tag.repository';
-import { TodoTagRepository } from './todo-tags.repository';
+import { TagServiceProvider } from './service';
+import { TodoTagRepositoryProvider } from './todo-tags/repository';
+import { TagRepositoryProvider } from './repository';
+import { TodoTagServiceProvider } from './todo-tags/service';
 
 @Module({
   imports: [],
   controllers: [],
-  providers: [TagRepository, TodoTagRepository],
+  providers: [TagServiceProvider, TodoTagServiceProvider, TagRepositoryProvider, TodoTagRepositoryProvider],
+  exports: [TagServiceProvider, TodoTagServiceProvider],
 })
 export class TagModule {}

@@ -2,13 +2,19 @@ import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { InternalServerException } from '../common/exceptions/exceptions';
+import { StorageService } from './storage.provider';
 
 type ImgUrl = string;
+export interface S3Params {
+  file: Express.Multer.File;
+  email: string;
+}
+
 @Injectable()
-export class S3Service {
+export class S3ServiceImpl implements StorageService<S3Params> {
   private readonly s3Client: S3Client;
   private readonly bucketName: string;
-  private folderName: string;
+  private readonly folderName: string;
 
   constructor(private configService: ConfigService) {
     this.s3Client = new S3Client({
@@ -22,7 +28,7 @@ export class S3Service {
     this.folderName = this.configService.get('S3_FOLDER_NAME');
   }
 
-  generatePublicUrl(key: string) {
+  private generatePublicUrl(key: string) {
     const region = this.configService.get('AWS_REGION');
     const encodedKey = encodeURIComponent(key);
     return `https://${this.bucketName}.s3.${region}.amazonaws.com/${encodedKey}`;
@@ -32,8 +38,9 @@ export class S3Service {
     return `${param.folderName}/${param.userEmail}/${Date.now()}-${param.originalname}`;
   }
 
-  async updateOne(file: Express.Multer.File, userEmail: string): Promise<ImgUrl> {
-    const key = this.generateKey({ folderName: this.folderName, userEmail, originalname: file.originalname });
+  async uploadOne(param: S3Params): Promise<ImgUrl> {
+    const { email, file } = param;
+    const key = this.generateKey({ folderName: this.folderName, userEmail: email, originalname: file.originalname });
 
     const command = new PutObjectCommand({
       Bucket: this.bucketName,

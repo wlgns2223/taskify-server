@@ -1,10 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { DBConnectionService } from '../db/db.service';
-import { Tag } from './tag.model';
+import { DBConnectionService } from '../../db/db.service';
+import { Tag } from '../tag.model';
+import { TagRepository } from './tag.provider';
 
 @Injectable()
-export class TagRepository {
-  constructor(private dbService: DBConnectionService) {}
+export class TagRepositoryImpl implements TagRepository {
+  constructor(private readonly dbService: DBConnectionService) {}
 
   private async getData(id: number) {
     const query = `
@@ -17,7 +18,7 @@ export class TagRepository {
     return result;
   }
 
-  async createTag(newTag: Tag) {
+  async create(newTag: Tag) {
     const query = `
       INSERT INTO tags (tag)
       VALUES (?)

@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { DBConnectionService } from '../db/db.service';
-import { TodoTag } from './todo-tags.model';
+import { TodoTag } from '../todo-tags.model';
+import { DBConnectionService } from '../../../db/db.service';
+import { TodoTagRepository } from './todo-tag.provider';
 
 @Injectable()
-export class TodoTagRepository {
+export class TodoTagRepositoryImpl implements TodoTagRepository {
   constructor(private dbService: DBConnectionService) {}
 
   private async getData(id: number) {
@@ -17,7 +18,7 @@ export class TodoTagRepository {
     return result;
   }
 
-  async createTodoTag(newTodoTag: TodoTag) {
+  async create(newTodoTag: TodoTag) {
     const query = `
                 INSERT INTO todo_tags (todo_id, tag_id)
                 VALUES (?, ?)

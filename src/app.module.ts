@@ -10,7 +10,7 @@ import { ColumnsModule } from './columns/columns.module';
 import { TodosModule } from './todos/todos.module';
 import { InvitationsModule } from './invitations/invitations.module';
 import { MembersModule } from './members/members.module';
-import { AWSModule } from './aws/aws.module';
+import { StorageModule } from './storage/storage.module';
 
 @Module({
   imports: [
@@ -25,7 +25,7 @@ import { AWSModule } from './aws/aws.module';
     TodosModule,
     InvitationsModule,
     MembersModule,
-    AWSModule,
+    StorageModule,
   ],
   controllers: [AppController],
   providers: [AppService],
