@@ -1,10 +1,10 @@
 import { Body, Controller, Get, Param, Post, Query, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { appendTeamIdTo } from '../common/utils/routeGenerator';
-import { TodosService } from './todos.service';
 import { CreateTodoDto } from './dto/createTodo.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { TokenFromReq } from '../auth/decorators/tokenFromReq.decorator';
 import { TokenType } from '../auth/types/type';
+import { TodosService } from './service/todo.provider';
 
 @Controller(appendTeamIdTo('todos'))
 export class TodosController {
@@ -13,15 +13,15 @@ export class TodosController {
   @Post()
   @UseInterceptors(FileInterceptor('imageFile'))
   async createTodo(
-    @UploadedFile() file: Express.Multer.File,
     @TokenFromReq(TokenType.ACCESS) accessToken: string,
     @Body() createTodoDto: CreateTodoDto,
+    @UploadedFile() file?: Express.Multer.File,
   ) {
-    return await this.todosService.createTodo(accessToken, file, createTodoDto);
+    return await this.todosService.create(accessToken, createTodoDto, file);
   }
 
   @Get()
   async getTodosByColumnId(@Query('columnId') columnId: string) {
-    return await this.todosService.getTodosByColumnId(columnId);
+    return await this.todosService.findManyBy(columnId);
   }
 }

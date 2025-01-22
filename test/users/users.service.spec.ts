@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UsersService } from '../../src/users/users.service';
-import { UsersRepository } from '../../src/users/users.repository';
+import { UsersRepository } from '../../src/users/repository/users.repositoryImpl';
 import { User } from '../../src/users/users.model';
 import { UserDto } from '../../src/users/dto/user.dto';
 import { ServiceException } from '../../src/common/exceptions/serviceException';
@@ -51,14 +51,7 @@ describe('users uservice', () => {
     const fakeId = 1;
     const fakeDate = mockDate.toISOString();
 
-    const user = new User(
-      fakeEmail,
-      fakeNickName,
-      fakePassword,
-      fakeId,
-      fakeDate,
-      fakeDate,
-    );
+    const user = new User(fakeEmail, fakeNickName, fakePassword, fakeId, fakeDate, fakeDate);
 
     const expectedDto: UserDtoInstanceType = {
       id: fakeId,
@@ -75,14 +68,7 @@ describe('users uservice', () => {
 
   it('should find an user by email and return the found user', async () => {
     const fakeEmail = 'test@gmail.com';
-    const user = new User(
-      fakeEmail,
-      'fakeNickname',
-      'fakePassword',
-      1,
-      mockDate.toISOString(),
-      mockDate.toISOString(),
-    );
+    const user = new User(fakeEmail, 'fakeNickname', 'fakePassword', 1, mockDate.toISOString(), mockDate.toISOString());
 
     const expected = UserMapper.toDto(user);
 
@@ -99,9 +85,7 @@ describe('users uservice', () => {
     const fakeEmail = 'test@gmail.com';
     findUserByEmailMock.mockResolvedValue([]);
 
-    await expect(usersService.findUserByEmail(fakeEmail)).rejects.toThrow(
-      ServiceException,
-    );
+    await expect(usersService.findUserByEmail(fakeEmail)).rejects.toThrow(ServiceException);
     expect(findUserByEmailMock).toHaveBeenCalledWith(fakeEmail);
   });
 
@@ -132,11 +116,7 @@ describe('users uservice', () => {
     const toDtoSpy = jest.spyOn(UserMapper, 'toDto');
     toDtoSpy.mockReturnValue(expected as UserDto);
 
-    const result = await usersService.createUser(
-      fakeNewUser.email,
-      fakeNewUser.nickname,
-      fakeNewUser.password,
-    );
+    const result = await usersService.createUser(fakeNewUser.email, fakeNewUser.nickname, fakeNewUser.password);
 
     expect(result).toEqual(expected);
     expect(createUserMock).toHaveBeenCalledWith(expect.any(User));
@@ -152,8 +132,6 @@ describe('users uservice', () => {
     const someUser = new User(fakeEmail, someNickname, somePassword);
     findUserByEmailMock.mockResolvedValue([someUser]);
 
-    await expect(
-      usersService.createUser(fakeEmail, fakeNickname, fakePassword),
-    ).rejects.toThrow(ServiceException);
+    await expect(usersService.createUser(fakeEmail, fakeNickname, fakePassword)).rejects.toThrow(ServiceException);
   });
 });

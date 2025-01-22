@@ -28,4 +28,15 @@ export class TagRepositoryImpl implements TagRepository {
 
     return Tag.from(insertedTag[0]);
   }
+
+  async find(tag: string) {
+    const query = `
+      SELECT id, tag, created_at as createdAt
+      FROM tags
+      WHERE tag = ?
+    `;
+
+    const result = await this.dbService.select<Tag>(query, [tag]);
+    return result && result.length > 0 ? Tag.from(result[0]) : null;
+  }
 }

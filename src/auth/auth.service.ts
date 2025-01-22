@@ -24,6 +24,10 @@ export class AuthService {
     const accessTokenName = this.configService.get<string>('ACCESS_TOKEN_NAME');
     const refreshTokenName = this.configService.get<string>('REFRESH_TOKEN_NAME');
 
+    if (!accessTokenName || !refreshTokenName) {
+      throw InvalidInputException('Token name is not defined');
+    }
+
     const accessTokenTime = '1h';
     const refreshTokenTime = '3h';
 
@@ -44,7 +48,7 @@ export class AuthService {
 
   async signIn(email: string, password: string) {
     const found = await this.usersService.findUserByEmail(email);
-    const user = User.from(found);
+    const user = User.from(User, found);
     const result = user.comparePassword(password);
 
     if (!result) {

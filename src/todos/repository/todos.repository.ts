@@ -1,9 +1,10 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { DBConnectionService } from '../db/db.service';
-import { Todo } from './todos.model';
+import { Injectable } from '@nestjs/common';
+import { DBConnectionService } from '../../db/db.service';
+import { Todo } from '../todos.model';
+import { TodosRepository } from './todos.provider';
 
 @Injectable()
-export class TodosRepository {
+export class TodosRepositoryImpl implements TodosRepository {
   constructor(private dbService: DBConnectionService) {}
 
   private async getData(id: number) {
@@ -27,7 +28,7 @@ export class TodosRepository {
     return result;
   }
 
-  async createTodo(newTodo: Todo) {
+  async create(newTodo: Todo) {
     const query = `
 
     insert into todos (assignee_user_id, assigner_user_id, dashboard_id, column_id, title, content, due_date, image_url, position)
@@ -46,10 +47,10 @@ export class TodosRepository {
     ]);
     const insertedTodo = await this.getData(result.insertId);
 
-    return Todo.from(insertedTodo[0]);
+    return Todo.from(Todo, insertedTodo[0]);
   }
 
-  async getTodosByColumnId(columnId: string) {
+  async findManyBy(columnId: string) {
     const query = `SELECT 
         id, 
         assignee_user_id as asigneeUserId,
@@ -66,7 +67,8 @@ export class TodosRepository {
         FROM todos 
         WHERE column_id = ?`;
 
-    const result = await this.dbService.select(query, [columnId]);
-    return result;
+    const result = await this.dbService.select<Todo>(query, [columnId]);
+
+    return result.map((todo) => Todo.from(Todo, todo));
   }
 }

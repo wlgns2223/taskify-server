@@ -1,7 +1,6 @@
-import { instanceToPlain, plainToInstance } from 'class-transformer';
+import { BaseModel, BaseModelProperties } from '../common/model';
 
-type TTodo = {
-  id?: number;
+export interface TodoProperties extends BaseModelProperties {
   assigneeUserId: number;
   assignerUserId: number;
   dashboardId: number;
@@ -11,12 +10,9 @@ type TTodo = {
   dueDate: Date;
   imageUrl?: string;
   position: number;
-  createdAt?: string;
-  updatedAt?: string;
-};
+}
 
-export class Todo {
-  private _id: number;
+export class Todo extends BaseModel implements TodoProperties {
   private _assigneeUserId: number;
   private _assignerUserId: number;
   private _dashboardId: number;
@@ -24,13 +20,15 @@ export class Todo {
   private _title: string;
   private _content: string;
   private _dueDate: Date;
-  private _imageUrl: string;
+  private _imageUrl?: string;
   private _position: number;
-  private _createdAt: string;
-  private _updatedAt: string;
 
-  constructor(param: TTodo) {
-    this._id = param.id;
+  constructor(param: TodoProperties) {
+    super({
+      id: param.id,
+      createdAt: param.createdAt,
+      updatedAt: param.updatedAt,
+    });
     this._assigneeUserId = param.assigneeUserId;
     this._assignerUserId = param.assignerUserId;
     this._dashboardId = param.dashboardId;
@@ -40,12 +38,6 @@ export class Todo {
     this._dueDate = param.dueDate;
     this._imageUrl = param.imageUrl;
     this._position = param.position;
-    this._createdAt = param.createdAt;
-    this._updatedAt = param.updatedAt;
-  }
-
-  get id() {
-    return this._id;
   }
 
   get assigneeUserId() {
@@ -76,24 +68,12 @@ export class Todo {
     return this._dueDate;
   }
 
-  get imageUrl() {
+  get imageUrl(): string | undefined {
     return this._imageUrl;
   }
 
   get position() {
     return this._position;
-  }
-
-  get createdAt() {
-    return this._createdAt;
-  }
-
-  get updatedAt() {
-    return this._updatedAt;
-  }
-
-  set id(id: number) {
-    this._id = id;
   }
 
   set assigneeUserId(assigneeUserId: number) {
@@ -130,35 +110,5 @@ export class Todo {
 
   set position(position: number) {
     this._position = position;
-  }
-
-  set createdAt(createdAt: string) {
-    this._createdAt = createdAt;
-  }
-
-  set updatedAt(updatedAt: string) {
-    this._updatedAt = updatedAt;
-  }
-
-  toJSON() {
-    // return {
-    //   id: this.id,
-    //   assigneeUserId: this.assigneeUserId,
-    //   assignerUserId: this.assignerUserId,
-    //   dashboardId: this.dashboardId,
-    //   columnId: this.columnId,
-    //   title: this.title,
-    //   content: this.content,
-    //   dueDate: this.dueDate,
-    //   imageUrl: this.imageUrl,
-    //   position: this.position,
-    //   createdAt: this.createdAt,
-    //   updatedAt: this.updatedAt,
-    // };
-    return instanceToPlain(this);
-  }
-
-  static from(data: TTodo) {
-    return new Todo(data);
   }
 }

@@ -1,13 +1,12 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { InternalServerException } from '../common/exceptions/exceptions';
 import { StorageService } from './storage.provider';
 
-type ImgUrl = string;
 export interface S3Params {
-  file: Express.Multer.File;
   email: string;
+  file?: Express.Multer.File;
 }
 
 @Injectable()
@@ -17,15 +16,25 @@ export class S3ServiceImpl implements StorageService<S3Params> {
   private readonly folderName: string;
 
   constructor(private configService: ConfigService) {
+    const region: string | undefined = this.configService.get('AWS_REGION');
+    const accessKeyId: string | undefined = this.configService.get('AWS_ACCESS_KEY');
+    const secretAccessKey: string | undefined = this.configService.get('AWS_SECRET_KEY');
+    const bucketName: string | undefined = this.configService.get('S3_BUCKET_NAME');
+    const folderName: string | undefined = this.configService.get('S3_FOLDER_NAME');
+
+    if (!region || !accessKeyId || !secretAccessKey || !bucketName || !folderName) {
+      throw InternalServerException('Failed to get AWS S3 config');
+    }
+
     this.s3Client = new S3Client({
-      region: this.configService.get('AWS_REGION'),
+      region: region,
       credentials: {
-        accessKeyId: this.configService.get('AWS_ACCESS_KEY'),
-        secretAccessKey: this.configService.get('AWS_SECRET_KEY'),
+        accessKeyId: accessKeyId,
+        secretAccessKey: secretAccessKey,
       },
     });
-    this.bucketName = this.configService.get('S3_BUCKET_NAME');
-    this.folderName = this.configService.get('S3_FOLDER_NAME');
+    this.bucketName = bucketName;
+    this.folderName = folderName;
   }
 
   private generatePublicUrl(key: string) {
@@ -38,7 +47,10 @@ export class S3ServiceImpl implements StorageService<S3Params> {
     return `${param.folderName}/${param.userEmail}/${Date.now()}-${param.originalname}`;
   }
 
-  async uploadOne(param: S3Params): Promise<ImgUrl> {
+  async uploadOne(param: S3Params): Promise<string | undefined> {
+    if (!param.file) {
+      return undefined;
+    }
     const { email, file } = param;
     const key = this.generateKey({ folderName: this.folderName, userEmail: email, originalname: file.originalname });
 

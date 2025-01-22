@@ -28,4 +28,15 @@ export class TodoTagRepositoryImpl implements TodoTagRepository {
 
     return TodoTag.from(insertedTodoTag[0]);
   }
+
+  async find(todoId: number, tagId: number): Promise<TodoTag | null> {
+    const query = `
+            SELECT id, todo_id as todoId, tag_id as tagId
+            FROM todo_tags
+            WHERE todo_id = ? AND tag_id = ?
+        `;
+
+    const result = await this.dbService.select<TodoTag>(query, [todoId, tagId]);
+    return result && result.length ? TodoTag.from(result[0]) : null;
+  }
 }

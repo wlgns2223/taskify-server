@@ -16,6 +16,11 @@ export class TagServiceImpl implements TagService {
       InvalidInputException('Tag must have a tag');
     }
 
+    const existingTag = await this.tagRepository.find(tag);
+    if (existingTag) {
+      return existingTag;
+    }
+
     const newTag = Tag.from({ tag });
 
     return await this.tagRepository.create(newTag);

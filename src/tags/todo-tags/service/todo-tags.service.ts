@@ -16,6 +16,11 @@ export class TodoTagServiceImpl implements TodoTagService {
       InvalidInputException('TodoTag must have a todoId and tagId');
     }
 
+    const existingTodoTag = await this.todoTagRepository.find(todoId, tagId);
+    if (existingTodoTag) {
+      return existingTodoTag;
+    }
+
     const newTodoTag = TodoTag.from({ todoId, tagId });
 
     return await this.todoTagRepository.create(newTodoTag);
