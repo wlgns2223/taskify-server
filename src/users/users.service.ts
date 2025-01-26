@@ -1,34 +1,35 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { User, UserProperties } from './users.model';
 import { EntityNotFoundException } from '../common/exceptions/exceptions';
 import { EntityAlreadyExists } from './exceptions/entity.exception';
 import { UsersRepository, UsersRepositoryToken } from './repository';
+import { UsersService } from './service/users.provider';
+import { User } from './users.entity';
+import { UserMapper } from './dto/user.mapper';
 
 @Injectable()
-export class UsersService {
-  private logger = new Logger(UsersService.name);
+export class UsersServiceImpl implements UsersService {
+  private logger = new Logger(UsersServiceImpl.name);
   constructor(
     @Inject(UsersRepositoryToken)
     private usersRepository: UsersRepository,
   ) {}
 
-  async createUser(email: string, nickname: string, password: string, teamId: string) {
-    const user = await this.usersRepository.findOneBy(email);
-    if (!user) {
-      throw EntityAlreadyExists(`User with email ${email} already exists`);
+  async create(user: User) {
+    const found = await this.usersRepository.findOneBy(user.email);
+    if (!found) {
+      throw EntityAlreadyExists(`User with email ${user.email} already exists`);
     }
 
-    const newUser = User.from<User, UserProperties>(User, { email, nickname, password, teamId });
-    const createdUser = await this.usersRepository.create(newUser);
+    const newUser = UserMapper.toEntity(user);
 
-    return createdUser.serialize();
+    return await this.usersRepository.create(newUser);
   }
 
-  async findUserByEmail(email: string) {
-    const user = await this.usersRepository.findOneBy(email);
-    if (!user) {
+  async findOneBy(email: string) {
+    const userEntity = await this.usersRepository.findOneBy(email);
+    if (!userEntity) {
       throw EntityNotFoundException(`User with email ${email} not found`);
     }
-    return user.serialize();
+    return userEntity === null ? null : userEntity;
   }
 }

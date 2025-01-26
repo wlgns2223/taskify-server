@@ -1,9 +1,8 @@
 import { Type } from 'class-transformer';
 import { IsDate, IsInt, IsNotEmpty, IsString } from 'class-validator';
-import { TodoProperties } from '../todos.model';
-import { PurePropertiesWithExtraOmit } from '../../common/types';
+import { Todo } from '../todos.entity';
 
-export class CreateTodoDto implements PurePropertiesWithExtraOmit<TodoProperties, 'imageUrl'> {
+export class CreateTodoDto implements Omit<Todo, 'imageUrl'> {
   @IsInt()
   @IsNotEmpty()
   @Type(() => Number)

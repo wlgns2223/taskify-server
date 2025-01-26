@@ -1,12 +1,11 @@
 import { Body, Controller, Get, Param, Post, Query, UploadedFile, UseInterceptors } from '@nestjs/common';
-import { appendTeamIdTo } from '../common/utils/routeGenerator';
 import { CreateTodoDto } from './dto/createTodo.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { TokenFromReq } from '../auth/decorators/tokenFromReq.decorator';
 import { TokenType } from '../auth/types/type';
 import { TodosService } from './service/todo.provider';
 
-@Controller(appendTeamIdTo('todos'))
+@Controller('todos')
 export class TodosController {
   constructor(private todosService: TodosService) {}
 

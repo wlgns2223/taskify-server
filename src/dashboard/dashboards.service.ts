@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { DashboardsRepository } from './dashboards.repository';
 import { Dashboard } from './dashboards.model';
-import { TokenService } from '../auth/token.service';
+import { TokenService } from '../token/service/refresh-token.serviceImpl';
 import { UsersService } from '../users/users.service';
 import { instanceToPlain } from 'class-transformer';
 import { DBConnectionService } from '../db/db.service';

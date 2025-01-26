@@ -1,7 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { DBConnectionService } from '../../db/db.service';
-import { Todo } from '../todos.model';
 import { TodosRepository } from './todos.provider';
+import { TodoMapper } from '../dto/todo.mapper';
+import { PlainOf } from '../../common/types';
+import { Todo, TodoEntity } from '../todos.entity';
 
 @Injectable()
 export class TodosRepositoryImpl implements TodosRepository {
@@ -28,7 +30,7 @@ export class TodosRepositoryImpl implements TodosRepository {
     return result;
   }
 
-  async create(newTodo: Todo) {
+  async create(newTodo: Todo): Promise<TodoEntity> {
     const query = `
 
     insert into todos (assignee_user_id, assigner_user_id, dashboard_id, column_id, title, content, due_date, image_url, position)
@@ -47,7 +49,7 @@ export class TodosRepositoryImpl implements TodosRepository {
     ]);
     const insertedTodo = await this.getData(result.insertId);
 
-    return Todo.from(Todo, insertedTodo[0]);
+    return TodoMapper.toEntity(insertedTodo[0]);
   }
 
   async findManyBy(columnId: string) {
@@ -69,6 +71,6 @@ export class TodosRepositoryImpl implements TodosRepository {
 
     const result = await this.dbService.select<Todo>(query, [columnId]);
 
-    return result.map((todo) => Todo.from(Todo, todo));
+    return TodoMapper.toEntityArray(result);
   }
 }

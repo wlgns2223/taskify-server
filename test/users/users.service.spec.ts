@@ -1,10 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UsersService } from '../../src/users/users.service';
 import { UsersRepository } from '../../src/users/repository/users.repositoryImpl';
-import { User } from '../../src/users/users.model';
+import { User } from '../../src/users/users.entity';
 import { UserDto } from '../../src/users/dto/user.dto';
 import { ServiceException } from '../../src/common/exceptions/serviceException';
-import { UserMapper } from '../../src/users/dto/mapper.user';
+import { UserMapper } from '../../src/users/dto/user.mapper';
 
 type UserDtoInstanceType = Pick<UserDto, keyof UserDto>;
 

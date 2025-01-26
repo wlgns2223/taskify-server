@@ -1,10 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthService } from '../../src/auth/auth.service';
 import { UsersService } from '../../src/users/users.service';
-import { TokenService } from '../../src/auth/token.service';
+import { TokenService } from '../../src/token/service/refresh-token.serviceImpl';
 import { UserBuilder } from '../builder/user.builder';
 import { EntityAlreadyExists } from '../../src/users/exceptions/entity.exception';
-import { User } from '../../src/users/users.model';
+import { User } from '../../src/users/users.entity';
 import { InvalidInputException } from '../../src/common/exceptions/exceptions';
 
 const createUserMock = jest.fn();

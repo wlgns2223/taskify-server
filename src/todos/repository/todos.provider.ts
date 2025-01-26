@@ -1,10 +1,10 @@
 import { Provider } from '@nestjs/common';
-import { Todo } from '../todos.model';
-import { TodosRepositoryImpl } from './todos.repository';
+import { Todo, TodoEntity } from '../todos.entity';
+import { TodosRepositoryImpl } from './todos.repositoryImpl';
 
 export interface TodosRepository {
-  create: (todo: Todo) => Promise<Todo>;
-  findManyBy: (columnId: string) => Promise<Todo[]>;
+  create: (todo: Todo) => Promise<TodoEntity>;
+  findManyBy: (columnId: string) => Promise<TodoEntity[]>;
 }
 
 export const TodosRepositoryToken = Symbol('TodosRepository');

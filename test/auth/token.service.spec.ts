@@ -1,9 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import {
-  TokenService,
-  VerifiedTokenPayLoad,
-} from '../../src/auth/token.service';
-import { TokenRepository } from '../../src/auth/token.repository';
+import { TokenService, VerifiedTokenPayLoad } from '../../src/token/service/refresh-token.serviceImpl';
+import { TokenRepository } from '../../src/token/repository/refresh-token.repositoryImpl';
 import { JwtService } from '@nestjs/jwt';
 import { UserBuilder } from '../builder/user.builder';
 import { TokenBuilder } from '../builder/token.builder';
@@ -53,32 +50,22 @@ describe('token service', () => {
   it("shuold sign an access token when calling 'signAccessToken' method", async () => {
     const user = new UserBuilder().build();
     const fakeAccessToken = 'fakeAccessToken';
-    const jwtSignAsyncMock = jest
-      .spyOn(jwtService, 'signAsync')
-      .mockResolvedValue(fakeAccessToken);
+    const jwtSignAsyncMock = jest.spyOn(jwtService, 'signAsync').mockResolvedValue(fakeAccessToken);
 
     const token = await tokenService.signAccessToken(user.email);
     expect(token).toEqual(fakeAccessToken);
-    expect(jwtSignAsyncMock).toHaveBeenCalledWith(
-      { email: user.email },
-      { expiresIn: '10s' },
-    );
+    expect(jwtSignAsyncMock).toHaveBeenCalledWith({ email: user.email }, { expiresIn: '10s' });
   });
 
   it("should sign an refresh token when calling 'signRefreshToken' method", async () => {
     const user = new UserBuilder().build();
     const fakeRefreshToken = 'fakeRefreshToken';
-    const jwtSignAsyncMock = jest
-      .spyOn(jwtService, 'signAsync')
-      .mockResolvedValue(fakeRefreshToken);
+    const jwtSignAsyncMock = jest.spyOn(jwtService, 'signAsync').mockResolvedValue(fakeRefreshToken);
 
     const token = await tokenService.signRefreshToken(user.email);
 
     expect(token).toEqual(fakeRefreshToken);
-    expect(jwtSignAsyncMock).toHaveBeenCalledWith(
-      { email: user.email },
-      { expiresIn: '10m' },
-    );
+    expect(jwtSignAsyncMock).toHaveBeenCalledWith({ email: user.email }, { expiresIn: '10m' });
   });
 
   it("should save a refresh token when calling 'saveRefreshToken' method", async () => {

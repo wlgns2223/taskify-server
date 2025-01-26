@@ -3,7 +3,7 @@ import { InvitationsRepository } from './invitations.repository';
 import { CreateInvitationDto } from './dto/createInvitation.dto';
 import { Invitation, InvitationStatus } from './invitations.model';
 import { EmailService } from './email.service';
-import { TokenService } from '../auth/token.service';
+import { TokenService } from '../token/service/refresh-token.serviceImpl';
 import { OffsetPaginationResponseDto } from '../dashboard/dto/offsetPagination.dto';
 import { UsersService } from '../users/users.service';
 import { instanceToPlain } from 'class-transformer';

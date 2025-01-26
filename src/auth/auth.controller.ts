@@ -1,14 +1,13 @@
 import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Logger, Param, Post, Req, Res } from '@nestjs/common';
-import { SignUpDto } from '../users/dto/createUser.dto';
+import { SignUpDto } from '../users/dto/sign-up.dto';
 import { AuthService } from './auth.service';
 import { SignInDto } from './dto/signIn.dto';
 import { CookieOptions, Response } from 'express';
 import { ConfigService } from '@nestjs/config';
 import { TokenFromReq } from './decorators/tokenFromReq.decorator';
 import { TokenType } from './types/type';
-import { appendTeamIdTo } from '../common/utils/routeGenerator';
 
-@Controller(appendTeamIdTo('auth'))
+@Controller('auth')
 export class AuthController {
   private logger = new Logger(AuthController.name);
   private cookieOptions: CookieOptions = {
@@ -24,8 +23,8 @@ export class AuthController {
   ) {}
 
   @Post('signUp')
-  async signUp(@Body() signUpDto: SignUpDto, @Param('teamId') teamId: string) {
-    return await this.authService.signUp(signUpDto.email, signUpDto.nickname, signUpDto.password, teamId);
+  async signUp(@Body() signUpDto: SignUpDto) {
+    return await this.authService.signUp(SignUpDto.from(signUpDto));
   }
 
   @Post('signIn')

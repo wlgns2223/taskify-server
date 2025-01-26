@@ -1,12 +1,11 @@
 import { Body, Controller, Get, Logger, Param, Post, Query, UsePipes, ValidationPipe } from '@nestjs/common';
-import { appendTeamIdTo } from '../common/utils/routeGenerator';
 import { DashboardsService } from './dashboards.service';
 import { CreateDashBoardDto } from './dto/createDashBoard.dto';
 import { TokenFromReq } from '../auth/decorators/tokenFromReq.decorator';
 import { TokenType } from '../auth/types/type';
 import { OffsetPaginationRequestDto } from './dto/offsetPagination.dto';
 
-@Controller(appendTeamIdTo('dashboards'))
+@Controller('dashboards')
 export class DashboardsController {
   private logger = new Logger(DashboardsController.name);
   constructor(private dashBoardService: DashboardsService) {}

@@ -1,12 +1,11 @@
 import { Body, Controller, Delete, Get, Param, Post, Put, Query } from '@nestjs/common';
-import { appendTeamIdTo } from '../common/utils/routeGenerator';
 import { ColumnsService } from './columns.service';
 import { CreateColumnsDto } from './dto/createColumns.dto';
 import { SwapColumnPositionDto } from './dto/swapColumnPosition.dto';
 import { UpdateColumnsDto } from './dto/updateColumns.dto';
 import { Column } from './columns.model';
 
-@Controller(appendTeamIdTo('columns'))
+@Controller('columns')
 export class ColumnsController {
   constructor(private columnsService: ColumnsService) {}
 

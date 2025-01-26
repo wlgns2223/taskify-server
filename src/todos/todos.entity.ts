@@ -1,6 +1,6 @@
-import { BaseModel, BaseModelProperties } from '../common/model';
+import { Base, BaseEntity } from '../common/entity';
 
-export interface TodoProperties extends BaseModelProperties {
+export interface Todo extends Base {
   assigneeUserId: number;
   assignerUserId: number;
   dashboardId: number;
@@ -12,7 +12,7 @@ export interface TodoProperties extends BaseModelProperties {
   position: number;
 }
 
-export class Todo extends BaseModel implements TodoProperties {
+export class TodoEntity extends BaseEntity implements Todo {
   private _assigneeUserId: number;
   private _assignerUserId: number;
   private _dashboardId: number;
@@ -23,7 +23,7 @@ export class Todo extends BaseModel implements TodoProperties {
   private _imageUrl?: string;
   private _position: number;
 
-  constructor(param: TodoProperties) {
+  constructor(param: Todo) {
     super({
       id: param.id,
       createdAt: param.createdAt,

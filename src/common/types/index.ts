@@ -1,10 +1,7 @@
-import { BaseModelProperties } from '../model';
+import { Base } from '../entity';
 
-export type Serialized<T> = {
+export type PlainOf<T> = {
   [P in keyof T]: T[P];
 };
 
-export type PurePropertiesWithExtraOmit<T, ExtraKeys extends keyof T = never> = Omit<
-  T,
-  keyof BaseModelProperties | ExtraKeys
->;
+export type PurePropsOf<T, ExtraKeys extends keyof T = never> = Omit<T, keyof Base | ExtraKeys>;

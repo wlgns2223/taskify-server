@@ -1,19 +1,19 @@
-import { BaseModel, BaseModelProperties } from '../common/model';
+import { Base, BaseEntity } from '../common/entity';
 
-export interface UserProperties extends BaseModelProperties {
+export interface User extends Base {
   email: string;
   nickname: string;
   password: string;
-  teamId: string;
 }
 
-export class User extends BaseModel implements UserProperties {
+export class UserEntity extends BaseEntity implements User {
   private _email: string;
-  private _nickname: string;
-  private _password: string;
-  private _teamId: string;
 
-  constructor(param: UserProperties) {
+  private _nickname: string;
+
+  private _password: string;
+
+  constructor(param: User) {
     super({
       id: param.id,
       createdAt: param.createdAt,
@@ -22,11 +22,6 @@ export class User extends BaseModel implements UserProperties {
     this._email = param.email;
     this._nickname = param.nickname;
     this._password = param.password;
-    this._teamId = param.teamId;
-  }
-
-  get teamId() {
-    return this._teamId;
   }
 
   get email() {
@@ -51,10 +46,6 @@ export class User extends BaseModel implements UserProperties {
 
   set password(password: string) {
     this._password = password;
-  }
-
-  set teamId(teamId: string) {
-    this._teamId = teamId;
   }
 
   public comparePassword(password: string): boolean {

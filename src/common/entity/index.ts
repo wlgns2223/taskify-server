@@ -1,24 +1,23 @@
-import { instanceToPlain } from 'class-transformer';
-import { Serialized } from '../types';
-
-export interface BaseModelProperties {
-  id?: string;
+export interface Base {
+  id?: number;
   createdAt?: Date;
   updatedAt?: Date;
 }
 
-export abstract class BaseModel {
-  protected _id?: string;
+export abstract class BaseEntity implements Base {
+  protected _id?: number;
+
   protected _createdAt?: Date;
+
   protected _updatedAt?: Date;
 
-  constructor(param: BaseModelProperties) {
+  constructor(param: Base) {
     this._id = param.id;
     this._createdAt = param.createdAt;
     this._updatedAt = param.updatedAt;
   }
 
-  get id(): string | undefined {
+  get id(): number | undefined {
     return this._id;
   }
 
@@ -30,7 +29,7 @@ export abstract class BaseModel {
     return this._updatedAt;
   }
 
-  set id(id: string | undefined) {
+  set id(id: number | undefined) {
     this._id = id;
   }
 
@@ -42,11 +41,7 @@ export abstract class BaseModel {
     this._updatedAt = updatedAt;
   }
 
-  serialize<T = unknown>(): Serialized<T> {
-    return instanceToPlain(this) as Serialized<T>;
-  }
-
-  static from<T extends BaseModel, P extends BaseModelProperties>(cls: new (props: P) => T, json: P): T {
+  static from<T extends BaseEntity, P extends Base>(cls: new (props: P) => T, json: P): T {
     return new cls(json);
   }
 }

@@ -1,17 +1,17 @@
 import { Exclude, Expose, instanceToPlain } from 'class-transformer';
-import { User } from '../users.model';
+import { User } from '../users.entity';
 
-export class UserDto {
+export class UserDTO {
   @Exclude()
-  private _id: number;
+  private _id?: number;
   @Exclude()
   private _email: string;
   @Exclude()
   private _nickname: string;
   @Exclude()
-  private _createdAt: string;
+  private _createdAt?: Date;
   @Exclude()
-  private _updatedAt: string;
+  private _updatedAt?: Date;
 
   constructor(data: User) {
     this._id = data.id;
@@ -44,5 +44,9 @@ export class UserDto {
   @Expose()
   get updatedAt() {
     return this._updatedAt;
+  }
+
+  static from(user: User) {
+    return new UserDTO(user);
   }
 }

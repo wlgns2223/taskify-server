@@ -1,14 +1,21 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { UsersService } from '../users/users.service';
-import { User } from '../users/users.model';
-import { InvalidInputException } from '../common/exceptions/exceptions';
-import { TokenService } from './token.service';
-import { JsonWebTokenError, TokenExpiredError } from '@nestjs/jwt';
+import { Inject, Injectable, Logger } from '@nestjs/common';
+import {
+  EntityNotFoundException,
+  InternalServerException,
+  InvalidInputException,
+} from '../common/exceptions/exceptions';
+import { JsonWebTokenError, JwtService, JwtSignOptions, TokenExpiredError } from '@nestjs/jwt';
 import { TokenExceptionType, TokenType } from './types/type';
 import { TokenException } from '../common/exceptions/auth.exception';
 import { ConfigService } from '@nestjs/config';
 import { Token } from './vo/token';
 import ms from 'ms';
+import { SignUpDto } from '../users/dto/sign-up.dto';
+import { UsersService, UsersServiceToken } from '../users/service/users.provider';
+import { RefreshTokenService, RefreshTokenServiceToken } from '../token/service/refresh-token.service.provider';
+import { RefreshTokenMapper } from '../token/refresh-token.mapper';
+import { UserEntity } from '../users/users.entity';
+import { RefreshToken } from '../token/refresh-token.entity';
 
 @Injectable()
 export class AuthService {
@@ -17,8 +24,12 @@ export class AuthService {
   private refreshToken: Token;
 
   constructor(
+    @Inject(UsersServiceToken)
     private usersService: UsersService,
-    private tokenService: TokenService,
+
+    @Inject(RefreshTokenServiceToken)
+    private refreshTokenService: RefreshTokenService,
+    private jwtService: JwtService,
     private configService: ConfigService,
   ) {
     const accessTokenName = this.configService.get<string>('ACCESS_TOKEN_NAME');
@@ -27,47 +38,89 @@ export class AuthService {
     if (!accessTokenName || !refreshTokenName) {
       throw InvalidInputException('Token name is not defined');
     }
+    const accessTokenExpire = this.configService.get<string>('ACCESS_TOKEN_EXPIRE');
+    const refreshTokenExpire = this.configService.get<string>('REFRESH_TOKEN_EXPIRE');
 
-    const accessTokenTime = '1h';
-    const refreshTokenTime = '3h';
+    if (!accessTokenExpire || !refreshTokenExpire) {
+      throw InvalidInputException('Token expire time is not defined');
+    }
 
-    this.accessToken = new Token(accessTokenName, {
-      timeInSec: accessTokenTime,
-      timeInMs: ms(accessTokenTime),
-    });
+    this.accessToken = Token.from(accessTokenName, { expiresIn: accessTokenExpire });
+    this.refreshToken = Token.from(refreshTokenName, { expiresIn: refreshTokenExpire });
+  }
 
-    this.refreshToken = new Token(refreshTokenName, {
-      timeInSec: refreshTokenTime,
-      timeInMs: ms(refreshTokenTime),
+  decode(token: string): TokenPayload {
+    return this.jwtService.decode(token);
+  }
+
+  /**
+   *  VO를 리턴하도록 리팩토링하자.
+   */
+  private async generateToken<T extends object | Buffer>(payload: T, signOption?: JwtSignOptions) {
+    return await this.jwtService.signAsync(payload, {
+      ...signOption,
     });
   }
 
-  async signUp(email: string, nickname: string, password: string, teamId: string) {
-    return await this.usersService.createUser(email, nickname, password, teamId);
+  async signUp(signUpDto: SignUpDto) {
+    return await this.usersService.create(signUpDto);
   }
 
   async signIn(email: string, password: string) {
-    const found = await this.usersService.findUserByEmail(email);
-    const user = User.from(User, found);
-    const result = user.comparePassword(password);
+    const userEntity = await this.handleUser(email, password);
+
+    const plainAccessToken = await this.generateToken(
+      {
+        email: userEntity.email,
+      },
+      this.accessToken.signOption,
+    );
+    const plainRefreshToken = await this.generateToken(
+      {
+        email: userEntity.email,
+      },
+      this.refreshToken.signOption,
+    );
+
+    await this.createRefreshToken(userEntity, plainRefreshToken);
+
+    return {
+      accessToken: plainAccessToken,
+      refreshToken: plainRefreshToken,
+    };
+  }
+
+  private async handleUser(email: string, password: string) {
+    const userEntiy = await this.usersService.findOneBy(email);
+    if (!userEntiy) {
+      throw EntityNotFoundException(`User with email ${email} not found`);
+    }
+
+    const result = userEntiy.comparePassword(password);
 
     if (!result) {
       throw InvalidInputException('Invalid password');
     }
 
-    const accessToken = await this.tokenService.getSignedToken(user.email, this.accessToken);
-    const refreshToken = await this.tokenService.getSignedToken(user.email, this.refreshToken);
+    return userEntiy;
+  }
 
-    const storedRefreshToken = await this.tokenService.findRefreshToken(user.id);
+  private async createRefreshToken(userEntity: UserEntity, refreshToken: string) {
+    if (!userEntity.id) {
+      throw InternalServerException('User id is not defined');
+    }
+    const storedRefreshToken = await this.refreshTokenService.findOneBy(userEntity.id);
     if (storedRefreshToken !== null) {
-      await this.tokenService.deleteAllStoredRefreshTokens(user.id);
+      await this.refreshTokenService.deleteAllBy(userEntity.id);
     }
 
-    await this.tokenService.saveRefreshToken(user.id, refreshToken.token);
-    return {
-      accessToken,
-      refreshToken,
-    };
+    await this.refreshTokenService.create(
+      RefreshTokenMapper.toEntity({
+        userId: userEntity.id,
+        token: refreshToken,
+        expiresAt: this.refreshToken.expireAtInSec(),
+      }),
+    );
   }
 
   async verify(token: string, tokenType: TokenType) {
@@ -109,7 +162,7 @@ export class AuthService {
   }
 
   private async compareRefreshTokenAndGetOldToken(userEmail: string, refreshToken: string) {
-    const user = await this.usersService.findUserByEmail(userEmail);
+    const user = await this.usersService.findOneBy(userEmail);
     const token = await this.tokenService.findRefreshToken(user.id);
     if (token === null) {
       throw TokenException(TokenType.REFRESH, TokenExceptionType.UNDEFINED);

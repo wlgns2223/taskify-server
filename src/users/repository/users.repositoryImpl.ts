@@ -1,8 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { DBConnectionService } from '../../db/db.service';
-import { User, UserProperties } from '../users.model';
 import { UsersRepository } from './users.repository.provider';
-import { Serialized } from '../../common/types';
+import { User } from '../users.entity';
+import { UserMapper } from '../dto/user.mapper';
 
 @Injectable()
 export class UsersRepositoryImpl implements UsersRepository {
@@ -15,7 +15,7 @@ export class UsersRepositoryImpl implements UsersRepository {
     FROM users 
     WHERE id = ?`;
 
-    const result = await this.dbService.select<Serialized<User>>(query, [id]);
+    const result = await this.dbService.select<User>(query, [id]);
     return result;
   }
 
@@ -23,9 +23,9 @@ export class UsersRepositoryImpl implements UsersRepository {
     const query = `
     select id,email, nickname,password, created_at as createdAt,updated_at as updatedAt 
     FROM users where email = ?`;
-    const result = await this.dbService.select<Serialized<User>>(query, [email]);
+    const result = await this.dbService.select<User>(query, [email]);
 
-    return result.map((user) => User.from<User, UserProperties>(User, user));
+    return UserMapper.toEntityArray(result);
   }
 
   async findOneBy(email: string) {
@@ -34,18 +34,18 @@ export class UsersRepositoryImpl implements UsersRepository {
     FROM users where email = ?
     limit 1
     `;
-    const result = await this.dbService.select<Serialized<User>>(query, [email]);
+    const result = await this.dbService.select<User>(query, [email]);
 
-    return result.length !== 0 ? User.from<User, UserProperties>(User, result[0]) : null;
+    return result.length !== 0 ? UserMapper.toEntity(result[0]) : null;
   }
 
   async create(user: User) {
-    const query = `INSERT INTO users (email, nickname, password, team_id) VALUES (?, ?, ?, ?)`;
+    const query = `INSERT INTO users (email, nickname, password) VALUES (?, ?, ?)`;
 
-    const result = await this.dbService.insert(query, [user.email, user.nickname, user.password, user.teamId]);
+    const result = await this.dbService.insert(query, [user.email, user.nickname, user.password]);
 
     const insertedUser = await this.getData(result.insertId);
 
-    return User.from<User, UserProperties>(User, insertedUser[0]);
+    return UserMapper.toEntity(insertedUser[0]);
   }
 }
