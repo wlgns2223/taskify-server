@@ -7,21 +7,18 @@ import {
 import { JsonWebTokenError, JwtService, JwtSignOptions, TokenExpiredError } from '@nestjs/jwt';
 import { TokenExceptionType, TokenType } from './types/type';
 import { TokenException } from '../common/exceptions/auth.exception';
-import { ConfigService } from '@nestjs/config';
-import { Token } from './vo/token';
-import ms from 'ms';
 import { SignUpDto } from '../users/dto/sign-up.dto';
 import { UsersService, UsersServiceToken } from '../users/service/users.provider';
 import { RefreshTokenService, RefreshTokenServiceToken } from '../token/service/refresh-token.service.provider';
 import { RefreshTokenMapper } from '../token/refresh-token.mapper';
 import { UserEntity } from '../users/users.entity';
-import { RefreshToken } from '../token/refresh-token.entity';
+import { SignInDto } from './dto/signIn.dto';
+import { TokenConfigService } from './token-config.service';
+import { TokenConfig } from './token-option';
 
 @Injectable()
 export class AuthService {
   private logger = new Logger(AuthService.name);
-  private accessToken: Token;
-  private refreshToken: Token;
 
   constructor(
     @Inject(UsersServiceToken)
@@ -29,33 +26,14 @@ export class AuthService {
 
     @Inject(RefreshTokenServiceToken)
     private refreshTokenService: RefreshTokenService,
+    private tokenConfigService: TokenConfigService,
     private jwtService: JwtService,
-    private configService: ConfigService,
-  ) {
-    const accessTokenName = this.configService.get<string>('ACCESS_TOKEN_NAME');
-    const refreshTokenName = this.configService.get<string>('REFRESH_TOKEN_NAME');
+  ) {}
 
-    if (!accessTokenName || !refreshTokenName) {
-      throw InvalidInputException('Token name is not defined');
-    }
-    const accessTokenExpire = this.configService.get<string>('ACCESS_TOKEN_EXPIRE');
-    const refreshTokenExpire = this.configService.get<string>('REFRESH_TOKEN_EXPIRE');
-
-    if (!accessTokenExpire || !refreshTokenExpire) {
-      throw InvalidInputException('Token expire time is not defined');
-    }
-
-    this.accessToken = Token.from(accessTokenName, { expiresIn: accessTokenExpire });
-    this.refreshToken = Token.from(refreshTokenName, { expiresIn: refreshTokenExpire });
-  }
-
-  decode(token: string): TokenPayload {
+  decode(token: string) {
     return this.jwtService.decode(token);
   }
 
-  /**
-   *  VO를 리턴하도록 리팩토링하자.
-   */
   private async generateToken<T extends object | Buffer>(payload: T, signOption?: JwtSignOptions) {
     return await this.jwtService.signAsync(payload, {
       ...signOption,
@@ -63,31 +41,41 @@ export class AuthService {
   }
 
   async signUp(signUpDto: SignUpDto) {
+    if (!signUpDto.comparePassword()) {
+      throw InvalidInputException('Password is not matched');
+    }
+
     return await this.usersService.create(signUpDto);
   }
 
-  async signIn(email: string, password: string) {
+  async signIn(signInDto: SignInDto) {
+    const { email, password } = signInDto;
     const userEntity = await this.handleUser(email, password);
 
-    const plainAccessToken = await this.generateToken(
-      {
-        email: userEntity.email,
-      },
-      this.accessToken.signOption,
-    );
-    const plainRefreshToken = await this.generateToken(
-      {
-        email: userEntity.email,
-      },
-      this.refreshToken.signOption,
-    );
+    const payload = {
+      email: userEntity.email,
+    };
 
-    await this.createRefreshToken(userEntity, plainRefreshToken);
+    const { accessTokenConfig, refreshTokenConfig } = await this.handleToken(payload);
+
+    await this.createRefreshToken(userEntity, refreshTokenConfig);
 
     return {
-      accessToken: plainAccessToken,
-      refreshToken: plainRefreshToken,
+      accessToken: accessTokenConfig,
+      refreshToken: refreshTokenConfig,
     };
+  }
+
+  private async handleToken(payload: any) {
+    const accessTokenConfig = this.tokenConfigService.getAccessTokenConfig();
+    const plainAccessToken = await this.generateToken(payload, accessTokenConfig.toJwtSignOptions());
+    accessTokenConfig.token = plainAccessToken;
+
+    const refreshTokenConfig = this.tokenConfigService.getRefreshTokenConfig();
+    const plainRefreshToken = await this.generateToken(payload, refreshTokenConfig.toJwtSignOptions());
+    refreshTokenConfig.token = plainRefreshToken;
+
+    return { accessTokenConfig, refreshTokenConfig };
   }
 
   private async handleUser(email: string, password: string) {
@@ -105,7 +93,7 @@ export class AuthService {
     return userEntiy;
   }
 
-  private async createRefreshToken(userEntity: UserEntity, refreshToken: string) {
+  private async createRefreshToken(userEntity: UserEntity, refreshToken: TokenConfig) {
     if (!userEntity.id) {
       throw InternalServerException('User id is not defined');
     }
@@ -117,15 +105,15 @@ export class AuthService {
     await this.refreshTokenService.create(
       RefreshTokenMapper.toEntity({
         userId: userEntity.id,
-        token: refreshToken,
-        expiresAt: this.refreshToken.expireAtInSec(),
+        token: refreshToken.token,
+        expiresAt: refreshToken.expiresInSec,
       }),
     );
   }
 
   async verify(token: string, tokenType: TokenType) {
     try {
-      return await this.tokenService.verifyToken(token);
+      return await this.jwtService.verifyAsync(token);
     } catch (e) {
       this.logger.error(e);
       this.logger.error(`${tokenType} : ${token} is invalid or expired`);
@@ -145,33 +133,50 @@ export class AuthService {
 
   async renewToken(refreshToken: string) {
     const payload = await this.verify(refreshToken, TokenType.REFRESH);
-    const { oldToken, user } = await this.compareRefreshTokenAndGetOldToken(payload.email, refreshToken);
+    const { previousTokenEntity, user } = await this.compareRefreshTokenAndGetOldToken(payload.email, refreshToken);
 
-    await this.tokenService.deleteStoredRefreshToken(oldToken.id);
+    if (previousTokenEntity.id === undefined) {
+      throw InternalServerException('Refresh token id is not defined');
+    }
 
-    const accessToken = await this.tokenService.getSignedToken(payload.email, this.accessToken);
+    if (!user.id) {
+      throw InternalServerException('User id is not defined');
+    }
 
-    const newRefreshToken = await this.tokenService.getSignedToken(payload.email, this.refreshToken);
+    await this.refreshTokenService.deleteOneBy(previousTokenEntity.id);
 
-    await this.tokenService.saveRefreshToken(user.id, newRefreshToken.token);
+    const { accessTokenConfig, refreshTokenConfig } = await this.handleToken(payload);
 
-    return {
-      accessToken,
-      refreshToken: newRefreshToken,
-    };
+    await this.refreshTokenService.create(
+      RefreshTokenMapper.toEntity({
+        userId: user.id,
+        token: refreshTokenConfig.token,
+        expiresAt: refreshTokenConfig.expiresInSec,
+      }),
+    );
+
+    return { accessTokenConfig, refreshTokenConfig };
   }
 
   private async compareRefreshTokenAndGetOldToken(userEmail: string, refreshToken: string) {
     const user = await this.usersService.findOneBy(userEmail);
-    const token = await this.tokenService.findRefreshToken(user.id);
-    if (token === null) {
+    if (user === null) {
+      throw EntityNotFoundException(`User with email ${userEmail} not found`);
+    }
+
+    if (!user.id) {
+      throw InternalServerException('User id is not defined');
+    }
+
+    const tokenEntity = await this.refreshTokenService.findOneBy(user.id);
+    if (tokenEntity === null) {
       throw TokenException(TokenType.REFRESH, TokenExceptionType.UNDEFINED);
     }
 
-    if (token.token !== refreshToken) {
+    if (tokenEntity.token !== refreshToken) {
       throw TokenException(TokenType.REFRESH, TokenExceptionType.INVALID_TOKEN);
     }
 
-    return { oldToken: token, user };
+    return { previousTokenEntity: tokenEntity, user };
   }
 }

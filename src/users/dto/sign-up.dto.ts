@@ -15,10 +15,10 @@ export class SignUpDto implements User {
   password: string;
 
   @IsNotEmpty()
-  repassword: string;
+  passwordConfirm: string;
 
   comparePassword(): boolean {
-    return this.password === this.repassword;
+    return this.password === this.passwordConfirm;
   }
 
   static from(dto: SignUpDto): SignUpDto {

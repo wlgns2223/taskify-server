@@ -2,17 +2,25 @@ import { JwtSignOptions } from '@nestjs/jwt';
 import ms from 'ms';
 import { InternalServerException } from '../../common/exceptions/exceptions';
 
-export class Token {
-  private _tokenName: string;
-  private _signOption: JwtSignOptions;
-  private _token?: string;
+export interface Token {
+  tokenName: string;
+  signOption: JwtSignOptions;
+  token: string;
+}
 
-  constructor(tokenName: string, signOption: JwtSignOptions) {
+export class TokenVO implements Token {
+  private readonly _tokenName: string;
+  private readonly _signOption: JwtSignOptions;
+  private readonly _token: string;
+
+  constructor(param: Token) {
+    const { signOption, tokenName, token } = param;
     this._tokenName = tokenName;
     this._signOption = signOption;
+    this._token = token;
   }
 
-  expireAtInMs(): number {
+  public expireAtInMs(): number {
     if (!this._signOption.expiresIn) {
       throw InternalServerException('Token expiration time is not defined');
     }
@@ -35,18 +43,10 @@ export class Token {
   }
 
   get token(): string {
-    if (!this._token) {
-      throw InternalServerException('Token is not defined');
-    }
-
     return this._token;
   }
 
-  set token(token: string) {
-    this._token = token;
-  }
-
-  static from(tokenName: string, signOption: JwtSignOptions): Token {
-    return new Token(tokenName, signOption);
+  static from(param: Token): TokenVO {
+    return new TokenVO(param);
   }
 }

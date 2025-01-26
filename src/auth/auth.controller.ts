@@ -6,20 +6,16 @@ import { CookieOptions, Response } from 'express';
 import { ConfigService } from '@nestjs/config';
 import { TokenFromReq } from './decorators/tokenFromReq.decorator';
 import { TokenType } from './types/type';
+import { InternalServerException } from '../common/exceptions/exceptions';
+import { CookieConfigService } from './cookie-config.service';
 
 @Controller('auth')
 export class AuthController {
   private logger = new Logger(AuthController.name);
-  private cookieOptions: CookieOptions = {
-    httpOnly: true,
-    secure: false,
-    sameSite: 'lax',
-    expires: new Date(Date.now() + 1000 * 60 * 10),
-  };
 
   constructor(
     private authService: AuthService,
-    private configService: ConfigService,
+    private cookieConfigService: CookieConfigService,
   ) {}
 
   @Post('signUp')
@@ -29,45 +25,21 @@ export class AuthController {
 
   @Post('signIn')
   async signIn(@Res() res: Response, @Body() signInDto: SignInDto) {
-    const { accessToken, refreshToken } = await this.authService.signIn(signInDto.email, signInDto.password);
-    const { accessTokenName, refreshTokenName } = this.getTokenNames();
+    const { accessToken, refreshToken } = await this.authService.signIn(SignInDto.from(signInDto));
 
-    const accessTokenCookie = this.getCookiePayload(
-      accessTokenName,
+    const accessTokenCookie = this.cookieConfigService.getAccessTokenCookieConfig(
       accessToken.token,
-      accessToken.expiresTime.timeInMs,
+      accessToken.expiresInMs,
     );
-    const refreshTokenCookie = this.getCookiePayload(
-      refreshTokenName,
+    const refreshTokenCookie = this.cookieConfigService.getRefreshTokenCookieConfig(
       refreshToken.token,
-      refreshToken.expiresTime.timeInMs,
+      refreshToken.expiresInMs,
     );
 
-    res.cookie(accessTokenCookie.tokenName, accessTokenCookie.token, accessTokenCookie.cookieOptions);
-    res.cookie(refreshTokenCookie.tokenName, refreshTokenCookie.token, refreshTokenCookie.cookieOptions);
+    res.cookie(accessTokenCookie.tokenName, accessTokenCookie.value, accessTokenCookie.cookieOptions);
+    res.cookie(refreshTokenCookie.tokenName, refreshTokenCookie.value, refreshTokenCookie.cookieOptions);
 
     return res.json({ message: 'Successfully signed in' });
-  }
-
-  private getCookiePayload(tokenName: string, token: string, expiresIn: number) {
-    return {
-      tokenName,
-      token,
-      cookieOptions: {
-        ...this.cookieOptions,
-        expires: new Date(Date.now() + expiresIn),
-      },
-    };
-  }
-
-  private getTokenNames() {
-    const accessTokenName = this.configService.get('ACCESS_TOKEN_NAME');
-    const refreshTokenName = this.configService.get('REFRESH_TOKEN_NAME');
-
-    return {
-      accessTokenName,
-      refreshTokenName,
-    };
   }
 
   @Post('verify')
@@ -78,20 +50,16 @@ export class AuthController {
 
   @Get('renew')
   async renewTokens(@TokenFromReq(TokenType.REFRESH) refreshToken: string, @Res() res: Response) {
-    const { accessToken, refreshToken: newRefreshToken } = await this.authService.renewToken(refreshToken);
+    const { accessTokenConfig, refreshTokenConfig } = await this.authService.renewToken(refreshToken);
 
-    const { accessTokenName, refreshTokenName } = this.getTokenNames();
-
-    const accessTokenCookie = this.getCookiePayload(
-      accessTokenName,
-      accessToken.token,
-      accessToken.expiresTime.timeInMs,
+    const accessTokenCookie = this.cookieConfigService.getAccessTokenCookieConfig(
+      accessTokenConfig.token,
+      accessTokenConfig.expiresInMs,
     );
 
-    const refreshTokenCookie = this.getCookiePayload(
-      refreshTokenName,
-      newRefreshToken.token,
-      newRefreshToken.expiresTime.timeInMs,
+    const refreshTokenCookie = this.cookieConfigService.getRefreshTokenCookieConfig(
+      refreshTokenConfig.token,
+      refreshTokenConfig.expiresInMs,
     );
 
     return res.json({
@@ -102,24 +70,20 @@ export class AuthController {
 
   @Get('client-renew')
   async renewTokensFromClient(@TokenFromReq(TokenType.REFRESH) refreshToken: string, @Res() res: Response) {
-    const { accessToken, refreshToken: newRefreshToken } = await this.authService.renewToken(refreshToken);
+    const { accessTokenConfig, refreshTokenConfig } = await this.authService.renewToken(refreshToken);
 
-    const { accessTokenName, refreshTokenName } = this.getTokenNames();
-
-    const accessTokenCookie = this.getCookiePayload(
-      accessTokenName,
-      accessToken.token,
-      accessToken.expiresTime.timeInMs,
+    const accessTokenCookie = this.cookieConfigService.getAccessTokenCookieConfig(
+      accessTokenConfig.token,
+      accessTokenConfig.expiresInMs,
     );
 
-    const refreshTokenCookie = this.getCookiePayload(
-      refreshTokenName,
-      newRefreshToken.token,
-      newRefreshToken.expiresTime.timeInMs,
+    const refreshTokenCookie = this.cookieConfigService.getRefreshTokenCookieConfig(
+      refreshTokenConfig.token,
+      refreshTokenConfig.expiresInMs,
     );
 
-    res.cookie(accessTokenCookie.tokenName, accessTokenCookie.token, accessTokenCookie.cookieOptions);
-    res.cookie(refreshTokenCookie.tokenName, refreshTokenCookie.token, refreshTokenCookie.cookieOptions);
+    res.cookie(accessTokenCookie.tokenName, accessTokenCookie.value, accessTokenCookie.cookieOptions);
+    res.cookie(refreshTokenCookie.tokenName, refreshTokenCookie.value, refreshTokenCookie.cookieOptions);
 
     return res.json({ message: 'Successfully refreshed' });
   }
