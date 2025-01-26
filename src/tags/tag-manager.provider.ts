@@ -1,10 +1,10 @@
 import { Provider } from '@nestjs/common';
 import { TagManagerServiceImpl } from './tag-manager.service';
-import { Tag } from './tag.model';
-import { TodoTag } from './todo-tags/todo-tags.model';
+import { TodoTag, TodoTagEntity } from './todo-tags/todo-tags.entity';
+import { TagEntity } from './tag.entity';
 
 export interface TagManagerService {
-  createTagAndLinkToTodo: (todoId: number, tag: string) => Promise<{ tag: Tag; todoTag: TodoTag }>;
+  createTagAndLinkToTodo: (todoId: number, tag: string) => Promise<{ tag: TagEntity; todoTag: TodoTagEntity }>;
 }
 
 export const TagManagerServiceToken = Symbol('TagManagerService');

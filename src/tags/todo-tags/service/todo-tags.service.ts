@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { TodoTag } from '../todo-tags.model';
+import { TodoTag } from '../todo-tags.entity';
 import { InvalidInputException } from '../../../common/exceptions/exceptions';
 import { TodoTagRepository, TodoTagRepositoryToken } from '../repository';
 import { TodoTagService } from './todo-tags.provider';

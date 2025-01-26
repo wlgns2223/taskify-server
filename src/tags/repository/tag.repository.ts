@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { DBConnectionService } from '../../db/db.service';
-import { Tag } from '../tag.model';
 import { TagRepository } from './tag.provider';
+import { Tag, TagEntity } from '../tag.entity';
+import { TagMapper } from '../tag.mapper';
 
 @Injectable()
 export class TagRepositoryImpl implements TagRepository {
@@ -18,7 +19,7 @@ export class TagRepositoryImpl implements TagRepository {
     return result;
   }
 
-  async create(newTag: Tag) {
+  async create(newTag: TagEntity) {
     const query = `
       INSERT INTO tags (tag)
       VALUES (?)
@@ -26,17 +27,18 @@ export class TagRepositoryImpl implements TagRepository {
     const result = await this.dbService.insert(query, [newTag.tag]);
     const insertedTag = await this.getData(result.insertId);
 
-    return Tag.from(insertedTag[0]);
+    return TagMapper.toEntity(insertedTag[0]);
   }
 
-  async find(tag: string) {
+  async findOneBy(tag: string) {
     const query = `
       SELECT id, tag, created_at as createdAt
       FROM tags
       WHERE tag = ?
+      limit 1
     `;
 
     const result = await this.dbService.select<Tag>(query, [tag]);
-    return result && result.length > 0 ? Tag.from(result[0]) : null;
+    return result.length > 0 ? TagMapper.toEntity(result[0]) : null;
   }
 }

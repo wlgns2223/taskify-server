@@ -4,15 +4,8 @@ import { RefreshTokenRepositoryProvider } from './repository/refresh-token.repos
 import { RefreshTokenServiceProvider } from './service/refresh-token.service.provider';
 
 @Module({
-  imports: [
-    JwtModule.registerAsync({
-      useFactory: () => ({
-        global: true,
-        secret: 'secret',
-      }),
-    }),
-  ],
+  imports: [],
   providers: [RefreshTokenServiceProvider, RefreshTokenRepositoryProvider],
   exports: [RefreshTokenServiceProvider],
 })
-export class TokenModule {}
+export class RefreshTokenModule {}

@@ -1,8 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { InvalidInputException } from '../../common/exceptions/exceptions';
-import { Tag } from '../tag.model';
 import { TagRepository, TagRepositoryToken } from '../repository';
 import { TagService } from './tag.provider';
+import { TagMapper } from '../tag.mapper';
+import { TagEntity } from '../tag.entity';
 
 @Injectable()
 export class TagServiceImpl implements TagService {
@@ -15,14 +16,13 @@ export class TagServiceImpl implements TagService {
     if (!tag || tag.trim() === '') {
       InvalidInputException('Tag must have a tag');
     }
+    let tagEntity: TagEntity | null = await this.tagRepository.findOneBy(tag);
 
-    const existingTag = await this.tagRepository.find(tag);
-    if (existingTag) {
-      return existingTag;
+    if (tagEntity) {
+      return tagEntity;
     }
 
-    const newTag = Tag.from({ tag });
-
-    return await this.tagRepository.create(newTag);
+    tagEntity = TagMapper.toEntity({ tag: tag });
+    return await this.tagRepository.create(tagEntity);
   }
 }

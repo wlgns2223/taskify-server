@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { TodoTag } from '../todo-tags.model';
+import { TodoTag, TodoTagEntity } from '../todo-tags.entity';
 import { DBConnectionService } from '../../../db/db.service';
 import { TodoTagRepository } from './todo-tag.provider';
+import { TodoTagMapper } from '../todo-tags.mapper';
 
 @Injectable()
 export class TodoTagRepositoryImpl implements TodoTagRepository {
@@ -26,17 +27,18 @@ export class TodoTagRepositoryImpl implements TodoTagRepository {
     const result = await this.dbService.insert(query, [newTodoTag.todoId, newTodoTag.tagId]);
     const insertedTodoTag = await this.getData(result.insertId);
 
-    return TodoTag.from(insertedTodoTag[0]);
+    return TodoTagMapper.toEntity(insertedTodoTag[0]);
   }
 
-  async find(todoId: number, tagId: number): Promise<TodoTag | null> {
+  async findOneBy(todoId: number, tagId: number) {
     const query = `
             SELECT id, todo_id as todoId, tag_id as tagId
             FROM todo_tags
             WHERE todo_id = ? AND tag_id = ?
+            limit 1
         `;
 
     const result = await this.dbService.select<TodoTag>(query, [todoId, tagId]);
-    return result && result.length ? TodoTag.from(result[0]) : null;
+    return result.length !== 0 ? TodoTagMapper.toEntity(result[0]) : null;
   }
 }

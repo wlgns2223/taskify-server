@@ -1,7 +1,7 @@
 import { Controller, Get, Inject, Logger, Query } from '@nestjs/common';
-import { TokenService } from '../token/service/refresh-token.serviceImpl';
 import { UsersService } from './service/users.provider';
 import { UsersRepositoryToken } from './repository';
+import { AuthService } from '../auth/auth.service';
 
 @Controller('users')
 export class UsersController {
@@ -9,7 +9,8 @@ export class UsersController {
   constructor(
     @Inject(UsersRepositoryToken)
     private usersService: UsersService,
-    private tokenService: TokenService,
+
+    private readonly authService: AuthService,
   ) {}
 
   @Get()
@@ -20,7 +21,7 @@ export class UsersController {
 
   @Get('me')
   async findMe(@Query('accessToken') accessToken: string) {
-    const payload = this.tokenService.decodeToken(accessToken);
+    const payload = this.authService.decode(accessToken);
     const user = await this.usersService.findOneBy(payload.email);
     return user;
   }

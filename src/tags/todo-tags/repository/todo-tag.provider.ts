@@ -1,10 +1,10 @@
 import { Provider } from '@nestjs/common';
-import { TodoTag } from '../todo-tags.model';
-import { TodoTagRepositoryImpl } from './todo-tags.repository';
+import { TodoTag, TodoTagEntity } from '../todo-tags.entity';
+import { TodoTagRepositoryImpl } from './todo-tags.repositoryImpl';
 
 export interface TodoTagRepository {
-  create: (todoTag: TodoTag) => Promise<TodoTag>;
-  find: (todoId: number, tagId: number) => Promise<TodoTag | null>;
+  create: (todoTag: TodoTag) => Promise<TodoTagEntity>;
+  findOneBy: (todoId: number, tagId: number) => Promise<TodoTagEntity | null>;
 }
 
 export const TodoTagRepositoryToken = Symbol('TodoTagRepository');

@@ -1,10 +1,10 @@
 import { Provider } from '@nestjs/common';
-import { Tag } from '../tag.model';
 import { TagRepositoryImpl } from './tag.repository';
+import { TagEntity } from '../tag.entity';
 
 export interface TagRepository {
-  create: (tag: Tag) => Promise<Tag>;
-  find: (tag: string) => Promise<Tag | null>;
+  create: (tag: Tag) => Promise<TagEntity>;
+  findOneBy: (tag: string) => Promise<TagEntity | null>;
 }
 
 export const TagRepositoryToken = Symbol('TagRepository');
