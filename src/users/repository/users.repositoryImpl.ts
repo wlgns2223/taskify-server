@@ -25,7 +25,7 @@ export class UsersRepositoryImpl implements UsersRepository {
     FROM users where email = ?`;
     const result = await this.dbService.select<User>(query, [email]);
 
-    return UserMapper.toEntityArray(result);
+    return UserMapper.toEntityList(result);
   }
 
   async findOneBy(email: string) {

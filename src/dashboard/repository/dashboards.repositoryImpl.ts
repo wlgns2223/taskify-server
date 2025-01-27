@@ -61,7 +61,7 @@ export class DashboardsRepositoryImpl implements DashboardsRepository {
 
     const result = await this.dbService.select<Dashboard>(query);
 
-    return DashboardMapper.toEntityArray(result);
+    return DashboardMapper.toEntityList(result);
   }
 
   async findOneBy(id: number) {

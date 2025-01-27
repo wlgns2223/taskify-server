@@ -17,7 +17,7 @@ export class TodoMapper {
     return TodoEntity.from<TodoEntity, Todo>(TodoEntity, plain);
   }
 
-  static toEntityArray(plain: Todo[]): TodoEntity[] {
+  static toEntityList(plain: Todo[]): TodoEntity[] {
     return plain.map((todo) => TodoEntity.from<TodoEntity, Todo>(TodoEntity, todo));
   }
 }

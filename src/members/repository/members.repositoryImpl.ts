@@ -42,6 +42,6 @@ export class MembersRepositoryImpl implements MembersRepository {
     JOIN users as U ON M.member_id = U.id 
     WHERE dashboard_id = ?`;
     const results = await this.dbService.select<Member>(query, [dashboardId]);
-    return MembersMapper.toEntityArray(results);
+    return MembersMapper.toEntityList(results);
   }
 }

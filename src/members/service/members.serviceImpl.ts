@@ -1,12 +1,15 @@
-import { Injectable } from '@nestjs/common';
-import { MembersRepository } from '../repository';
+import { Inject, Injectable } from '@nestjs/common';
+import { MembersRepository, MembersRepositoryProvider, MembersRepositoryToken } from '../repository';
 import { MembersService } from './members.service.provider';
 import { CreateMemberDto } from '../dto/createMember.dto';
 import { MembersMapper } from '../members.mapper';
 
 @Injectable()
 export class MembersServiceImpl implements MembersService {
-  constructor(private membersRepository: MembersRepository) {}
+  constructor(
+    @Inject(MembersRepositoryToken)
+    private membersRepository: MembersRepository,
+  ) {}
 
   async create(createMemberDto: CreateMemberDto) {
     const memberEntity = MembersMapper.toEntity({

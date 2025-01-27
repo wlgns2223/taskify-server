@@ -70,6 +70,6 @@ export class TodosRepositoryImpl implements TodosRepository {
 
     const result = await this.dbService.select<Todo>(query, [columnId]);
 
-    return TodoMapper.toEntityArray(result);
+    return TodoMapper.toEntityList(result);
   }
 }

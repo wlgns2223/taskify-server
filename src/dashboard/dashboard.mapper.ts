@@ -5,7 +5,7 @@ export class DashboardMapper {
     return DashboardEntity.from<DashboardEntity, Dashboard>(DashboardEntity, param);
   }
 
-  static toEntityArray(param: Dashboard[]) {
+  static toEntityList(param: Dashboard[]) {
     return param.map((item) => DashboardEntity.from<DashboardEntity, Dashboard>(DashboardEntity, item));
   }
 }

@@ -1,4 +1,4 @@
-import { PartialType, PickType } from '@nestjs/swagger';
+import { PartialType } from '@nestjs/swagger';
 import { CreateColumnsDto } from './createColumns.dto';
 
-export class UpdateColumnsDto extends CreateColumnsDto {}
+export class UpdateColumnsDto extends PartialType(CreateColumnsDto) {}

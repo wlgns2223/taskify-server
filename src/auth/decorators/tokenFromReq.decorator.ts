@@ -6,6 +6,11 @@ export const TokenFromReq = createParamDecorator((data: TokenTypeValues, ctx: Ex
   const request = ctx.switchToHttp().getRequest();
   const key = data === 'access' ? 'ACCESS_TOKEN_NAME' : 'REFRESH_TOKEN_NAME';
   const tokenName = process.env[key];
+
+  if (!tokenName) {
+    throw TokenException(TokenType.ACCESS, TokenExceptionType.UNDEFINED);
+  }
+
   const token = request.cookies[tokenName] as string | undefined;
   const type = data === 'access' ? TokenType.ACCESS : TokenType.REFRESH;
 

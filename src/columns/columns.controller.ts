@@ -1,40 +1,44 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Query } from '@nestjs/common';
-import { ColumnsService } from './columns.service';
+import { Body, Controller, Delete, Get, Inject, Param, ParseIntPipe, Post, Put, Query } from '@nestjs/common';
 import { CreateColumnsDto } from './dto/createColumns.dto';
 import { SwapColumnPositionDto } from './dto/swapColumnPosition.dto';
+import { ColumnsService, ColumnsServiceProvider, ColumnsServiceToken } from './service';
 import { UpdateColumnsDto } from './dto/updateColumns.dto';
-import { Column } from './columns.entity';
 
 @Controller('columns')
 export class ColumnsController {
-  constructor(private columnsService: ColumnsService) {}
+  constructor(
+    @Inject(ColumnsServiceToken)
+    private columnsService: ColumnsService,
+  ) {}
 
   @Post()
   async createColumn(@Body() createColumnsDto: CreateColumnsDto) {
-    return await this.columnsService.createColumn(createColumnsDto);
+    return await this.columnsService.create(createColumnsDto);
   }
 
   @Get()
   async getColumnsByDashboardId(@Query('dashboardId') dashboardId: number) {
-    return await this.columnsService.getColumnsByDashboardId(dashboardId);
+    return await this.columnsService.findAllBy(dashboardId);
   }
 
   @Put('swap/:dashboardId')
-  async swapColumnsPosition(@Param('dashboardId') dashboardId: string, @Body() swapColumnsDto: SwapColumnPositionDto) {
-    return await this.columnsService.swapColumnsPosition(
-      parseInt(dashboardId, 10),
-      swapColumnsDto.from,
-      swapColumnsDto.to,
-    );
+  async swapColumnsPosition(
+    @Param('dashboardId', ParseIntPipe) dashboardId: number,
+    @Body() swapColumnsDto: SwapColumnPositionDto,
+  ) {
+    return await this.columnsService.swapColumnsPosition(dashboardId, swapColumnsDto);
   }
 
   @Put(':columnId')
-  async updateColumn(@Param('columnId') columnId: string, @Body() columnDto: Column) {
-    return await this.columnsService.updateColumn(columnId, columnDto);
+  async updateColumn(@Param('columnId', ParseIntPipe) columnId: number, @Body() columnDto: UpdateColumnsDto) {
+    return await this.columnsService.updateOneBy(columnId, columnDto);
   }
 
   @Delete(':columnId')
-  async deleteAndReorderColumns(@Param('columnId') columnId: string, @Query('dashboardId') dashboardId: number) {
-    return await this.columnsService.deleteAndReorderColumns(dashboardId, parseInt(columnId, 10));
+  async deleteAndReorderColumns(
+    @Param('columnId', ParseIntPipe) columnId: number,
+    @Query('dashboardId', ParseIntPipe) dashboardId: number,
+  ) {
+    return await this.columnsService.deleteOneAndReorder(dashboardId, columnId);
   }
 }

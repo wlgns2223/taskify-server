@@ -5,7 +5,7 @@ export class InvitationsMapper {
     return InvitationEntity.from<InvitationEntity, Invitation>(InvitationEntity, invitation);
   }
 
-  static toEntityArray(invitations: Invitation[]) {
+  static toEntityList(invitations: Invitation[]) {
     return invitations.map((invitation) => this.toEntity(invitation));
   }
 }

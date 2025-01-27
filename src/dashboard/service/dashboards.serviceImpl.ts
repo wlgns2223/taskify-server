@@ -1,12 +1,10 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { Dashboard } from '../dashboards.entity';
-import { instanceToPlain } from 'class-transformer';
 import { DBConnectionService } from '../../db/db.service';
 import { OffsetPaginationRequestDto, OffsetPaginationResponse } from '../dto/offsetPagination.dto';
 import { DashboardsService } from './dashboards.service.provider';
 import { DashboardsRepository, DashboardsRepositoryToken } from '../repository';
-import { MembersRepositoryToken } from '../../members/repository';
-import { MembersService } from '../../members/service';
+import { MemberServiceToken, MembersService } from '../../members/service';
 import { UsersService, UsersServiceToken } from '../../users/service/users.provider';
 import { AuthService } from '../../auth/auth.service';
 import { EntityNotFoundException } from '../../common/exceptions/exceptions';
@@ -22,7 +20,7 @@ export class DashboardsServiceImpl implements DashboardsService {
     @Inject(DashboardsRepositoryToken)
     private dashBoardRepository: DashboardsRepository,
 
-    @Inject(MembersRepositoryToken)
+    @Inject(MemberServiceToken)
     private memberService: MembersService,
 
     @Inject(UsersServiceToken)

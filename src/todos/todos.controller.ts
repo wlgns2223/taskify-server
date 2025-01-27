@@ -1,13 +1,16 @@
-import { Body, Controller, Get, Param, Post, Query, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Get, Inject, Param, Post, Query, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { CreateTodoDto } from './dto/createTodo.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { TokenFromReq } from '../auth/decorators/tokenFromReq.decorator';
 import { TokenType } from '../auth/types/type';
-import { TodosService } from './service/todo.provider';
+import { TodoServiceToken, TodosService } from './service/todo.provider';
 
 @Controller('todos')
 export class TodosController {
-  constructor(private todosService: TodosService) {}
+  constructor(
+    @Inject(TodoServiceToken)
+    private todosService: TodosService,
+  ) {}
 
   @Post()
   @UseInterceptors(FileInterceptor('imageFile'))

@@ -5,7 +5,7 @@ export class MembersMapper {
     return MemberEntity.from<MemberEntity, Member>(MemberEntity, param);
   }
 
-  static toEntityArray(param: Member[]) {
+  static toEntityList(param: Member[]) {
     return param.map((member) => MemberEntity.from<MemberEntity, Member>(MemberEntity, member));
   }
 }

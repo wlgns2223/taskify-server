@@ -9,7 +9,7 @@ export class UserMapper {
     return instanceToPlain(userDto) as PlainOf<UserDTO>;
   }
 
-  static toEntityArray(plain: User[]): UserEntity[] {
+  static toEntityList(plain: User[]): UserEntity[] {
     return plain.map((user) => UserEntity.from<UserEntity, User>(UserEntity, user));
   }
 

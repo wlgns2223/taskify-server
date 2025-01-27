@@ -83,7 +83,7 @@ export class InvitationsRepositoryImpl implements InvitationsRepository {
     param.push(pageSize.toString(), offset.toString());
 
     const result = await this.dbService.select<Invitation>(query, param);
-    return InvitationsMapper.toEntityArray(result);
+    return InvitationsMapper.toEntityList(result);
   }
 
   async updateOneBy(id: number, status: InvitationStatus) {

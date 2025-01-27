@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
 import { ColumnsController } from './columns.controller';
-import { ColumnsRepository } from './columns.repository';
-import { ColumnsService } from './columns.service';
+import { ColumnsRepositoryProvider } from './repository';
+import { ColumnsServiceProvider } from './service';
 
 @Module({
   controllers: [ColumnsController],
-  providers: [ColumnsRepository, ColumnsService],
+  providers: [ColumnsRepositoryProvider, ColumnsServiceProvider],
 })
 export class ColumnsModule {}
