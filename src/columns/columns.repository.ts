@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { DBConnectionService } from '../db/db.service';
-import { Column } from './columns.model';
+import { Column } from './columns.entity';
+import { Dashboard } from '../dashboard/dashboards.entity';
 
 @Injectable()
 export class ColumnsRepository {
@@ -12,7 +13,7 @@ export class ColumnsRepository {
         FROM columns 
         WHERE id = ?`;
 
-    const result = await this.dbService.select(query, [id]);
+    const result = await this.dbService.select<Dashboard>(query, [id]);
     return result;
   }
 

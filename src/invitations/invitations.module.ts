@@ -1,15 +1,15 @@
 import { Module } from '@nestjs/common';
 import { InvitationsController } from './invitations.controller';
-import { InvitationsRepository } from './invitations.repository';
-import { InvitationsService } from './invitations.service';
 import { EmailService } from './email.service';
-import { TokenModule } from '../token/token.module';
 import { UsersModule } from '../users/users.module';
 import { MembersModule } from '../members/members.module';
+import { AuthModule } from '../auth/auth.module';
+import { InvitationsRepositoryProvider } from './repository';
+import { InvitationsServiceProvider } from './service';
 
 @Module({
-  imports: [TokenModule, UsersModule, MembersModule],
+  imports: [AuthModule, UsersModule, MembersModule],
   controllers: [InvitationsController],
-  providers: [InvitationsRepository, InvitationsService, EmailService],
+  providers: [InvitationsRepositoryProvider, InvitationsServiceProvider, EmailService],
 })
 export class InvitationsModule {}

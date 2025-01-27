@@ -18,7 +18,7 @@ export class TagManagerServiceImpl implements TagManagerService {
   async createTagAndLinkToTodo(todoId: number, tag: string) {
     const queries = async () => {
       const newTag = await this.tagService.create(tag);
-      const newTodoTag = await this.todoTagsService.link(todoId, newTag.id);
+      const newTodoTag = await this.todoTagsService.link(todoId, newTag.id!);
 
       return { tag: newTag, todoTag: newTodoTag };
     };

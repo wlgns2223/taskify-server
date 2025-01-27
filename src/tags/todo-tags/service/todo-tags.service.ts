@@ -3,6 +3,7 @@ import { TodoTag } from '../todo-tags.entity';
 import { InvalidInputException } from '../../../common/exceptions/exceptions';
 import { TodoTagRepository, TodoTagRepositoryToken } from '../repository';
 import { TodoTagService } from './todo-tags.provider';
+import { TodoTagMapper } from '../todo-tags.mapper';
 
 @Injectable()
 export class TodoTagServiceImpl implements TodoTagService {
@@ -16,13 +17,12 @@ export class TodoTagServiceImpl implements TodoTagService {
       InvalidInputException('TodoTag must have a todoId and tagId');
     }
 
-    const existingTodoTag = await this.todoTagRepository.find(todoId, tagId);
-    if (existingTodoTag) {
-      return existingTodoTag;
+    let todoTagEntity = await this.todoTagRepository.findOneBy(todoId, tagId);
+    if (todoTagEntity) {
+      return todoTagEntity;
     }
 
-    const newTodoTag = TodoTag.from({ todoId, tagId });
-
-    return await this.todoTagRepository.create(newTodoTag);
+    todoTagEntity = TodoTagMapper.toEntity({ todoId, tagId });
+    return await this.todoTagRepository.create(todoTagEntity);
   }
 }

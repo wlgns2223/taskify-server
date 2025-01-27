@@ -1,45 +1,36 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { DBConnectionService } from '../db/db.service';
-import { Dashboard } from './dashboards.model';
-import { OffsetPaginationRequestDto } from './dto/offsetPagination.dto';
+import { DBConnectionService } from '../../db/db.service';
+import { Dashboard } from '../dashboards.entity';
+import { OffsetPaginationRequestDto } from '../dto/offsetPagination.dto';
+import { DashboardsRepository } from './dashboards.repository.provider';
+import { DashboardMapper } from '../dashboard.mapper';
 
 export type CursorPaginationDirection = 'prev' | 'next';
 
 @Injectable()
-export class DashboardsRepository {
-  private logger = new Logger(DashboardsRepository.name);
+export class DashboardsRepositoryImpl implements DashboardsRepository {
+  private logger = new Logger(DashboardsRepositoryImpl.name);
   constructor(private dbService: DBConnectionService) {}
 
-  private async getData<T>(id: number) {
+  private async getData(id: number) {
     const query = `SELECT 
     id,title,color,owner_id as ownerId, created_at as createdAt, updated_at as updatedAt 
     FROM dashboards 
     WHERE id = ?`;
 
-    const result = await this.dbService.select<T>(query, [id]);
+    const result = await this.dbService.select<Dashboard>(query, [id]);
     return result;
   }
 
-  async createDashboard(dashBoard: Dashboard) {
+  async create(dashBoard: Dashboard) {
     const query = `INSERT INTO dashboards (title, color, owner_id) VALUES (?, ?, ?)`;
     const result = await this.dbService.insert(query, [dashBoard.title, dashBoard.color, dashBoard.ownerId]);
-    const insertedDashboard = await this.getData<Dashboard>(result.insertId);
+    const insertedDashboard = await this.getData(result.insertId);
 
-    return insertedDashboard[0];
+    return DashboardMapper.toEntity(insertedDashboard[0]);
   }
 
-  async getFirstLastCursor() {
-    const firstCursorQuery = `SELECT id FROM dashboards ORDER BY id ASC LIMIT 1`;
-    const lastCursorQuery = `SELECT id FROM dashboards ORDER BY id DESC LIMIT 1`;
-    const firstCursor = await this.dbService.select<{ id: number }>(firstCursorQuery);
-    const lastCursor = await this.dbService.select<{ id: number }>(lastCursorQuery);
-    return {
-      firstCursor: firstCursor.length ? firstCursor[0].id : null,
-      lastCursor: lastCursor.length ? lastCursor[0].id : null,
-    };
-  }
-
-  async getTotalNumberOfDashboards(userId: number) {
+  async countAllBy(userId: number) {
     const query = `
     SELECT 
     COUNT(*) as total
@@ -51,14 +42,8 @@ export class DashboardsRepository {
     return result[0].total;
   }
 
-  async getDashboards(offsetPaginationParam: {
-    offsetPaginationRequestDto: OffsetPaginationRequestDto;
-    userId: number;
-  }) {
-    const {
-      offsetPaginationRequestDto: { page, pageSize },
-      userId,
-    } = offsetPaginationParam;
+  async findAllByWithPagination(userId: number, offsetPaginationRequestDto: OffsetPaginationRequestDto) {
+    const { page, pageSize } = offsetPaginationRequestDto;
     const query = `
     SELECT 
     D.id as id,
@@ -76,17 +61,18 @@ export class DashboardsRepository {
 
     const result = await this.dbService.select<Dashboard>(query);
 
-    return result;
+    return DashboardMapper.toEntityArray(result);
   }
 
-  async getDashboardById(id: number) {
+  async findOneBy(id: number) {
     const query = `
     SELECT 
     id,title,color,owner_id as ownerId, created_at as createdAt, updated_at as updatedAt 
     FROM dashboards 
     WHERE id = ?
+    limit 1
   `;
     const result = await this.dbService.select<Dashboard>(query, [id]);
-    return result[0];
+    return DashboardMapper.toEntity(result[0]);
   }
 }

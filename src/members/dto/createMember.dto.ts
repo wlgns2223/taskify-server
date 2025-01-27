@@ -1,9 +1,9 @@
-import { PickType } from '@nestjs/swagger';
-import { Member } from '../members.model';
+import { Member } from '../members.entity';
 import { IsNotEmpty, IsNumber } from 'class-validator';
 import { Type } from 'class-transformer';
+import { Base } from '../../common/entity';
 
-export class CreateMemberDto extends PickType(Member, ['dashboardId', 'memberId']) {
+export class CreateMemberDto implements Omit<Member, keyof Base> {
   @IsNotEmpty()
   @IsNumber()
   @Type(() => Number)

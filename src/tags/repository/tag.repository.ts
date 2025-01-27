@@ -10,7 +10,7 @@ export class TagRepositoryImpl implements TagRepository {
 
   private async getData(id: number) {
     const query = `
-      SELECT id, tag, created_at as createdAt
+      SELECT id, tag, created_at as createdAt, updated_at as updatedAt
       FROM tags
       WHERE id = ?
     `;
@@ -19,7 +19,7 @@ export class TagRepositoryImpl implements TagRepository {
     return result;
   }
 
-  async create(newTag: TagEntity) {
+  async create(newTag: Tag) {
     const query = `
       INSERT INTO tags (tag)
       VALUES (?)
@@ -32,7 +32,7 @@ export class TagRepositoryImpl implements TagRepository {
 
   async findOneBy(tag: string) {
     const query = `
-      SELECT id, tag, created_at as createdAt
+      SELECT id, tag, created_at as createdAt, updated_at as updatedAt
       FROM tags
       WHERE tag = ?
       limit 1

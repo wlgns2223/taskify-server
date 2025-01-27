@@ -1,6 +1,6 @@
 import { Provider } from '@nestjs/common';
 import { TagRepositoryImpl } from './tag.repository';
-import { TagEntity } from '../tag.entity';
+import { Tag, TagEntity } from '../tag.entity';
 
 export interface TagRepository {
   create: (tag: Tag) => Promise<TagEntity>;

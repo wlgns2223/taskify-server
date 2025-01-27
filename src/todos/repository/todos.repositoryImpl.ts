@@ -32,7 +32,6 @@ export class TodosRepositoryImpl implements TodosRepository {
 
   async create(newTodo: Todo): Promise<TodoEntity> {
     const query = `
-
     insert into todos (assignee_user_id, assigner_user_id, dashboard_id, column_id, title, content, due_date, image_url, position)
     values (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;

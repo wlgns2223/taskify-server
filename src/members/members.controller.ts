@@ -1,12 +1,15 @@
-import { Controller, Get, ParseIntPipe, Query } from '@nestjs/common';
-import { MembersService } from './members.service';
+import { Controller, Get, Inject, ParseIntPipe, Query } from '@nestjs/common';
+import { MemberServiceToken, MembersService } from './service';
 
 @Controller('members')
 export class MembersController {
-  constructor(private membersService: MembersService) {}
+  constructor(
+    @Inject(MemberServiceToken)
+    private membersService: MembersService,
+  ) {}
 
   @Get()
   async getMembersByDashboardId(@Query('dashboardId', ParseIntPipe) dashboardId: number) {
-    return await this.membersService.getMembersByDashboardId(dashboardId);
+    return await this.membersService.findAllBy(dashboardId);
   }
 }

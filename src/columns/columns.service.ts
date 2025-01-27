@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ColumnsRepository } from './columns.repository';
 import { CreateColumnsDto } from './dto/createColumns.dto';
-import { Column } from './columns.model';
+import { Column } from './columns.entity';
 import { UpdateColumnsDto } from './dto/updateColumns.dto';
 
 @Injectable()

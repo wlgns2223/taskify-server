@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { DBConnectionService } from '../db/db.service';
-import { Invitation, InvitationStatus } from './invitations.model';
-import { OffsetPaginationRequestDto } from '../dashboard/dto/offsetPagination.dto';
-import { InvitationOffsetPaginationWithSearchRequestDto } from './dto/readhInvitation.dto';
-import { InvitationDto } from './dto/invitation.dto';
+import { DBConnectionService } from '../../db/db.service';
+import { InvitationOffsetPaginationWithSearchRequestDto } from '../dto/readhInvitation.dto';
+import { Invitation, InvitationStatus } from '../invitations.entity';
+import { InvitationsRepository } from './invitations.repository.provider';
+import { InvitationsMapper } from '../invitations.mapper';
 
 @Injectable()
-export class InvitationsRepository {
+export class InvitationsRepositoryImpl implements InvitationsRepository {
   constructor(private dbService: DBConnectionService) {}
 
   private async getData(id: number) {
@@ -21,11 +21,11 @@ export class InvitationsRepository {
     FROM invitations
     WHERE id = ?`;
 
-    const result = await this.dbService.select(query, [id]);
+    const result = await this.dbService.select<Invitation>(query, [id]);
     return result;
   }
 
-  async createInvitation(newInvitation: Invitation) {
+  async create(newInvitation: Invitation) {
     const query = `
     insert into invitations (inviter_id, dashboard_id, invitee_email)
     values (?, ?, ?)
@@ -37,10 +37,10 @@ export class InvitationsRepository {
     ]);
     const insertedInvitation = await this.getData(result.insertId);
 
-    return insertedInvitation[0];
+    return InvitationsMapper.toEntity(insertedInvitation[0]);
   }
 
-  async getTotalNumberOfInvitations(email: string) {
+  async countAllBy(email: string) {
     const query = `
     SELECT COUNT(*) as total
     FROM invitations
@@ -50,7 +50,7 @@ export class InvitationsRepository {
     return result[0].total;
   }
 
-  async getInvitationsByEmailWithPagination(
+  async findAllByWithPagination(
     offsetPaginationRequestDto: InvitationOffsetPaginationWithSearchRequestDto,
     email: string,
   ) {
@@ -82,14 +82,14 @@ export class InvitationsRepository {
     const offset = (page - 1) * pageSize;
     param.push(pageSize.toString(), offset.toString());
 
-    const result = await this.dbService.select<InvitationDto>(query, param);
-    return result;
+    const result = await this.dbService.select<Invitation>(query, param);
+    return InvitationsMapper.toEntityArray(result);
   }
 
-  async updateInvitationStatus(id: number, status: InvitationStatus) {
+  async updateOneBy(id: number, status: InvitationStatus) {
     const query = `UPDATE invitations SET status = ? WHERE id = ?`;
     await this.dbService.update(query, [status, id]);
     const updatedInvitation = await this.getData(id);
-    return updatedInvitation[0];
+    return InvitationsMapper.toEntity(updatedInvitation[0]);
   }
 }

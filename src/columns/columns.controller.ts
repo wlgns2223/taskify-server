@@ -3,7 +3,7 @@ import { ColumnsService } from './columns.service';
 import { CreateColumnsDto } from './dto/createColumns.dto';
 import { SwapColumnPositionDto } from './dto/swapColumnPosition.dto';
 import { UpdateColumnsDto } from './dto/updateColumns.dto';
-import { Column } from './columns.model';
+import { Column } from './columns.entity';
 
 @Controller('columns')
 export class ColumnsController {

@@ -1,7 +1,14 @@
 import { Exclude, Expose, Type } from 'class-transformer';
 import { IsInt, Min } from 'class-validator';
 
-export class OffsetPaginationResponseDto<T> {
+export interface OffsetPaginationResponse<T = any> {
+  data: T[];
+  totalNumberOfData: number;
+  currentPage: number;
+  pageSize: number;
+}
+
+export class OffsetPaginationResponseDto<T = any> implements OffsetPaginationResponse {
   @Exclude()
   private _data: T[];
 
@@ -14,11 +21,21 @@ export class OffsetPaginationResponseDto<T> {
   @Exclude()
   private _totalPage: number;
 
-  constructor(param: { data: T[]; totalNumberOfData: number; currentPage: number; pageSize: number }) {
+  constructor(param: OffsetPaginationResponse) {
     this._data = param.data;
     this._totalNumberOfData = param.totalNumberOfData;
     this._currentPage = param.currentPage;
     this._totalPage = Math.ceil(this._totalNumberOfData / param.pageSize);
+  }
+
+  @Exclude()
+  get pageSize(): number {
+    return this._data.length;
+  }
+
+  @Exclude()
+  get totalNumberOfData(): number {
+    return this._totalNumberOfData;
   }
 
   @Expose()
