@@ -1,6 +1,5 @@
 import { JwtSignOptions } from '@nestjs/jwt';
 import ms from 'ms';
-import { InternalServerException } from '../common/exceptions/exceptions';
 
 export class TokenConfig {
   private _signOptions: JwtSignOptions;
@@ -18,21 +17,18 @@ export class TokenConfig {
     this._token = token;
   }
 
-  get expiresIn() {
-    return this._signOptions.expiresIn;
+  get expiresIn(): string {
+    return this._signOptions.expiresIn as string;
   }
 
-  get expiresInMs(): number {
-    if (!this._signOptions.expiresIn) {
-      throw InternalServerException('Token expiration time is not defined');
-    }
-    return typeof this._signOptions.expiresIn === 'string'
-      ? ms(this._signOptions.expiresIn)
-      : this._signOptions.expiresIn * 1000;
+  expiresInByDate(): Date {
+    const expiresInMs = ms(this._signOptions.expiresIn as string);
+    return new Date(Date.now() + expiresInMs);
   }
 
-  get expiresInSec(): number {
-    return this.expiresInMs / 1000;
+  expiresInBySeconds(): number {
+    const expiresInMs = ms(this._signOptions.expiresIn as string);
+    return Math.floor((Date.now() + expiresInMs) / 1000);
   }
 
   toJwtSignOptions(): JwtSignOptions {

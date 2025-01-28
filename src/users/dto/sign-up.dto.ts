@@ -1,4 +1,4 @@
-import { plainToInstance } from 'class-transformer';
+import { plainToInstance, Type } from 'class-transformer';
 import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
 import { User } from '../users.entity';
 
@@ -12,9 +12,11 @@ export class SignUpDto implements User {
   nickname: string;
 
   @IsNotEmpty()
+  @Type(() => String)
   password: string;
 
   @IsNotEmpty()
+  @Type(() => String)
   passwordConfirm: string;
 
   comparePassword(): boolean {

@@ -23,14 +23,14 @@ export class CookieConfigService {
     }
   }
 
-  getAccessTokenCookieConfig(token: string, expiresIn: Date | number) {
+  getAccessTokenCookieConfig(token: string, expiresIn: Date) {
     if (!this._accessTokenName) {
       throw InternalServerException('Token name is not defined');
     }
 
     const cookieOptions: CookieOptions = {
       ...this.cookieOptions,
-      expires: typeof expiresIn === 'number' ? new Date(Date.now() + expiresIn * 1000) : expiresIn,
+      expires: expiresIn,
     };
 
     return {

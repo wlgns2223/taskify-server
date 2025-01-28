@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthService } from '../../src/auth/auth.service';
-import { UsersService } from '../../src/users/users.service';
+import { UsersService } from '../../src/users/service/users.serviceImpl';
 import { TokenService } from '../../src/token/service/refresh-token.serviceImpl';
 import { UserBuilder } from '../builder/user.builder';
 import { EntityAlreadyExists } from '../../src/users/exceptions/entity.exception';

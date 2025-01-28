@@ -4,12 +4,6 @@ import { RefreshTokenService } from './refresh-token.service.provider';
 import { RefreshTokenMapper } from '../refresh-token.mapper';
 import { CreateRefreshTokenDTO } from '../dto/create.dto';
 
-export type TokenPayload = {
-  email: string;
-  iat: number;
-  exp: number;
-};
-
 @Injectable()
 export class RefreshTokenServiceImpl implements RefreshTokenService {
   constructor(
@@ -32,5 +26,9 @@ export class RefreshTokenServiceImpl implements RefreshTokenService {
 
   async deleteAllBy(userId: number) {
     return await this.refreshTokenRepository.deleteAllBy(userId);
+  }
+
+  async updateOneBy(tokenId: number, token: string) {
+    return await this.refreshTokenRepository.updateOneBy(tokenId, token);
   }
 }

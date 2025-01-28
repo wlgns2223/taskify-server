@@ -2,12 +2,11 @@ import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Logger, Param, Pos
 import { SignUpDto } from '../users/dto/sign-up.dto';
 import { AuthService } from './auth.service';
 import { SignInDto } from './dto/signIn.dto';
-import { CookieOptions, Response } from 'express';
-import { ConfigService } from '@nestjs/config';
+import { Response } from 'express';
 import { TokenFromReq } from './decorators/tokenFromReq.decorator';
 import { TokenType } from './types/type';
-import { InternalServerException } from '../common/exceptions/exceptions';
 import { CookieConfigService } from './cookie-config.service';
+import { UserMapper } from '../users/dto/user.mapper';
 
 @Controller('auth')
 export class AuthController {
@@ -20,7 +19,9 @@ export class AuthController {
 
   @Post('signUp')
   async signUp(@Body() signUpDto: SignUpDto) {
-    return await this.authService.signUp(SignUpDto.from(signUpDto));
+    const user = await this.authService.signUp(SignUpDto.from(signUpDto));
+
+    return UserMapper.toDTO(user);
   }
 
   @Post('signIn')
@@ -29,11 +30,12 @@ export class AuthController {
 
     const accessTokenCookie = this.cookieConfigService.getAccessTokenCookieConfig(
       accessToken.token,
-      accessToken.expiresInMs,
+      accessToken.expiresInByDate(),
     );
+
     const refreshTokenCookie = this.cookieConfigService.getRefreshTokenCookieConfig(
       refreshToken.token,
-      refreshToken.expiresInMs,
+      refreshToken.expiresInByDate(),
     );
 
     res.cookie(accessTokenCookie.tokenName, accessTokenCookie.value, accessTokenCookie.cookieOptions);
@@ -44,7 +46,7 @@ export class AuthController {
 
   @Post('verify')
   async verifyToken(@TokenFromReq(TokenType.ACCESS) accessToken: string, @Res() res: Response) {
-    await this.authService.verify(accessToken, TokenType.ACCESS);
+    const result = await this.authService.verify(accessToken, TokenType.ACCESS);
     return res.status(HttpStatus.OK).json({ message: 'Valid token' });
   }
 
@@ -54,12 +56,12 @@ export class AuthController {
 
     const accessTokenCookie = this.cookieConfigService.getAccessTokenCookieConfig(
       accessTokenConfig.token,
-      accessTokenConfig.expiresInMs,
+      accessTokenConfig.expiresInByDate(),
     );
 
     const refreshTokenCookie = this.cookieConfigService.getRefreshTokenCookieConfig(
       refreshTokenConfig.token,
-      refreshTokenConfig.expiresInMs,
+      refreshTokenConfig.expiresInByDate(),
     );
 
     return res.json({
@@ -74,12 +76,12 @@ export class AuthController {
 
     const accessTokenCookie = this.cookieConfigService.getAccessTokenCookieConfig(
       accessTokenConfig.token,
-      accessTokenConfig.expiresInMs,
+      accessTokenConfig.expiresInByDate(),
     );
 
     const refreshTokenCookie = this.cookieConfigService.getRefreshTokenCookieConfig(
       refreshTokenConfig.token,
-      refreshTokenConfig.expiresInMs,
+      refreshTokenConfig.expiresInByDate(),
     );
 
     res.cookie(accessTokenCookie.tokenName, accessTokenCookie.value, accessTokenCookie.cookieOptions);

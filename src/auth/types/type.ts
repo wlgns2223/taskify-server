@@ -12,3 +12,13 @@ export const enum TokenExceptionType {
   UNDEFINED = 'UNDEFINED',
   EXPIRED = 'EXPIRED',
 }
+
+export type JWT = {
+  email: string;
+  iat: number;
+  exp: number;
+};
+
+export type JWTPayload = {
+  email: string;
+};

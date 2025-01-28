@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { UsersService } from '../../src/users/users.service';
+import { UsersService } from '../../src/users/service/users.serviceImpl';
 import { UsersRepository } from '../../src/users/repository/users.repositoryImpl';
 import { User } from '../../src/users/users.entity';
 import { UserDto } from '../../src/users/dto/user.dto';
