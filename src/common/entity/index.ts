@@ -1,15 +1,17 @@
+import { TIMESTAMP } from '../types';
+
 export interface Base {
   id?: number;
-  createdAt?: Date;
-  updatedAt?: Date;
+  createdAt?: TIMESTAMP;
+  updatedAt?: TIMESTAMP;
 }
 
 export abstract class BaseEntity implements Base {
   protected _id?: number;
 
-  protected _createdAt?: Date;
+  protected _createdAt?: TIMESTAMP;
 
-  protected _updatedAt?: Date;
+  protected _updatedAt?: TIMESTAMP;
 
   constructor(param: Base) {
     this._id = param.id;
@@ -21,11 +23,11 @@ export abstract class BaseEntity implements Base {
     return this._id;
   }
 
-  get createdAt(): Date | undefined {
+  get createdAt(): TIMESTAMP | undefined {
     return this._createdAt;
   }
 
-  get updatedAt(): Date | undefined {
+  get updatedAt(): TIMESTAMP | undefined {
     return this._updatedAt;
   }
 
@@ -33,11 +35,11 @@ export abstract class BaseEntity implements Base {
     this._id = id;
   }
 
-  set createdAt(createdAt: Date | undefined) {
+  set createdAt(createdAt: TIMESTAMP | undefined) {
     this._createdAt = createdAt;
   }
 
-  set updatedAt(updatedAt: Date | undefined) {
+  set updatedAt(updatedAt: TIMESTAMP | undefined) {
     this._updatedAt = updatedAt;
   }
 

@@ -1,15 +1,16 @@
 import { Exclude, Expose } from 'class-transformer';
 import { Todo } from '../todos.entity';
+import { TIMESTAMP } from '../../common/types';
 
 export class TodoDTO implements Todo {
   @Exclude()
   private _id?: number;
 
   @Exclude()
-  private _createdAt?: Date;
+  private _createdAt?: TIMESTAMP;
 
   @Exclude()
-  private _updatedAt?: Date;
+  private _updatedAt?: TIMESTAMP;
 
   @Exclude()
   private _assigneeUserId: number;

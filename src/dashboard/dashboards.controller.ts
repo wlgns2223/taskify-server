@@ -16,6 +16,7 @@ import { TokenFromReq } from '../auth/decorators/tokenFromReq.decorator';
 import { TokenType } from '../auth/types/type';
 import { OffsetPaginationRequestDto } from './dto/offsetPagination.dto';
 import { DashboardsService, DashboardsServiceToken } from './service';
+import { DashboardMapper } from './dashboard.mapper';
 
 @Controller('dashboards')
 export class DashboardsController {
@@ -30,7 +31,8 @@ export class DashboardsController {
     @TokenFromReq(TokenType.ACCESS) accessToken: string,
     @Body() createDashBoardDto: CreateDashBoardDto,
   ) {
-    return await this.dashBoardService.create(createDashBoardDto, accessToken);
+    const dashboardEntity = await this.dashBoardService.create(createDashBoardDto, accessToken);
+    return DashboardMapper.toDTO(dashboardEntity);
   }
 
   @Get()

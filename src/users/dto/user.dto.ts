@@ -1,5 +1,6 @@
 import { Exclude, Expose, instanceToPlain } from 'class-transformer';
 import { User } from '../users.entity';
+import { TIMESTAMP } from '../../common/types';
 
 export class UserDTO {
   @Exclude()
@@ -9,9 +10,9 @@ export class UserDTO {
   @Exclude()
   private _nickname: string;
   @Exclude()
-  private _createdAt?: Date;
+  private _createdAt?: TIMESTAMP;
   @Exclude()
-  private _updatedAt?: Date;
+  private _updatedAt?: TIMESTAMP;
 
   constructor(data: User) {
     this._id = data.id;

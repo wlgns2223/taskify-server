@@ -5,3 +5,5 @@ export type PlainOf<T> = {
 };
 
 export type PurePropsOf<T, ExtraKeys extends keyof T = never> = Omit<T, keyof Base | ExtraKeys>;
+
+export type TIMESTAMP = string;
