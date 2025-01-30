@@ -33,7 +33,7 @@ export class OffsetPaginationResponseDto<T = any> implements OffsetPaginationRes
     return this._data.length;
   }
 
-  @Exclude()
+  @Expose()
   get totalNumberOfData(): number {
     return this._totalNumberOfData;
   }

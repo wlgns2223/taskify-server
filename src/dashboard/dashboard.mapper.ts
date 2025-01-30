@@ -19,4 +19,11 @@ export class DashboardMapper {
 
     return instanceToPlain(dto) as DashboardDTO;
   }
+
+  static toDTOList(entityList: DashboardEntity[]) {
+    return entityList.map((entity) => {
+      const dto = DashboardDTO.from(DashboardDTO, entity);
+      return instanceToPlain(dto) as DashboardDTO;
+    });
+  }
 }

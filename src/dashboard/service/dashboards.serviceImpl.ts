@@ -1,5 +1,5 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { Dashboard } from '../dashboards.entity';
+import { Dashboard, DashboardEntity } from '../dashboards.entity';
 import { DBConnectionService } from '../../db/db.service';
 import { OffsetPaginationRequestDto, OffsetPaginationResponse } from '../dto/offsetPagination.dto';
 import { DashboardsService } from './dashboards.service.provider';
@@ -12,6 +12,7 @@ import { DashboardMapper } from '../dashboard.mapper';
 import { MembersMapper } from '../../members/members.mapper';
 import { CreateDashBoardDto } from '../dto/createDashBoard.dto';
 import { OffsetPaginationMapper } from '../dto/offsetPagination.mapper';
+import { DashboardDTO } from '../dto/dashboard.dto';
 
 @Injectable()
 export class DashboardsServiceImpl implements DashboardsService {
@@ -60,14 +61,14 @@ export class DashboardsServiceImpl implements DashboardsService {
     const dashboards = await this.dashBoardRepository.findAllByWithPagination(user.id!, offsetPaginationRequestDto);
     const totalNumberOfDashboards = await this.dashBoardRepository.countAllBy(user.id!);
 
-    const offsetPaginationResponse: OffsetPaginationResponse<Dashboard> = {
+    const offsetPaginationResponse: OffsetPaginationResponse<DashboardDTO> = {
       currentPage: offsetPaginationRequestDto.page,
-      data: dashboards,
+      data: DashboardMapper.toDTOList(dashboards),
       totalNumberOfData: totalNumberOfDashboards,
       pageSize: offsetPaginationRequestDto.pageSize,
     };
 
-    return OffsetPaginationMapper.toResponseDTO(offsetPaginationResponse);
+    return offsetPaginationResponse;
   }
 
   async findOneBy(id: number) {

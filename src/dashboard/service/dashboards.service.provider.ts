@@ -1,16 +1,16 @@
 import { Provider } from '@nestjs/common';
 import { Dashboard, DashboardEntity } from '../dashboards.entity';
-import { OffsetPaginationRequestDto } from '../dto/offsetPagination.dto';
-import { DashboardsRepositoryImpl } from '../repository';
+import { OffsetPaginationRequestDto, OffsetPaginationResponse } from '../dto/offsetPagination.dto';
 import { CreateDashBoardDto } from '../dto/createDashBoard.dto';
 import { DashboardsServiceImpl } from './dashboards.serviceImpl';
+import { DashboardDTO } from '../dto/dashboard.dto';
 
 export interface DashboardsService {
   create(dashboard: CreateDashBoardDto, accessToken: string): Promise<DashboardEntity>;
   findAllByWithPagination(
     offsetPaginationRequestDto: OffsetPaginationRequestDto,
     accessToken: string,
-  ): Promise<Record<string, any>>;
+  ): Promise<OffsetPaginationResponse<DashboardDTO>>;
   findOneBy(id: number): Promise<DashboardEntity>;
 }
 

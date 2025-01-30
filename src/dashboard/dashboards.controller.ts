@@ -1,22 +1,12 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Inject,
-  Logger,
-  Param,
-  ParseIntPipe,
-  Post,
-  Query,
-  UsePipes,
-  ValidationPipe,
-} from '@nestjs/common';
+import { Body, Controller, Get, Inject, Logger, Param, ParseIntPipe, Post, Query } from '@nestjs/common';
 import { CreateDashBoardDto } from './dto/createDashBoard.dto';
 import { TokenFromReq } from '../auth/decorators/tokenFromReq.decorator';
 import { TokenType } from '../auth/types/type';
 import { OffsetPaginationRequestDto } from './dto/offsetPagination.dto';
 import { DashboardsService, DashboardsServiceToken } from './service';
 import { DashboardMapper } from './dashboard.mapper';
+import { OffsetPaginationMapper } from './dto/offsetPagination.mapper';
+import { DashboardDTO } from './dto/dashboard.dto';
 
 @Controller('dashboards')
 export class DashboardsController {
@@ -36,17 +26,17 @@ export class DashboardsController {
   }
 
   @Get()
-  @UsePipes(new ValidationPipe({ transform: true }))
   async getDashboards(
     @Query() paginationQuery: OffsetPaginationRequestDto,
     @TokenFromReq(TokenType.ACCESS) accessToken: string,
   ) {
     const res = await this.dashBoardService.findAllByWithPagination(paginationQuery, accessToken);
-    return res;
+    return OffsetPaginationMapper.toResponseDTO(res);
   }
 
   @Get(':id')
   async getDashboardById(@Param('id', ParseIntPipe) id: number) {
-    return await this.dashBoardService.findOneBy(id);
+    const dashboard = await this.dashBoardService.findOneBy(id);
+    return DashboardMapper.toDTO(dashboard);
   }
 }
