@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { DBConnectionService } from '../../db/db.service';
 import { Column } from '../columns.entity';
-import { Dashboard } from '../../dashboard/dashboards.entity';
 import { ColumnsRepository } from './columns.repository.provider';
 import { ColumnsMapper } from '../columns.mapper';
+import { InternalServerException } from '../../common/exceptions/exceptions';
 
 @Injectable()
 export class ColumnsRepositoryImpl implements ColumnsRepository {
@@ -16,12 +16,25 @@ export class ColumnsRepositoryImpl implements ColumnsRepository {
         WHERE id = ?`;
 
     const result = await this.dbService.select<Column>(query, [id]);
+
     return result;
   }
 
+  private async moveBackwardOrderOfColumnsOf(dashboardId: number) {
+    const query = `UPDATE columns SET position = position + 1 WHERE dashboard_id =  ?`;
+    await this.dbService.update(query, [dashboardId]);
+  }
+
   async create(column: Column) {
-    const query = `INSERT INTO columns (name, position, dashboard_id) VALUES (?, ?, ?)`;
-    const result = await this.dbService.insert(query, [column.name, column.position, column.dashboardId]);
+    const queries = async () => {
+      await this.moveBackwardOrderOfColumnsOf(column.dashboardId);
+      const query = `INSERT INTO columns (name, position, dashboard_id) VALUES (?, ?, ?)`;
+      const result = await this.dbService.insert(query, [column.name, column.position, column.dashboardId]);
+      return result;
+    };
+
+    const result = await this.dbService.transaction(queries);
+
     const insertedColumn = await this.getData(result.insertId);
 
     return ColumnsMapper.toEntity(insertedColumn[0]);
@@ -76,13 +89,16 @@ export class ColumnsRepositoryImpl implements ColumnsRepository {
   async updateOneBy(columnId: number, newColumn: Partial<Column>) {
     let query = `UPDATE columns SET `;
 
+    const keys: (string | number)[] = [];
     Object.keys(newColumn).forEach((key) => {
+      keys.push(newColumn[key]);
       query += `${key} = ?,`;
     });
     query = query.slice(0, -1);
     query += ` WHERE id = ?`;
+    keys.push(columnId);
 
-    await this.dbService.update(query, [columnId, ...Object.values(newColumn)]);
+    await this.dbService.update(query, keys);
     const updatedColumn = await this.getData(columnId);
 
     return ColumnsMapper.toEntity(updatedColumn[0]);
@@ -110,10 +126,13 @@ export class ColumnsRepositoryImpl implements ColumnsRepository {
 
   async deleteOneAndReorder(dashboardId: number, columnId: number) {
     const quries = async () => {
-      const column = await this.getData(columnId);
-      await this.deleteOneBy(columnId);
-      await this.reorderColumns(dashboardId, column[0].position);
-      return ColumnsMapper.toEntity(column[0]);
+      const column = await this.deleteOneBy(columnId);
+      if (column.position === undefined) {
+        throw InternalServerException('Column position is not defined');
+      }
+
+      await this.reorderColumns(dashboardId, column.position);
+      return column;
     };
     return await this.dbService.transaction(quries);
   }

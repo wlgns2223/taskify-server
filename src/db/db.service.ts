@@ -52,7 +52,7 @@ export class DBConnectionService {
     return result;
   }
 
-  async transaction<T>(queries: () => T) {
+  async transaction<T>(queries: () => Promise<T>) {
     const conn = await this.pool.getConnection();
     await conn.beginTransaction();
 

@@ -3,6 +3,7 @@ import { CreateColumnsDto } from './dto/createColumns.dto';
 import { SwapColumnPositionDto } from './dto/swapColumnPosition.dto';
 import { ColumnsService, ColumnsServiceProvider, ColumnsServiceToken } from './service';
 import { UpdateColumnsDto } from './dto/updateColumns.dto';
+import { ColumnsMapper } from './columns.mapper';
 
 @Controller('columns')
 export class ColumnsController {
@@ -13,12 +14,14 @@ export class ColumnsController {
 
   @Post()
   async createColumn(@Body() createColumnsDto: CreateColumnsDto) {
-    return await this.columnsService.create(createColumnsDto);
+    const column = await this.columnsService.create(createColumnsDto);
+    return ColumnsMapper.toDTO(column);
   }
 
   @Get()
   async getColumnsByDashboardId(@Query('dashboardId') dashboardId: number) {
-    return await this.columnsService.findAllBy(dashboardId);
+    const columns = await this.columnsService.findAllBy(dashboardId);
+    return ColumnsMapper.toDTOList(columns);
   }
 
   @Put('swap/:dashboardId')
@@ -26,19 +29,22 @@ export class ColumnsController {
     @Param('dashboardId', ParseIntPipe) dashboardId: number,
     @Body() swapColumnsDto: SwapColumnPositionDto,
   ) {
-    return await this.columnsService.swapColumnsPosition(dashboardId, swapColumnsDto);
+    const columns = await this.columnsService.swapColumnsPosition(dashboardId, swapColumnsDto);
+    return ColumnsMapper.toDTOList(columns);
   }
 
   @Put(':columnId')
   async updateColumn(@Param('columnId', ParseIntPipe) columnId: number, @Body() columnDto: UpdateColumnsDto) {
-    return await this.columnsService.updateOneBy(columnId, columnDto);
+    const column = await this.columnsService.updateOneBy(columnId, columnDto);
+    return ColumnsMapper.toDTO(column);
   }
 
-  @Delete(':columnId')
+  @Delete(':dashboardId/:columnId')
   async deleteAndReorderColumns(
+    @Param('dashboardId', ParseIntPipe) dashboardId: number,
     @Param('columnId', ParseIntPipe) columnId: number,
-    @Query('dashboardId', ParseIntPipe) dashboardId: number,
   ) {
-    return await this.columnsService.deleteOneAndReorder(dashboardId, columnId);
+    const column = await this.columnsService.deleteOneAndReorder(dashboardId, columnId);
+    return ColumnsMapper.toDTO(column);
   }
 }

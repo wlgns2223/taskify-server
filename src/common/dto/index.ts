@@ -1,16 +1,15 @@
 import { Exclude, Expose } from 'class-transformer';
-import { TIMESTAMP } from '../types';
-import { Base, BaseEntity } from '../entity';
+import { Base } from '../entity';
 
 export abstract class BaseDTO implements Required<Base> {
   @Exclude()
   protected _id: number;
 
   @Exclude()
-  protected _createdAt: TIMESTAMP;
+  protected _createdAt: Date;
 
   @Exclude()
-  protected _updatedAt: TIMESTAMP;
+  protected _updatedAt: Date;
 
   constructor(param: Required<Base>) {
     this._id = param.id;
@@ -24,12 +23,12 @@ export abstract class BaseDTO implements Required<Base> {
   }
 
   @Expose()
-  get createdAt(): TIMESTAMP {
+  get createdAt(): Date {
     return this._createdAt;
   }
 
   @Expose()
-  get updatedAt(): TIMESTAMP {
+  get updatedAt(): Date {
     return this._updatedAt;
   }
 
