@@ -8,6 +8,7 @@ import { TodosRepository, TodosRepositoryToken } from '../repository';
 import { TodosService } from './todo.provider';
 import { Todo } from '../todos.entity';
 import { TodoMapper } from '../dto/todo.mapper';
+import { DBConnectionService } from '../../db/db.service';
 
 @Injectable()
 export class TodosServiceImpl implements TodosService {
@@ -17,27 +18,29 @@ export class TodosServiceImpl implements TodosService {
 
     @Inject(TodosRepositoryToken)
     private todosRepository: TodosRepository,
+
     private authService: AuthService,
   ) {}
 
   async create(accessToken: string, createTodoDto: CreateTodoDto, imgFile?: Express.Multer.File) {
     const { email } = await this.authService.verify(accessToken, TokenType.ACCESS);
+    const todoEntity = TodoMapper.toEntity(createTodoDto);
+    if (!!imgFile) {
+      const imageUrl = await this.storageService.uploadOne({
+        email,
+        file: imgFile,
+      });
+      todoEntity.imageUrl = imageUrl;
+    }
 
-    const imageUrl = await this.storageService.uploadOne({
-      email,
-      file: imgFile,
-    });
-
-    const properties: Todo = {
-      ...createTodoDto,
-      imageUrl,
-    };
-    const newTodo = TodoMapper.toEntity(properties);
-
-    return await this.todosRepository.create(newTodo);
+    return await this.todosRepository.create(todoEntity);
   }
 
-  async findManyBy(columnId: string) {
+  async findManyBy(columnId: number) {
     return await this.todosRepository.findManyBy(columnId);
+  }
+
+  async deleteOneBy(id: number) {
+    return await this.todosRepository.deleteOneBy(id);
   }
 }

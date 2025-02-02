@@ -14,7 +14,6 @@ export class TodosRepositoryImpl implements TodosRepository {
         id, 
         assignee_user_id as asigneeUserId,
         assigner_user_id as assignerUserId,
-        dashboard_id as dashboardId,
         column_id as columnId,
         title, 
         content,
@@ -32,13 +31,12 @@ export class TodosRepositoryImpl implements TodosRepository {
 
   async create(newTodo: Todo): Promise<TodoEntity> {
     const query = `
-    insert into todos (assignee_user_id, assigner_user_id, dashboard_id, column_id, title, content, due_date, image_url, position)
-    values (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    insert into todos (assignee_user_id, assigner_user_id, column_id, title, content, due_date, image_url, position)
+    values (?, ?, ?, ?, ?, ?, ?, ?)
     `;
     const result = await this.dbService.mutate(query, [
       newTodo.assigneeUserId,
       newTodo.assignerUserId,
-      newTodo.dashboardId,
       newTodo.columnId,
       newTodo.title,
       newTodo.content,
@@ -51,12 +49,11 @@ export class TodosRepositoryImpl implements TodosRepository {
     return TodoMapper.toEntity(insertedTodo[0]);
   }
 
-  async findManyBy(columnId: string) {
+  async findManyBy(columnId: number) {
     const query = `SELECT 
         id, 
         assignee_user_id as asigneeUserId,
         assigner_user_id as assignerUserId,
-        dashboard_id as dashboardId,
         column_id as columnId,
         title, 
         content,
@@ -71,5 +68,24 @@ export class TodosRepositoryImpl implements TodosRepository {
     const result = await this.dbService.select<Todo>(query, [columnId]);
 
     return TodoMapper.toEntityList(result);
+  }
+
+  async deleteOneBy(id: number) {
+    const todo = await this.getData(id);
+    const quries = async () => {
+      const query = `DELETE FROM todos WHERE id = ?`;
+      await this.dbService.mutate(query, [id]);
+      await this.reorderPosition(todo[0].columnId, todo[0].position);
+    };
+    await this.dbService.transaction(quries);
+
+    return TodoMapper.toEntity(todo[0]);
+  }
+
+  private async reorderPosition(columnId: number, position: number) {
+    const query = `UPDATE todos
+    SET position = position - 1
+    WHERE column_id = ? AND position > ?`;
+    await this.dbService.mutate(query, [columnId, position]);
   }
 }

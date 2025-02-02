@@ -3,24 +3,22 @@ import { Base, BaseEntity } from '../common/entity';
 export interface Todo extends Base {
   assigneeUserId: number;
   assignerUserId: number;
-  dashboardId: number;
   columnId: number;
   title: string;
   content: string;
   dueDate: Date;
-  imageUrl?: string;
+  imageUrl?: string | null;
   position: number;
 }
 
 export class TodoEntity extends BaseEntity implements Todo {
   private _assigneeUserId: number;
   private _assignerUserId: number;
-  private _dashboardId: number;
   private _columnId: number;
   private _title: string;
   private _content: string;
   private _dueDate: Date;
-  private _imageUrl?: string;
+  private _imageUrl?: string | null;
   private _position: number;
 
   constructor(param: Todo) {
@@ -31,12 +29,11 @@ export class TodoEntity extends BaseEntity implements Todo {
     });
     this._assigneeUserId = param.assigneeUserId;
     this._assignerUserId = param.assignerUserId;
-    this._dashboardId = param.dashboardId;
     this._columnId = param.columnId;
     this._title = param.title;
     this._content = param.content;
     this._dueDate = param.dueDate;
-    this._imageUrl = param.imageUrl;
+    this._imageUrl = param.imageUrl ?? null;
     this._position = param.position;
   }
 
@@ -46,10 +43,6 @@ export class TodoEntity extends BaseEntity implements Todo {
 
   get assignerUserId() {
     return this._assignerUserId;
-  }
-
-  get dashboardId() {
-    return this._dashboardId;
   }
 
   get columnId() {
@@ -68,7 +61,7 @@ export class TodoEntity extends BaseEntity implements Todo {
     return this._dueDate;
   }
 
-  get imageUrl(): string | undefined {
+  get imageUrl(): string | undefined | null {
     return this._imageUrl;
   }
 
@@ -82,10 +75,6 @@ export class TodoEntity extends BaseEntity implements Todo {
 
   set assignerUserId(assignerUserId: number) {
     this._assignerUserId = assignerUserId;
-  }
-
-  set dashboardId(dashboardId: number) {
-    this._dashboardId = dashboardId;
   }
 
   set columnId(columnId: number) {

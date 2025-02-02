@@ -5,7 +5,7 @@ import { PlainOf } from '../../common/types';
 
 export class TodoMapper {
   static toDTO(entity: TodoEntity): PlainOf<TodoDTO> {
-    const todoDTO = TodoDTO.from(entity);
+    const todoDTO = TodoDTO.from(TodoDTO, entity);
     return instanceToPlain(todoDTO) as PlainOf<TodoDTO>;
   }
 

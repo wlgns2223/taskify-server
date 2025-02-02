@@ -18,6 +18,9 @@ import { ClsModule } from 'nestjs-cls';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    ClsModule.forRoot({
+      global: true,
+    }),
     UsersModule,
     DBModule,
     AuthModule,
@@ -27,9 +30,6 @@ import { ClsModule } from 'nestjs-cls';
     InvitationsModule,
     MembersModule,
     StorageModule,
-    ClsModule.forRoot({
-      global: true,
-    }),
   ],
   controllers: [AppController],
   providers: [AppService],

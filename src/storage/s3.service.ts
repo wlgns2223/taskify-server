@@ -6,7 +6,7 @@ import { StorageService } from './storage.provider';
 
 export interface S3Params {
   email: string;
-  file?: Express.Multer.File;
+  file: Express.Multer.File;
 }
 
 @Injectable()
@@ -47,10 +47,7 @@ export class S3ServiceImpl implements StorageService<S3Params> {
     return `${param.folderName}/${param.userEmail}/${Date.now()}-${param.originalname}`;
   }
 
-  async uploadOne(param: S3Params): Promise<string | undefined> {
-    if (!param.file) {
-      return undefined;
-    }
+  async uploadOne(param: S3Params): Promise<string> {
     const { email, file } = param;
     const key = this.generateKey({ folderName: this.folderName, userEmail: email, originalname: file.originalname });
 

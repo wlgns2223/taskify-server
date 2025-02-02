@@ -16,11 +16,6 @@ export class CreateTodoDto implements Omit<Todo, 'imageUrl'> {
   @IsInt()
   @IsNotEmpty()
   @Type(() => Number)
-  dashboardId: number;
-
-  @IsInt()
-  @IsNotEmpty()
-  @Type(() => Number)
   columnId: number;
 
   @IsString()
