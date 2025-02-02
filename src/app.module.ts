@@ -11,6 +11,7 @@ import { TodosModule } from './todos/todos.module';
 import { InvitationsModule } from './invitations/invitations.module';
 import { MembersModule } from './members/members.module';
 import { StorageModule } from './storage/storage.module';
+import { ClsModule } from 'nestjs-cls';
 
 @Module({
   imports: [
@@ -26,6 +27,9 @@ import { StorageModule } from './storage/storage.module';
     InvitationsModule,
     MembersModule,
     StorageModule,
+    ClsModule.forRoot({
+      global: true,
+    }),
   ],
   controllers: [AppController],
   providers: [AppService],

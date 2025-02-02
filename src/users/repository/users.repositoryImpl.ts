@@ -42,7 +42,7 @@ export class UsersRepositoryImpl implements UsersRepository {
   async create(user: User) {
     const query = `INSERT INTO users (email, nickname, password) VALUES (?, ?, ?)`;
 
-    const result = await this.dbService.insert(query, [user.email, user.nickname, user.password]);
+    const result = await this.dbService.mutate(query, [user.email, user.nickname, user.password]);
 
     const insertedUser = await this.getData(result.insertId);
 

@@ -24,7 +24,7 @@ export class TagRepositoryImpl implements TagRepository {
       INSERT INTO tags (tag)
       VALUES (?)
     `;
-    const result = await this.dbService.insert(query, [newTag.tag]);
+    const result = await this.dbService.mutate(query, [newTag.tag]);
     const insertedTag = await this.getData(result.insertId);
 
     return TagMapper.toEntity(insertedTag[0]);

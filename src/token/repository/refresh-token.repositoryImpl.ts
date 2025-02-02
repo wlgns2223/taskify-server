@@ -14,7 +14,7 @@ export class RefreshTokenRepositoryImpl implements RefreshTokenRepository {
     INSERT INTO refresh_tokens (user_id, token, exp) 
     VALUES (?, ?, ?)`;
 
-    const result = await this.dbService.insert(query, [refreshToken.userId, refreshToken.token, refreshToken.exp]);
+    const result = await this.dbService.mutate(query, [refreshToken.userId, refreshToken.token, refreshToken.exp]);
 
     const select = `SELECT * FROM refresh_tokens WHERE id = ?`;
     const insertedToken = await this.dbService.select<RefreshToken>(select, [result.insertId]);
@@ -24,7 +24,7 @@ export class RefreshTokenRepositoryImpl implements RefreshTokenRepository {
 
   async updateOneBy(tokenId: number, token: string) {
     const query = `UPDATE refresh_tokens SET token = ? WHERE id = ?`;
-    await this.dbService.update(query, [token, tokenId]);
+    await this.dbService.mutate(query, [token, tokenId]);
   }
 
   async findOneBy(userId: number) {
@@ -36,11 +36,11 @@ export class RefreshTokenRepositoryImpl implements RefreshTokenRepository {
 
   async deleteOneBy(tokenId: number) {
     const query = `DELETE FROM refresh_tokens WHERE id = ?`;
-    await this.dbService.delete(query, [tokenId]);
+    await this.dbService.mutate(query, [tokenId]);
   }
 
   async deleteAllBy(userId: number) {
     const query = `DELETE FROM refresh_tokens WHERE user_id = ?`;
-    await this.dbService.delete(query, [userId]);
+    await this.dbService.mutate(query, [userId]);
   }
 }

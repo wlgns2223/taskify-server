@@ -1,12 +1,18 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { ResultSetHeader, createPool, type Pool } from 'mysql2/promise';
+import { PoolConnection, ResultSetHeader, createPool, type Pool } from 'mysql2/promise';
+import { ClsService } from 'nestjs-cls';
 
 @Injectable()
 export class DBConnectionService {
+  private transactionConnection = 'conn';
   private pool: Pool;
   private readonly logger = new Logger(DBConnectionService.name);
-  constructor(private configService: ConfigService) {
+
+  constructor(
+    private configService: ConfigService,
+    private cls: ClsService,
+  ) {
     this.pool = createPool({
       host: this.configService.get('DB_HOST'),
       user: this.configService.get('DB_USERNAME'),
@@ -16,10 +22,11 @@ export class DBConnectionService {
   }
 
   private async query<T = any>(sql: string, values?: any): Promise<T> {
-    const conn = await this.pool.getConnection();
+    const transactionConn = this.cls.get<PoolConnection | null>(this.transactionConnection);
+    const _conn = transactionConn ?? (await this.pool.getConnection());
 
     try {
-      const [rows, ...rest] = await conn.execute(sql, values);
+      const [rows, ...rest] = await _conn.execute(sql, values);
 
       return rows as T;
     } catch (error) {
@@ -28,43 +35,37 @@ export class DBConnectionService {
       this.logger.error(error);
       throw new Error(error);
     } finally {
-      conn.release();
+      _conn.release();
     }
   }
-
-  async insert(sql: string, values?: any): Promise<ResultSetHeader> {
-    const result = await this.query<ResultSetHeader>(sql, values);
-    return result;
-  }
-
   async select<T = any>(sql: string, values?: any) {
     const result = await this.query<T[]>(sql, values);
     return result;
   }
 
-  async delete(sql: string, values?: any) {
-    const result = await this.query<ResultSetHeader>(sql, values);
-    return result;
-  }
-
-  async update(sql: string, values?: any) {
+  async mutate(sql: string, values?: any, conn?: PoolConnection) {
     const result = await this.query<ResultSetHeader>(sql, values);
     return result;
   }
 
   async transaction<T>(queries: () => Promise<T>) {
-    const conn = await this.pool.getConnection();
-    await conn.beginTransaction();
+    return await this.cls.run(async () => {
+      const conn = await this.pool.getConnection();
+      await conn.beginTransaction();
+      this.cls.set<PoolConnection>(this.transactionConnection, conn);
 
-    try {
-      const result = await queries();
-      await conn.commit();
-      return result;
-    } catch (error) {
-      await conn.rollback();
-      throw error;
-    } finally {
-      conn.release();
-    }
+      try {
+        const result = await queries();
+        await conn.commit();
+        return result;
+      } catch (error) {
+        this.logger.error('Transaction Error Rollback');
+        await conn.rollback();
+        throw error;
+      } finally {
+        this.cls.set<PoolConnection>(this.transactionConnection, null);
+        conn.release();
+      }
+    });
   }
 }

@@ -24,7 +24,7 @@ export class MembersRepositoryImpl implements MembersRepository {
 
   async create(member: Member) {
     const query = `INSERT INTO members (dashboard_id, member_id) VALUES (?, ?)`;
-    const result = await this.dbService.insert(query, [member.dashboardId, member.memberId]);
+    const result = await this.dbService.mutate(query, [member.dashboardId, member.memberId]);
     const insertedMember = await this.getData(result.insertId);
     return MembersMapper.toEntity(insertedMember[0]);
   }

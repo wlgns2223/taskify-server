@@ -24,7 +24,7 @@ export class TodoTagRepositoryImpl implements TodoTagRepository {
                 INSERT INTO todo_tags (todo_id, tag_id)
                 VALUES (?, ?)
             `;
-    const result = await this.dbService.insert(query, [newTodoTag.todoId, newTodoTag.tagId]);
+    const result = await this.dbService.mutate(query, [newTodoTag.todoId, newTodoTag.tagId]);
     const insertedTodoTag = await this.getData(result.insertId);
 
     return TodoTagMapper.toEntity(insertedTodoTag[0]);

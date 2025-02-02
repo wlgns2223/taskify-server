@@ -30,7 +30,7 @@ export class InvitationsRepositoryImpl implements InvitationsRepository {
     insert into invitations (inviter_id, dashboard_id, invitee_email)
     values (?, ?, ?)
     `;
-    const result = await this.dbService.insert(query, [
+    const result = await this.dbService.mutate(query, [
       newInvitation.inviterId,
       newInvitation.dashboardId,
       newInvitation.inviteeEmail,
@@ -88,7 +88,7 @@ export class InvitationsRepositoryImpl implements InvitationsRepository {
 
   async updateOneBy(id: number, status: InvitationStatus) {
     const query = `UPDATE invitations SET status = ? WHERE id = ?`;
-    await this.dbService.update(query, [status, id]);
+    await this.dbService.mutate(query, [status, id]);
     const updatedInvitation = await this.getData(id);
     return InvitationsMapper.toEntity(updatedInvitation[0]);
   }

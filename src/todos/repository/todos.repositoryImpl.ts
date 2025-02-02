@@ -35,7 +35,7 @@ export class TodosRepositoryImpl implements TodosRepository {
     insert into todos (assignee_user_id, assigner_user_id, dashboard_id, column_id, title, content, due_date, image_url, position)
     values (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
-    const result = await this.dbService.insert(query, [
+    const result = await this.dbService.mutate(query, [
       newTodo.assigneeUserId,
       newTodo.assignerUserId,
       newTodo.dashboardId,

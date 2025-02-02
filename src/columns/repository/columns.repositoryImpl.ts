@@ -4,6 +4,7 @@ import { Column } from '../columns.entity';
 import { ColumnsRepository } from './columns.repository.provider';
 import { ColumnsMapper } from '../columns.mapper';
 import { InternalServerException } from '../../common/exceptions/exceptions';
+import { PoolConnection } from 'mysql2/promise';
 
 @Injectable()
 export class ColumnsRepositoryImpl implements ColumnsRepository {
@@ -20,16 +21,11 @@ export class ColumnsRepositoryImpl implements ColumnsRepository {
     return result;
   }
 
-  private async moveBackwardOrderOfColumnsOf(dashboardId: number) {
-    const query = `UPDATE columns SET position = position + 1 WHERE dashboard_id =  ?`;
-    await this.dbService.update(query, [dashboardId]);
-  }
-
   async create(column: Column) {
     const queries = async () => {
       await this.moveBackwardOrderOfColumnsOf(column.dashboardId);
       const query = `INSERT INTO columns (name, position, dashboard_id) VALUES (?, ?, ?)`;
-      const result = await this.dbService.insert(query, [column.name, column.position, column.dashboardId]);
+      const result = await this.dbService.mutate(query, [column.name, column.position, column.dashboardId]);
       return result;
     };
 
@@ -38,6 +34,11 @@ export class ColumnsRepositoryImpl implements ColumnsRepository {
     const insertedColumn = await this.getData(result.insertId);
 
     return ColumnsMapper.toEntity(insertedColumn[0]);
+  }
+
+  private async moveBackwardOrderOfColumnsOf(dashboardId: number) {
+    const query = `UPDATE columns SET position = position + 1 WHERE dashboard_id =  ?`;
+    await this.dbService.mutate(query, [dashboardId]);
   }
 
   async findOneBy(columnId: number) {
@@ -76,9 +77,9 @@ export class ColumnsRepositoryImpl implements ColumnsRepository {
     `;
 
     const queries = async () => {
-      await this.dbService.update(query1, [tempPosition, from, dashboardId]);
-      await this.dbService.update(query2, [from, to, dashboardId]);
-      await this.dbService.update(query3, [to, tempPosition, dashboardId]);
+      await this.dbService.mutate(query1, [tempPosition, from, dashboardId]);
+      await this.dbService.mutate(query2, [from, to, dashboardId]);
+      await this.dbService.mutate(query3, [to, tempPosition, dashboardId]);
       const columns = await this.findAllBy(dashboardId);
       return columns;
     };
@@ -98,7 +99,7 @@ export class ColumnsRepositoryImpl implements ColumnsRepository {
     query += ` WHERE id = ?`;
     keys.push(columnId);
 
-    await this.dbService.update(query, keys);
+    await this.dbService.mutate(query, keys);
     const updatedColumn = await this.getData(columnId);
 
     return ColumnsMapper.toEntity(updatedColumn[0]);
@@ -106,13 +107,9 @@ export class ColumnsRepositoryImpl implements ColumnsRepository {
 
   async deleteOneBy(columnId: number) {
     const query = `DELETE FROM columns WHERE id = ?`;
-    const queries = async () => {
-      const column = await this.getData(columnId);
-      await this.dbService.delete(query, [columnId]);
-      return ColumnsMapper.toEntity(column[0]);
-    };
-
-    return await this.dbService.transaction(queries);
+    const column = await this.getData(columnId);
+    await this.dbService.mutate(query, [columnId]);
+    return ColumnsMapper.toEntity(column[0]);
   }
 
   async reorderColumns(dashboardId: number, position: number) {
@@ -121,17 +118,18 @@ export class ColumnsRepositoryImpl implements ColumnsRepository {
       SET position = position - 1
       WHERE dashboard_id = ? AND position > ?
     `;
-    await this.dbService.update(updateQuery, [dashboardId, position]);
+    await this.dbService.mutate(updateQuery, [dashboardId, position]);
   }
 
   async deleteOneAndReorder(dashboardId: number, columnId: number) {
     const quries = async () => {
       const column = await this.deleteOneBy(columnId);
+
       if (column.position === undefined) {
         throw InternalServerException('Column position is not defined');
       }
 
-      await this.reorderColumns(dashboardId, column.position);
+      await this.reorderColumns(dashboardId, column.position!);
       return column;
     };
     return await this.dbService.transaction(quries);

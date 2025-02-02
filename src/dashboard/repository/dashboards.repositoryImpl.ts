@@ -24,7 +24,7 @@ export class DashboardsRepositoryImpl implements DashboardsRepository {
 
   async create(dashBoard: Dashboard) {
     const query = `INSERT INTO dashboards (title, color, owner_id) VALUES (?, ?, ?)`;
-    const result = await this.dbService.insert(query, [dashBoard.title, dashBoard.color, dashBoard.ownerId]);
+    const result = await this.dbService.mutate(query, [dashBoard.title, dashBoard.color, dashBoard.ownerId]);
     const insertedDashboard = await this.getData(result.insertId);
 
     return DashboardMapper.toEntity(insertedDashboard[0]);
