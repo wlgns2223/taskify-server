@@ -12,6 +12,8 @@ import { InvitationsModule } from './invitations/invitations.module';
 import { MembersModule } from './members/members.module';
 import { StorageModule } from './storage/storage.module';
 import { ClsModule } from 'nestjs-cls';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { LoggingInterceptor } from './common/interceptors/log.interceptor';
 
 @Module({
   imports: [
@@ -32,6 +34,12 @@ import { ClsModule } from 'nestjs-cls';
     StorageModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: LoggingInterceptor,
+    },
+  ],
 })
 export class AppModule {}

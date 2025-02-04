@@ -6,9 +6,7 @@ import { StorageService, StorageServiceToken } from '../../storage';
 import { S3Params } from '../../storage/s3.service';
 import { TodosRepository, TodosRepositoryToken } from '../repository';
 import { TodosService } from './todo.provider';
-import { Todo } from '../todos.entity';
 import { TodoMapper } from '../dto/todo.mapper';
-import { DBConnectionService } from '../../db/db.service';
 
 @Injectable()
 export class TodosServiceImpl implements TodosService {

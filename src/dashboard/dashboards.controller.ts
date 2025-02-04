@@ -1,4 +1,15 @@
-import { Body, Controller, Get, Inject, Logger, Param, ParseIntPipe, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Inject,
+  Logger,
+  Param,
+  ParseIntPipe,
+  Post,
+  Query,
+  UseInterceptors,
+} from '@nestjs/common';
 import { CreateDashBoardDto } from './dto/createDashBoard.dto';
 import { TokenFromReq } from '../auth/decorators/tokenFromReq.decorator';
 import { TokenType } from '../auth/types/type';
@@ -6,9 +17,10 @@ import { OffsetPaginationRequestDto } from './dto/offsetPagination.dto';
 import { DashboardsService, DashboardsServiceToken } from './service';
 import { DashboardMapper } from './dashboard.mapper';
 import { OffsetPaginationMapper } from './dto/offsetPagination.mapper';
-import { DashboardDTO } from './dto/dashboard.dto';
+import { LoggingInterceptor } from '../common/interceptors/log.interceptor';
 
 @Controller('dashboards')
+// @UseInterceptors(LoggingInterceptor)
 export class DashboardsController {
   private logger = new Logger(DashboardsController.name);
   constructor(
