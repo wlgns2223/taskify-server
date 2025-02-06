@@ -36,7 +36,7 @@ export class MembersRepositoryImpl implements MembersRepository {
       M.dashboard_id as dashboardId,
       M.member_id as memberId,
       U.nickname,
-      M.created_at as createdAt
+      M.created_at as createdAt,
       M.updated_at as updatedAt
     FROM members as M
     JOIN users as U ON M.member_id = U.id 

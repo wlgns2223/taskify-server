@@ -1,5 +1,6 @@
 import { Controller, Get, Inject, ParseIntPipe, Query } from '@nestjs/common';
 import { MemberServiceToken, MembersService } from './service';
+import { MembersMapper } from './members.mapper';
 
 @Controller('members')
 export class MembersController {
@@ -10,6 +11,7 @@ export class MembersController {
 
   @Get()
   async getMembersByDashboardId(@Query('dashboardId', ParseIntPipe) dashboardId: number) {
-    return await this.membersService.findAllBy(dashboardId);
+    const members = await this.membersService.findAllBy(dashboardId);
+    return MembersMapper.toDTOList(members);
   }
 }
