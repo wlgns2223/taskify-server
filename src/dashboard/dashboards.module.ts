@@ -10,6 +10,6 @@ import { DashboardsServiceProvider } from './service/dashboards.service.provider
   imports: [AuthModule, UsersModule, MembersModule],
   controllers: [DashboardsController],
   providers: [DashboardsRepositoryProvider, DashboardsServiceProvider],
-  exports: [],
+  exports: [DashboardsServiceProvider],
 })
 export class DashboardsModule {}

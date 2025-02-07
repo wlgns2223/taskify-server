@@ -1,11 +1,11 @@
 import { Provider } from '@nestjs/common';
 import { User, UserEntity } from '../users.entity';
-import { UsersRepositoryImpl } from './users.repositoryImpl';
+import { Email, Id, UsersRepositoryImpl } from './users.repositoryImpl';
 
 export interface UsersRepository {
   create: (user: User) => Promise<UserEntity>;
   findManyBy: (email: string) => Promise<UserEntity[]>;
-  findOneBy: (email: string) => Promise<UserEntity | null>;
+  findOneBy: (identifier: Email | Id) => Promise<UserEntity | null>;
 }
 
 export const UsersRepositoryToken = Symbol('UsersRepository');

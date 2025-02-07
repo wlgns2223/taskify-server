@@ -1,7 +1,7 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { EntityNotFoundException } from '../../common/exceptions/exceptions';
 import { EntityAlreadyExists } from '../exceptions/entity.exception';
-import { UsersRepository, UsersRepositoryToken } from '../repository';
+import { Email, Id, UsersRepository, UsersRepositoryToken } from '../repository';
 import { UsersService } from './users.provider';
 import { User } from '../users.entity';
 import { UserMapper } from '../dto/user.mapper';
@@ -25,10 +25,10 @@ export class UsersServiceImpl implements UsersService {
     return await this.usersRepository.create(newUser);
   }
 
-  async findOneBy(email: string) {
-    const userEntity = await this.usersRepository.findOneBy(email);
+  async findOneBy(identifier: Email | Id) {
+    const userEntity = await this.usersRepository.findOneBy(identifier);
     if (!userEntity) {
-      throw EntityNotFoundException(`User with email ${email} not found`);
+      throw EntityNotFoundException(`User with  ${identifier} not found`);
     }
     return userEntity === null ? null : userEntity;
   }

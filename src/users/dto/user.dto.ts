@@ -1,29 +1,29 @@
 import { Exclude, Expose } from 'class-transformer';
 import { User } from '../users.entity';
+import { BaseDTO } from '../../common/dto';
+import { InternalServerException } from '../../common/exceptions/exceptions';
 
-export class UserDTO {
-  @Exclude()
-  private _id?: number;
+export class UserDTO extends BaseDTO implements Required<User> {
   @Exclude()
   private _email: string;
   @Exclude()
   private _nickname: string;
   @Exclude()
-  private _createdAt?: Date;
-  @Exclude()
-  private _updatedAt?: Date;
+  private _password: string;
 
-  constructor(data: User) {
-    this._id = data.id;
-    this._email = data.email;
-    this._nickname = data.nickname;
-    this._createdAt = data.createdAt;
-    this._updatedAt = data.updatedAt;
-  }
+  constructor(user: User) {
+    if (!user.id || !user.createdAt || !user.updatedAt) {
+      throw InternalServerException('UserDTO.constructor: invalid user entity');
+    }
 
-  @Expose()
-  get id() {
-    return this._id;
+    super({
+      id: user.id,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    });
+    this._email = user.email;
+    this._nickname = user.nickname;
+    this._password = user.password;
   }
 
   @Expose()
@@ -36,17 +36,8 @@ export class UserDTO {
     return this._nickname;
   }
 
-  @Expose()
-  get createdAt() {
-    return this._createdAt;
-  }
-
-  @Expose()
-  get updatedAt() {
-    return this._updatedAt;
-  }
-
-  static from(user: User) {
-    return new UserDTO(user);
+  @Exclude()
+  get password() {
+    return this._password;
   }
 }

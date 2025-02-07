@@ -18,10 +18,6 @@ export class CreateInvitationDto implements Omit<Invitation, keyof Base> {
   @Type(() => Number)
   dashboardId: number;
 
-  @IsNotEmpty()
-  @IsString()
-  title: string;
-
   @Transform(({ value }) => value ?? InvitationStatusEnum.PENDING)
   status: InvitationStatus = InvitationStatusEnum.PENDING;
 }

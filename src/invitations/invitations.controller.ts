@@ -17,6 +17,8 @@ import { TokenType } from '../auth/types/type';
 import { InvitationOffsetPaginationWithSearchRequestDto } from './dto/readhInvitation.dto';
 import { UpdateInvitationDto } from './dto/updateInvitation.dto';
 import { InvitationsService, InvitationsServiceToken } from './service';
+import { InvitationsMapper } from './invitations.mapper';
+import { UserMapper } from '../users/dto/user.mapper';
 
 @Controller('invitations')
 export class InvitationsController {
@@ -27,7 +29,9 @@ export class InvitationsController {
 
   @Post()
   async createInvitation(@Body() newInvitation: CreateInvitationDto) {
-    return await this.invitationService.create(newInvitation);
+    const { userEntity, invitationEntity } = await this.invitationService.create(newInvitation);
+    const userDTO = UserMapper.toDTO(userEntity);
+    return InvitationsMapper.toDTO(invitationEntity, userDTO);
   }
 
   @Get()

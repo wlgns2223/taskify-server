@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import nodemailer from 'nodemailer';
+import { CreateEmailDTO } from './dto/createEmail.dto';
 
 @Injectable()
 export class EmailService {
@@ -22,7 +23,8 @@ export class EmailService {
     });
   }
 
-  async sendInvitationEmail(email: string, dashboardName: string) {
+  async sendInvitationEmail(createEmailDTO: CreateEmailDTO) {
+    const { dashboardName, email } = createEmailDTO;
     const mailOption = {
       from: `Taskify  ${this.naverAccount}`,
       to: email,

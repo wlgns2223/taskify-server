@@ -8,7 +8,7 @@ export class LoggingInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler<any>): Observable<any> | Promise<Observable<any>> {
     const request = context.switchToHttp().getRequest<Request>();
     this.logger.verbose(`Request: ${request.method} ${request.url}`);
-    this.logger.verbose(`Request body: ${request.body}`);
+    this.logger.verbose(`Request body: ${JSON.stringify(request.body)}`);
 
     const response = context.switchToHttp().getResponse<Response>();
     return next.handle().pipe(

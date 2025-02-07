@@ -6,9 +6,10 @@ import { MembersModule } from '../members/members.module';
 import { AuthModule } from '../auth/auth.module';
 import { InvitationsRepositoryProvider } from './repository';
 import { InvitationsServiceProvider } from './service';
+import { DashboardsModule } from '../dashboard/dashboards.module';
 
 @Module({
-  imports: [AuthModule, UsersModule, MembersModule],
+  imports: [AuthModule, UsersModule, MembersModule, DashboardsModule],
   controllers: [InvitationsController],
   providers: [InvitationsRepositoryProvider, InvitationsServiceProvider, EmailService],
 })

@@ -4,12 +4,12 @@ import { UserDTO } from './user.dto';
 import { PlainOf } from '../../common/types';
 
 export class UserMapper {
-  static toDTO(entity: UserEntity | null): PlainOf<UserDTO> | null {
+  static toDTO(entity: UserEntity | null): UserDTO | null {
     if (!entity) {
       return null;
     }
-    const userDto = UserDTO.from(entity);
-    return instanceToPlain(userDto) as PlainOf<UserDTO>;
+    const userDto = UserDTO.from(UserDTO, entity);
+    return instanceToPlain(userDto) as UserDTO;
   }
 
   static toEntityList(plain: User[]): UserEntity[] {

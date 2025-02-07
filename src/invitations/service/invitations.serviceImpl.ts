@@ -15,6 +15,8 @@ import { InvitationsMapper } from '../invitations.mapper';
 import { AuthService } from '../../auth/auth.service';
 import { OffsetPaginationMapper } from '../../dashboard/dto/offsetPagination.mapper';
 import { MembersMapper } from '../../members/members.mapper';
+import { DashboardsService, DashboardsServiceToken } from '../../dashboard/service';
+import { CreateEmailDTO } from '../dto/createEmail.dto';
 
 @Injectable()
 export class InvitationsServiceImpl implements InvitationsService {
@@ -28,21 +30,33 @@ export class InvitationsServiceImpl implements InvitationsService {
     @Inject(UsersServiceToken)
     private usersService: UsersService,
 
+    @Inject(DashboardsServiceToken)
+    private dashboardsService: DashboardsService,
+
     private authService: AuthService,
     private dbService: DBConnectionService,
     private emailService: EmailService,
   ) {}
 
   async create(createInvitationDto: CreateInvitationDto) {
-    const res = await this.emailService.sendInvitationEmail(
-      createInvitationDto.inviteeEmail,
-      createInvitationDto.title,
-    );
+    const invitation = InvitationsMapper.toEntity(createInvitationDto);
+    const targetDashboard = await this.dashboardsService.findOneBy(invitation.dashboardId);
+    const userEntity = await this.usersService.findOneBy(invitation.inviterId);
+    if (!userEntity) {
+      throw EntityNotFoundException(`User with id ${invitation.inviterId} not found`);
+    }
+
+    const creatEmailDTO = CreateEmailDTO.from(invitation.inviteeEmail, targetDashboard.title);
+
+    const res = await this.emailService.sendInvitationEmail(creatEmailDTO);
     if (!res) {
       throw InternalServerException('Failed to send email');
     }
-    const invitation = InvitationsMapper.toEntity(createInvitationDto);
-    return await this.invitationRepository.create(invitation);
+    const invitationEntity = await this.invitationRepository.create(invitation);
+    return {
+      userEntity,
+      invitationEntity,
+    };
   }
 
   async findAllByWithPagination(
