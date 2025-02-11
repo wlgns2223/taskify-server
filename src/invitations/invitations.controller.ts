@@ -34,7 +34,7 @@ export class InvitationsController {
   async createInvitation(@Body() newInvitation: CreateInvitationDto) {
     const { userEntity, invitationEntity } = await this.invitationService.create(newInvitation);
     const userDTO = UserMapper.toDTO(userEntity);
-    return InvitationsMapper.toDTO(invitationEntity, userDTO);
+    return InvitationsMapper.toDTO(invitationEntity);
   }
 
   @Get()
@@ -49,7 +49,7 @@ export class InvitationsController {
     console.log('invitations', invitations);
     const offsetPaginationResponse: OffsetPaginationResponse<Invitation> = {
       currentPage: paginationQuery.page,
-      data: InvitationsMapper.toDTOList(invitations, UserMapper.toDTO(user)!),
+      data: InvitationsMapper.toDTOList(invitations),
       totalNumberOfData: totalNumberOfInvitations,
       pageSize: paginationQuery.pageSize,
     };

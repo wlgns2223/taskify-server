@@ -3,7 +3,7 @@ import { Invitation, InvitationStatus, InvitationStatusEnum } from '../invitatio
 import { Base } from '../../common/entity';
 import { Transform, Type } from 'class-transformer';
 
-export class CreateInvitationDto implements Omit<Invitation, keyof Base> {
+export class CreateInvitationDto implements Omit<Invitation, keyof Base | 'dashboardTitle' | 'inviterNickname'> {
   @IsEmail()
   @IsNotEmpty()
   inviteeEmail: string;

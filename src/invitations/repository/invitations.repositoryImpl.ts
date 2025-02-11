@@ -59,13 +59,14 @@ export class InvitationsRepositoryImpl implements InvitationsRepository {
     let query = `
     SELECT 
     I.id as id,
-    D.title as dashboardTitle,
-    U.nickname as inviterNickname,
+    I.created_at as createdAt,
+    I.updated_at as updatedAt,
+    I.dashboard_id as dashboardId,
     I.status,
     I.invitee_email as inviteeEmail,
     I.inviter_id as inviterId,
-    I.created_at as createdAt
-    I.updated_at as updatedAt
+    D.title as dashboardTitle,
+    U.nickname as inviterNickname
     FROM invitations AS I
     JOIN dashboards AS D ON D.id = I.dashboard_id
     JOIN users AS U ON U.id = I.inviter_id

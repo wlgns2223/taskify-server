@@ -41,13 +41,17 @@ export class InvitationsServiceImpl implements InvitationsService {
   ) {}
 
   async create(createInvitationDto: CreateInvitationDto) {
-    const invitation = InvitationsMapper.toEntity(createInvitationDto);
-    const targetDashboard = await this.dashboardsService.findOneBy(invitation.dashboardId);
-    const userEntity = await this.usersService.findOneBy(invitation.inviterId);
+    const targetDashboard = await this.dashboardsService.findOneBy(createInvitationDto.dashboardId);
+    const userEntity = await this.usersService.findOneBy(createInvitationDto.inviterId);
     if (!userEntity) {
-      throw EntityNotFoundException(`User with id ${invitation.inviterId} not found`);
+      throw EntityNotFoundException(`User with id ${createInvitationDto.inviterId} not found`);
     }
 
+    const invitation = InvitationsMapper.toEntity({
+      ...createInvitationDto,
+      dashboardTitle: targetDashboard.title,
+      inviterNickname: userEntity.nickname,
+    });
     const creatEmailDTO = CreateEmailDTO.from(invitation.inviteeEmail, targetDashboard.title);
 
     const res = await this.emailService.sendInvitationEmail(creatEmailDTO);

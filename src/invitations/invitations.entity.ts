@@ -12,6 +12,8 @@ export interface Invitation extends Base {
   inviterId: number;
   dashboardId: number;
   status: InvitationStatus;
+  dashboardTitle: string;
+  inviterNickname: string;
 }
 
 export class InvitationEntity extends BaseEntity implements Invitation {
@@ -19,6 +21,8 @@ export class InvitationEntity extends BaseEntity implements Invitation {
   private _inviterId: number;
   private _dashboardId: number;
   private _status: InvitationStatus;
+  private _dashboardTitle: string;
+  private _inviterNickname: string;
 
   constructor(param: Invitation) {
     super({
@@ -30,6 +34,8 @@ export class InvitationEntity extends BaseEntity implements Invitation {
     this._inviterId = param.inviterId;
     this._dashboardId = param.dashboardId;
     this._status = param.status;
+    this._dashboardTitle = param.dashboardTitle;
+    this._inviterNickname = param.inviterNickname;
   }
 
   get inviteeEmail() {
@@ -46,5 +52,13 @@ export class InvitationEntity extends BaseEntity implements Invitation {
 
   get status() {
     return this._status;
+  }
+
+  get dashboardTitle() {
+    return this._dashboardTitle;
+  }
+
+  get inviterNickname() {
+    return this._inviterNickname;
   }
 }
