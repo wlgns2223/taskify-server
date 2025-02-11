@@ -43,7 +43,7 @@ export class DashboardsController {
     @TokenFromReq(TokenType.ACCESS) accessToken: string,
   ) {
     const res = await this.dashBoardService.findAllByWithPagination(paginationQuery, accessToken);
-    return OffsetPaginationMapper.toResponseDTO(res);
+    return OffsetPaginationMapper.toDTO(res);
   }
 
   @Get(':id')

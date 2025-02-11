@@ -62,7 +62,10 @@ export class InvitationsRepositoryImpl implements InvitationsRepository {
     D.title as dashboardTitle,
     U.nickname as inviterNickname,
     I.status,
+    I.invitee_email as inviteeEmail,
+    I.inviter_id as inviterId,
     I.created_at as createdAt
+    I.updated_at as updatedAt
     FROM invitations AS I
     JOIN dashboards AS D ON D.id = I.dashboard_id
     JOIN users AS U ON U.id = I.inviter_id

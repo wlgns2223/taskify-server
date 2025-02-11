@@ -17,6 +17,8 @@ import { OffsetPaginationMapper } from '../../dashboard/dto/offsetPagination.map
 import { MembersMapper } from '../../members/members.mapper';
 import { DashboardsService, DashboardsServiceToken } from '../../dashboard/service';
 import { CreateEmailDTO } from '../dto/createEmail.dto';
+import { UserMapper } from '../../users/dto/user.mapper';
+import { UserEntity } from '../../users/users.entity';
 
 @Injectable()
 export class InvitationsServiceImpl implements InvitationsService {
@@ -71,14 +73,11 @@ export class InvitationsServiceImpl implements InvitationsService {
     const totalNumberOfInvitations = await this.invitationRepository.countAllBy(user.email);
     const invitations = await this.invitationRepository.findAllByWithPagination(offsetPaginationRequestDto, user.email);
 
-    const offsetPaginationResponse: OffsetPaginationResponse<Invitation> = {
-      currentPage: offsetPaginationRequestDto.page,
-      data: invitations,
-      totalNumberOfData: totalNumberOfInvitations,
-      pageSize: offsetPaginationRequestDto.pageSize,
+    return {
+      invitations,
+      user,
+      totalNumberOfInvitations,
     };
-
-    return OffsetPaginationMapper.toResponseDTO(offsetPaginationResponse);
   }
 
   async updateOneBy(id: number, status: InvitationStatus, accessToken: string) {

@@ -6,7 +6,10 @@ import { UserEntity } from '../../users/users.entity';
 
 export interface InvitationsService {
   create(invitation: Invitation): Promise<{ userEntity: UserEntity; invitationEntity: InvitationEntity }>;
-  findAllByWithPagination(offsetPaginationRequestDTO: any, email: string): Promise<Record<string, any>>;
+  findAllByWithPagination(
+    offsetPaginationRequestDTO: any,
+    email: string,
+  ): Promise<{ invitations: InvitationEntity[]; user: UserEntity; totalNumberOfInvitations: number }>;
   updateOneBy(id: number, status: InvitationStatus, accessToken: string): Promise<InvitationEntity>;
 }
 
