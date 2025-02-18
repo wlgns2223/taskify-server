@@ -93,7 +93,11 @@ export class InvitationsServiceImpl implements InvitationsService {
 
     const queries = async () => {
       const invitation = await this.invitationRepository.updateOneBy(id, status);
-      const newMember = MembersMapper.toEntity({ dashboardId: invitation.id!, memberId: user.id! });
+      const newMember = MembersMapper.toEntity({
+        dashboardId: invitation.dashboardId!,
+        memberId: user.id!,
+        nickname: user.nickname,
+      });
       await this.memberService.create(newMember);
       return invitation;
     };

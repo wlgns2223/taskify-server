@@ -44,6 +44,7 @@ export class DashboardsServiceImpl implements DashboardsService {
       const newMember = MembersMapper.toEntity({
         dashboardId: dashboard.id!,
         memberId: user.id!,
+        nickname: user.nickname,
       });
       await this.memberService.create(newMember);
       return dashboard;

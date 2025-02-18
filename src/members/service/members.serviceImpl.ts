@@ -15,6 +15,7 @@ export class MembersServiceImpl implements MembersService {
     const memberEntity = MembersMapper.toEntity({
       dashboardId: createMemberDto.dashboardId,
       memberId: createMemberDto.memberId,
+      nickname: createMemberDto.nickname,
     });
     return await this.membersRepository.create(memberEntity);
   }

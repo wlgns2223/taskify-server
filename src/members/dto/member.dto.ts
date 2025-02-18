@@ -10,6 +10,9 @@ export class MemberDTO extends BaseDTO implements Required<Member> {
   @Exclude()
   private readonly _memberId: number;
 
+  @Exclude()
+  private readonly _nickname: string;
+
   constructor(member: Member) {
     if (!member.id || !member.createdAt || !member.updatedAt) {
       throw InternalServerException('MemberDTO.constructor: invalid member entity');
@@ -21,6 +24,7 @@ export class MemberDTO extends BaseDTO implements Required<Member> {
     });
     this._dashboardId = member.dashboardId;
     this._memberId = member.memberId;
+    this._nickname = member.nickname;
   }
 
   @Expose()
@@ -31,5 +35,10 @@ export class MemberDTO extends BaseDTO implements Required<Member> {
   @Expose()
   get memberId(): number {
     return this._memberId;
+  }
+
+  @Expose()
+  get nickname(): string {
+    return this._nickname;
   }
 }

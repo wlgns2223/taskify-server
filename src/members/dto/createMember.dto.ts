@@ -1,5 +1,5 @@
 import { Member } from '../members.entity';
-import { IsNotEmpty, IsNumber } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 import { Type } from 'class-transformer';
 import { Base } from '../../common/entity';
 
@@ -13,4 +13,8 @@ export class CreateMemberDto implements Omit<Member, keyof Base> {
   @IsNumber()
   @Type(() => Number)
   memberId: number;
+
+  @IsNotEmpty()
+  @IsString()
+  nickname: string;
 }

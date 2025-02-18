@@ -3,11 +3,13 @@ import { Base, BaseEntity } from '../common/entity';
 export interface Member extends Base {
   dashboardId: number;
   memberId: number;
+  nickname: string;
 }
 
 export class MemberEntity extends BaseEntity implements Member {
   private _dashboardId: number;
   private _memberId: number;
+  private _nickname: string;
 
   constructor(param: Member) {
     super({
@@ -17,6 +19,7 @@ export class MemberEntity extends BaseEntity implements Member {
     });
     this._dashboardId = param.dashboardId;
     this._memberId = param.memberId;
+    this._nickname = param.nickname;
   }
 
   get dashboardId() {
@@ -25,5 +28,9 @@ export class MemberEntity extends BaseEntity implements Member {
 
   get memberId() {
     return this._memberId;
+  }
+
+  get nickname() {
+    return this._nickname;
   }
 }

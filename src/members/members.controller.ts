@@ -12,6 +12,7 @@ export class MembersController {
   @Get()
   async getMembersByDashboardId(@Query('dashboardId', ParseIntPipe) dashboardId: number) {
     const members = await this.membersService.findAllBy(dashboardId);
+    console.log('members:', members);
     return MembersMapper.toDTOList(members);
   }
 }

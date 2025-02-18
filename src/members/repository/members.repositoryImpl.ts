@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { DBConnectionService } from '../../db/db.service';
-import { Member, MemberEntity } from '../members.entity';
+import { Member } from '../members.entity';
 import { MembersRepository } from './member.repository.provider';
 import { MembersMapper } from '../members.mapper';
 
