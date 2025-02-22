@@ -31,8 +31,8 @@ export class TodosRepositoryImpl implements TodosRepository {
 
   async create(newTodo: Todo): Promise<TodoEntity> {
     const query = `
-    insert into todos (assignee_user_id, assigner_user_id, column_id, title, content, due_date, image_url, position)
-    values (?, ?, ?, ?, ?, ?, ?, ?)
+    insert into todos (assignee_user_id, assigner_user_id, column_id, title, content, due_date, image_url)
+    values (?, ?, ?, ?, ?, ?, ?)
     `;
     const result = await this.dbService.mutate(query, [
       newTodo.assigneeUserId,
@@ -42,7 +42,6 @@ export class TodosRepositoryImpl implements TodosRepository {
       newTodo.content,
       newTodo.dueDate,
       newTodo.imageUrl,
-      newTodo.position,
     ]);
     const insertedTodo = await this.getData(result.insertId);
 
@@ -75,7 +74,7 @@ export class TodosRepositoryImpl implements TodosRepository {
     const quries = async () => {
       const query = `DELETE FROM todos WHERE id = ?`;
       await this.dbService.mutate(query, [id]);
-      await this.reorderPosition(todo[0].columnId, todo[0].position);
+      await this.reorderPosition(todo[0].columnId, todo[0].position!);
     };
     await this.dbService.transaction(quries);
 

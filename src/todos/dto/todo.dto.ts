@@ -3,7 +3,7 @@ import { Todo } from '../todos.entity';
 import { BaseDTO } from '../../common/dto';
 import { InternalServerException } from '../../common/exceptions/exceptions';
 
-type ITodoDTO = Required<Omit<Todo, 'imageUrl'>> & { imageUrl?: string | null };
+type ITodoDTO = Required<Omit<Todo, 'imageUrl' | 'position'>> & { imageUrl?: string | null; position?: number | null };
 
 export class TodoDTO extends BaseDTO implements ITodoDTO {
   @Exclude()
@@ -28,7 +28,7 @@ export class TodoDTO extends BaseDTO implements ITodoDTO {
   private _imageUrl?: string | null;
 
   @Exclude()
-  private _position: number;
+  private _position?: number | null;
 
   constructor(param: Todo) {
     if (!param.id || !param.createdAt || !param.updatedAt) {

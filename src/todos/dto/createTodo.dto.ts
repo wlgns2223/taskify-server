@@ -2,7 +2,7 @@ import { Type } from 'class-transformer';
 import { IsDate, IsInt, IsNotEmpty, IsString } from 'class-validator';
 import { Todo } from '../todos.entity';
 
-export class CreateTodoDto implements Omit<Todo, 'imageUrl'> {
+export class CreateTodoDto implements Omit<Todo, 'imageUrl' | 'position'> {
   @IsInt()
   @IsNotEmpty()
   @Type(() => Number)
@@ -30,9 +30,4 @@ export class CreateTodoDto implements Omit<Todo, 'imageUrl'> {
   @IsNotEmpty()
   @Type(() => Date)
   dueDate: Date;
-
-  @IsInt()
-  @IsNotEmpty()
-  @Type(() => Number)
-  position: number;
 }

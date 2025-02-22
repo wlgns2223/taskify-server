@@ -8,7 +8,7 @@ export interface Todo extends Base {
   content: string;
   dueDate: Date;
   imageUrl?: string | null;
-  position: number;
+  position?: number | null;
 }
 
 export class TodoEntity extends BaseEntity implements Todo {
@@ -19,7 +19,7 @@ export class TodoEntity extends BaseEntity implements Todo {
   private _content: string;
   private _dueDate: Date;
   private _imageUrl?: string | null;
-  private _position: number;
+  private _position?: number | null;
 
   constructor(param: Todo) {
     super({
@@ -34,7 +34,7 @@ export class TodoEntity extends BaseEntity implements Todo {
     this._content = param.content;
     this._dueDate = param.dueDate;
     this._imageUrl = param.imageUrl ?? null;
-    this._position = param.position;
+    this._position = param.position ?? null;
   }
 
   get assigneeUserId() {
@@ -65,7 +65,7 @@ export class TodoEntity extends BaseEntity implements Todo {
     return this._imageUrl;
   }
 
-  get position() {
+  get position(): number | undefined | null {
     return this._position;
   }
 
