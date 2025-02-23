@@ -38,7 +38,8 @@ export class TodosController {
 
   @Get()
   async getTodosByColumnId(@Query('columnId', ParseIntPipe) columnId: number) {
-    return await this.todosService.findManyBy(columnId);
+    const todos = await this.todosService.findManyBy(columnId);
+    return TodoMapper.toDTOList(todos);
   }
 
   @Delete(':id')

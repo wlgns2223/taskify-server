@@ -62,7 +62,8 @@ export class TodosRepositoryImpl implements TodosRepository {
         created_at as createdAt, 
         updated_at as updatedAt 
         FROM todos 
-        WHERE column_id = ?`;
+        WHERE column_id = ?
+        ORDER BY position DESC`;
 
     const result = await this.dbService.select<Todo>(query, [columnId]);
 

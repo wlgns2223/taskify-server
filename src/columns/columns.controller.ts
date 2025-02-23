@@ -1,7 +1,7 @@
 import { Body, Controller, Delete, Get, Inject, Param, ParseIntPipe, Post, Put, Query } from '@nestjs/common';
 import { CreateColumnsDto } from './dto/createColumns.dto';
 import { SwapColumnPositionDto } from './dto/swapColumnPosition.dto';
-import { ColumnsService, ColumnsServiceProvider, ColumnsServiceToken } from './service';
+import { ColumnsService, ColumnsServiceToken } from './service';
 import { UpdateColumnsDto } from './dto/updateColumns.dto';
 import { ColumnsMapper } from './columns.mapper';
 
@@ -19,7 +19,7 @@ export class ColumnsController {
   }
 
   @Get()
-  async getColumnsByDashboardId(@Query('dashboardId') dashboardId: number) {
+  async getColumnsByDashboardId(@Query('dashboardId', ParseIntPipe) dashboardId: number) {
     const columns = await this.columnsService.findAllBy(dashboardId);
     return ColumnsMapper.toDTOList(columns);
   }

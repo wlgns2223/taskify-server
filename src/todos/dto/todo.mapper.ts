@@ -4,12 +4,12 @@ import { TodoDTO } from './todo.dto';
 import { PlainOf } from '../../common/types';
 
 export class TodoMapper {
-  static toDTO(entity: TodoEntity): PlainOf<TodoDTO> {
+  static toDTO(entity: TodoEntity): TodoDTO {
     const todoDTO = TodoDTO.from(TodoDTO, entity);
-    return instanceToPlain(todoDTO) as PlainOf<TodoDTO>;
+    return instanceToPlain(todoDTO) as TodoDTO;
   }
 
-  static toDTOArray(entities: TodoEntity[]): PlainOf<TodoDTO>[] {
+  static toDTOList(entities: TodoEntity[]): TodoDTO[] {
     return entities.map((entity) => TodoMapper.toDTO(entity));
   }
 
