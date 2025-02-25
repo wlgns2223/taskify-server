@@ -26,13 +26,15 @@ export class TodosController {
   ) {}
 
   @Post()
-  @UseInterceptors(FileInterceptor('imageFile'))
+  @UseInterceptors(FileInterceptor('image'))
   async createTodo(
     @TokenFromReq(TokenType.ACCESS) accessToken: string,
     @Body() createTodoDto: CreateTodoDto,
-    @UploadedFile() file?: Express.Multer.File,
+    @UploadedFile() image?: Express.Multer.File,
   ) {
-    const todo = await this.todosService.create(accessToken, createTodoDto, file);
+    console.log(image);
+    console.log(createTodoDto);
+    const todo = await this.todosService.create(accessToken, createTodoDto, image);
     return TodoMapper.toDTO(todo);
   }
 
