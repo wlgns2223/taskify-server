@@ -44,7 +44,7 @@ export class S3ServiceImpl implements StorageService<S3Params> {
   }
 
   private generateKey(param: { folderName: string; userEmail: string; originalname: string }) {
-    return `${param.folderName}/${param.userEmail}/${Date.now()}-${param.originalname}`;
+    return `${param.folderName}/${param.userEmail}/${Date.now()}`;
   }
 
   async uploadOne(param: S3Params): Promise<string> {
