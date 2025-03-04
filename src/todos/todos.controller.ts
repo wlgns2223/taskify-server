@@ -32,8 +32,6 @@ export class TodosController {
     @Body() createTodoDto: CreateTodoDto,
     @UploadedFile() image?: Express.Multer.File,
   ) {
-    console.log(image);
-    console.log(createTodoDto);
     const todo = await this.todosService.create(accessToken, createTodoDto, image);
     return TodoMapper.toDTO(todo);
   }

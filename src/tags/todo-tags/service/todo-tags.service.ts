@@ -1,9 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { TodoTag } from '../todo-tags.entity';
+import { TodoTag, TodoTagEntity } from '../todo-tags.entity';
 import { InvalidInputException } from '../../../common/exceptions/exceptions';
 import { TodoTagRepository, TodoTagRepositoryToken } from '../repository';
 import { TodoTagService } from './todo-tags.provider';
 import { TodoTagMapper } from '../todo-tags.mapper';
+import { Tag } from '../../tag.entity';
 
 @Injectable()
 export class TodoTagServiceImpl implements TodoTagService {
@@ -12,17 +13,15 @@ export class TodoTagServiceImpl implements TodoTagService {
     private readonly todoTagRepository: TodoTagRepository,
   ) {}
 
-  async link(todoId: number, tagId: number) {
-    if (!todoId || !tagId) {
+  async link(todoId: number, tags: Tag[]) {
+    if (!todoId) {
       InvalidInputException('TodoTag must have a todoId and tagId');
     }
 
-    let todoTagEntity = await this.todoTagRepository.findOneBy(todoId, tagId);
-    if (todoTagEntity) {
-      return todoTagEntity;
+    if (tags.length === 0) {
+      return {} as any;
     }
 
-    todoTagEntity = TodoTagMapper.toEntity({ todoId, tagId });
-    return await this.todoTagRepository.create(todoTagEntity);
+    return await this.todoTagRepository.create(todoId, tags);
   }
 }

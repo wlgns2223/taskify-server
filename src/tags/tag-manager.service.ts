@@ -3,6 +3,7 @@ import { DBConnectionService } from '../db/db.service';
 import { TagService, TagServiceToken } from './service';
 import { TodoTagService, TodoTagServiceToken } from './todo-tags/service';
 import { TagManagerService } from './tag-manager.provider';
+import { Tag, TagEntity } from './tag.entity';
 
 @Injectable()
 export class TagManagerServiceImpl implements TagManagerService {
@@ -15,12 +16,11 @@ export class TagManagerServiceImpl implements TagManagerService {
     private dbService: DBConnectionService,
   ) {}
 
-  async createTagAndLinkToTodo(todoId: number, tag: string) {
+  async createTagAndLinkToTodo(todoId: number, tags: Tag[]) {
     const queries = async () => {
-      const newTag = await this.tagService.create(tag);
-      const newTodoTag = await this.todoTagsService.link(todoId, newTag.id!);
-
-      return { tag: newTag, todoTag: newTodoTag };
+      const newTags = await this.tagService.create(tags);
+      await this.todoTagsService.link(todoId, newTags);
+      return newTags;
     };
 
     return await this.dbService.transaction(queries);

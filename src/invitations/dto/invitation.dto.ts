@@ -1,7 +1,7 @@
 import { Exclude, Expose } from 'class-transformer';
 import { BaseDTO } from '../../common/dto';
 import { UserDTO } from '../../users/dto/user.dto';
-import { Invitation, InvitationStatus } from '../invitations.entity';
+import { Invitation, InvitationEntity, InvitationStatus } from '../invitations.entity';
 import { InternalServerException } from '../../common/exceptions/exceptions';
 
 export interface TInvitationDTO extends Invitation {}
@@ -25,7 +25,7 @@ export class InvitationDto extends BaseDTO implements Required<TInvitationDTO> {
   @Exclude()
   private _inviterNickname: string;
 
-  constructor(invitation: TInvitationDTO) {
+  constructor(invitation: InvitationEntity) {
     if (!invitation.id || !invitation.createdAt || !invitation.updatedAt) {
       throw InternalServerException('invitationDTO.constructor: invalid invitation entity');
     }

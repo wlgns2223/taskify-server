@@ -3,6 +3,7 @@ import { TodoTag, TodoTagEntity } from '../todo-tags.entity';
 import { DBConnectionService } from '../../../db/db.service';
 import { TodoTagRepository } from './todo-tag.provider';
 import { TodoTagMapper } from '../todo-tags.mapper';
+import { Tag } from '../../tag.entity';
 
 @Injectable()
 export class TodoTagRepositoryImpl implements TodoTagRepository {
@@ -19,15 +20,13 @@ export class TodoTagRepositoryImpl implements TodoTagRepository {
     return result;
   }
 
-  async create(newTodoTag: TodoTag) {
+  async create(todoId: number, tags: Tag[]) {
     const query = `
                 INSERT INTO todo_tags (todo_id, tag_id)
-                VALUES (?, ?)
+                VALUES ${tags.map(() => '(?, ?)').join(',')}
             `;
-    const result = await this.dbService.mutate(query, [newTodoTag.todoId, newTodoTag.tagId]);
-    const insertedTodoTag = await this.getData(result.insertId);
-
-    return TodoTagMapper.toEntity(insertedTodoTag[0]);
+    const values = tags.flatMap((tag) => [todoId, tag.id]);
+    await this.dbService.mutate(query, values);
   }
 
   async findOneBy(todoId: number, tagId: number) {

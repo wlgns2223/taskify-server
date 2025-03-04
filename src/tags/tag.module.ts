@@ -15,6 +15,6 @@ import { TagManagerServiceProvider } from './tag-manager.provider';
     TodoTagRepositoryProvider,
     TagManagerServiceProvider,
   ],
-  exports: [TagServiceProvider, TodoTagServiceProvider],
+  exports: [TagServiceProvider, TodoTagServiceProvider, TagManagerServiceProvider],
 })
 export class TagModule {}

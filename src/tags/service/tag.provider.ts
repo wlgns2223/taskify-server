@@ -1,9 +1,9 @@
 import { Provider } from '@nestjs/common';
 import { TagServiceImpl } from './tag.service';
-import { TagEntity } from '../tag.entity';
+import { Tag, TagEntity } from '../tag.entity';
 
 export interface TagService {
-  create: (tag: string) => Promise<TagEntity>;
+  create: (tags: Tag[]) => Promise<TagEntity[]>;
 }
 
 export const TagServiceToken = Symbol('TagService');

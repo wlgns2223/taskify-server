@@ -3,7 +3,7 @@ import { TagRepositoryImpl } from './tag.repository';
 import { Tag, TagEntity } from '../tag.entity';
 
 export interface TagRepository {
-  create: (tag: Tag) => Promise<TagEntity>;
+  create: (tags: Tag[]) => Promise<TagEntity[]>;
   findOneBy: (tag: string) => Promise<TagEntity | null>;
 }
 

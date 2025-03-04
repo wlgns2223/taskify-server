@@ -8,26 +8,29 @@ import { TagMapper } from '../tag.mapper';
 export class TagRepositoryImpl implements TagRepository {
   constructor(private readonly dbService: DBConnectionService) {}
 
-  private async getData(id: number) {
+  private async getData(tags: string[]) {
     const query = `
       SELECT id, tag, created_at as createdAt, updated_at as updatedAt
       FROM tags
-      WHERE id = ?
+      WHERE tag IN (${tags.map(() => '?').join(',')})
     `;
 
-    const result = await this.dbService.select<Tag>(query, [id]);
+    const result = await this.dbService.select<Tag>(query, tags);
     return result;
   }
 
-  async create(newTag: Tag) {
+  async create(tags: Tag[]) {
+    // bulk insert
     const query = `
-      INSERT INTO tags (tag)
-      VALUES (?)
+      INSERT IGNORE INTO tags (tag)
+      VALUES ${tags.map(() => '(?)').join(',')}
     `;
-    const result = await this.dbService.mutate(query, [newTag.tag]);
-    const insertedTag = await this.getData(result.insertId);
+    const tagValues = tags.map((tag) => tag.tag);
+    await this.dbService.mutate(query, tagValues);
 
-    return TagMapper.toEntity(insertedTag[0]);
+    const insertedTag = await this.getData(tags.map((tag) => tag.tag));
+
+    return TagMapper.toEntityList(insertedTag);
   }
 
   async findOneBy(tag: string) {

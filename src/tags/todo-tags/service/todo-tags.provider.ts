@@ -1,9 +1,10 @@
 import { Provider } from '@nestjs/common';
 import { TodoTag, TodoTagEntity } from '../todo-tags.entity';
 import { TodoTagServiceImpl } from './todo-tags.service';
+import { Tag } from '../../tag.entity';
 
 export interface TodoTagService {
-  link: (todoId: number, tagId: number) => Promise<TodoTagEntity>;
+  link: (todoId: number, tags: Tag[]) => Promise<TodoTagEntity>;
 }
 
 export const TodoTagServiceToken = Symbol('TodoTagService');

@@ -7,6 +7,8 @@ import { S3Params } from '../../storage/s3.service';
 import { TodosRepository, TodosRepositoryToken } from '../repository';
 import { TodosService } from './todo.provider';
 import { TodoMapper } from '../dto/todo.mapper';
+import { TagMapper } from '../../tags/tag.mapper';
+import { TagManagerService, TagManagerServiceToken } from '../../tags/tag-manager.provider';
 
 @Injectable()
 export class TodosServiceImpl implements TodosService {
@@ -17,12 +19,17 @@ export class TodosServiceImpl implements TodosService {
     @Inject(TodosRepositoryToken)
     private todosRepository: TodosRepository,
 
+    @Inject(TagManagerServiceToken)
+    private tagManagerService: TagManagerService,
+
     private authService: AuthService,
   ) {}
 
   async create(accessToken: string, createTodoDto: CreateTodoDto, imgFile?: Express.Multer.File) {
     const { email } = await this.authService.verify(accessToken, TokenType.ACCESS);
-    const todoEntity = TodoMapper.toEntity(createTodoDto);
+    const tagEntityList = TagMapper.toEntityList(createTodoDto.tags.map((tag) => ({ tag })));
+
+    const todoEntity = TodoMapper.toEntity({ ...createTodoDto, tags: tagEntityList });
     if (!!imgFile) {
       const imageUrl = await this.storageService.uploadOne({
         email,
@@ -31,7 +38,11 @@ export class TodosServiceImpl implements TodosService {
       todoEntity.imageUrl = imageUrl;
     }
 
-    return await this.todosRepository.create(todoEntity);
+    const newTodo = await this.todosRepository.create(todoEntity);
+    const tags = await this.tagManagerService.createTagAndLinkToTodo(newTodo.id!, tagEntityList);
+    newTodo.tags = tags;
+
+    return newTodo;
   }
 
   async findManyBy(columnId: number) {

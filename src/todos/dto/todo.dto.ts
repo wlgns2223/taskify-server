@@ -2,6 +2,7 @@ import { Exclude, Expose } from 'class-transformer';
 import { Todo } from '../todos.entity';
 import { BaseDTO } from '../../common/dto';
 import { InternalServerException } from '../../common/exceptions/exceptions';
+import { Tag } from '../../tags/tag.entity';
 
 type ITodoDTO = Required<Omit<Todo, 'imageUrl' | 'position'>> & { imageUrl?: string | null; position?: number | null };
 
@@ -30,6 +31,9 @@ export class TodoDTO extends BaseDTO implements ITodoDTO {
   @Exclude()
   private _position?: number | null;
 
+  @Exclude()
+  private _tags: Tag[];
+
   constructor(param: Todo) {
     if (!param.id || !param.createdAt || !param.updatedAt) {
       throw InternalServerException('ColumnDTO.constructor: invalid column entity');
@@ -48,6 +52,12 @@ export class TodoDTO extends BaseDTO implements ITodoDTO {
     this._dueDate = param.dueDate;
     this._imageUrl = param.imageUrl;
     this._position = param.position;
+    this._tags = param.tags;
+  }
+
+  @Expose()
+  get tags() {
+    return this._tags;
   }
 
   @Expose()
