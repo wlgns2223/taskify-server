@@ -2,6 +2,7 @@ import { Provider } from '@nestjs/common';
 import { TodoTag, TodoTagEntity } from '../todo-tags.entity';
 import { TodoTagRepositoryImpl } from './todo-tags.repositoryImpl';
 import { Tag } from '../../tag.entity';
+import { Todo } from '../../../todos/todos.entity';
 
 export interface TodoTagRepository {
   create: (todoId: number, todoTag: Tag[]) => Promise<void>;

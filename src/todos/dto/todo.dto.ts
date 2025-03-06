@@ -1,8 +1,9 @@
-import { Exclude, Expose } from 'class-transformer';
+import { Exclude, Expose, Type } from 'class-transformer';
 import { Todo } from '../todos.entity';
 import { BaseDTO } from '../../common/dto';
 import { InternalServerException } from '../../common/exceptions/exceptions';
 import { Tag } from '../../tags/tag.entity';
+import { TagDTO } from '../../tags/dto/tag.dto';
 
 type ITodoDTO = Required<Omit<Todo, 'imageUrl' | 'position'>> & { imageUrl?: string | null; position?: number | null };
 
@@ -52,10 +53,11 @@ export class TodoDTO extends BaseDTO implements ITodoDTO {
     this._dueDate = param.dueDate;
     this._imageUrl = param.imageUrl;
     this._position = param.position;
-    this._tags = param.tags;
+    this._tags = param.tags ?? [];
   }
 
   @Expose()
+  @Type(() => TagDTO)
   get tags() {
     return this._tags;
   }

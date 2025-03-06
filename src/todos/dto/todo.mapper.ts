@@ -1,7 +1,6 @@
 import { instanceToPlain } from 'class-transformer';
 import { Todo, TodoEntity } from '../todos.entity';
 import { TodoDTO } from './todo.dto';
-import { PlainOf } from '../../common/types';
 
 export class TodoMapper {
   static toDTO(entity: TodoEntity): TodoDTO {

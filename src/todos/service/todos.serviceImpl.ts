@@ -8,7 +8,9 @@ import { TodosRepository, TodosRepositoryToken } from '../repository';
 import { TodosService } from './todo.provider';
 import { TodoMapper } from '../dto/todo.mapper';
 import { TagMapper } from '../../tags/tag.mapper';
-import { TagManagerService, TagManagerServiceToken } from '../../tags/tag-manager.provider';
+import { TagService, TagServiceToken } from '../../tags/service';
+import { TodoTagService, TodoTagServiceToken } from '../../tags/todo-tags/service';
+import { DBConnectionService } from '../../db/db.service';
 
 @Injectable()
 export class TodosServiceImpl implements TodosService {
@@ -19,17 +21,23 @@ export class TodosServiceImpl implements TodosService {
     @Inject(TodosRepositoryToken)
     private todosRepository: TodosRepository,
 
-    @Inject(TagManagerServiceToken)
-    private tagManagerService: TagManagerService,
+    @Inject(TagServiceToken)
+    private readonly tagService: TagService,
+
+    @Inject(TodoTagServiceToken)
+    private readonly todoTagsService: TodoTagService,
+
+    private dbService: DBConnectionService,
 
     private authService: AuthService,
   ) {}
 
   async create(accessToken: string, createTodoDto: CreateTodoDto, imgFile?: Express.Multer.File) {
     const { email } = await this.authService.verify(accessToken, TokenType.ACCESS);
-    const tagEntityList = TagMapper.toEntityList(createTodoDto.tags.map((tag) => ({ tag })));
+    const { tags, ...rest } = createTodoDto;
 
-    const todoEntity = TodoMapper.toEntity({ ...createTodoDto, tags: tagEntityList });
+    const tagEntityList = TagMapper.toEntityList(tags.map((tag) => ({ tag })));
+    const todoEntity = TodoMapper.toEntity(rest);
     if (!!imgFile) {
       const imageUrl = await this.storageService.uploadOne({
         email,
@@ -38,11 +46,15 @@ export class TodosServiceImpl implements TodosService {
       todoEntity.imageUrl = imageUrl;
     }
 
-    const newTodo = await this.todosRepository.create(todoEntity);
-    const tags = await this.tagManagerService.createTagAndLinkToTodo(newTodo.id!, tagEntityList);
-    newTodo.tags = tags;
+    const queries = async () => {
+      const newTodo = await this.todosRepository.create(todoEntity);
+      const newTags = await this.tagService.create(tagEntityList);
+      await this.todoTagsService.link(newTodo.id!, newTags);
+      newTodo.tags = newTags;
+      return newTodo;
+    };
 
-    return newTodo;
+    return await this.dbService.transaction(queries);
   }
 
   async findManyBy(columnId: number) {

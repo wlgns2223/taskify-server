@@ -10,7 +10,7 @@ export interface Todo extends Base {
   dueDate: Date;
   imageUrl?: string | null;
   position?: number | null;
-  tags: Tag[];
+  tags?: Tag[];
 }
 
 export class TodoEntity extends BaseEntity implements Todo {
@@ -22,7 +22,7 @@ export class TodoEntity extends BaseEntity implements Todo {
   private _dueDate: Date;
   private _imageUrl?: string | null;
   private _position?: number | null;
-  private _tags: Tag[];
+  private _tags?: Tag[];
 
   constructor(param: Todo) {
     super({
@@ -41,7 +41,7 @@ export class TodoEntity extends BaseEntity implements Todo {
     this._tags = param.tags;
   }
 
-  get tags() {
+  get tags(): Tag[] | undefined {
     return this._tags;
   }
 
