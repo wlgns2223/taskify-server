@@ -48,22 +48,61 @@ export class TodosRepositoryImpl implements TodosRepository {
     return TodoMapper.toEntity(insertedTodo[0]);
   }
 
+  async findOneBy(id: number) {
+    const query = `
+    SELECT
+      td.id, 
+      td.assignee_user_id as asigneeUserId,
+      td.assigner_user_id as assignerUserId,
+      td.column_id as columnId,
+      td.title, 
+      td.content,
+      td.due_date as dueDate,
+      td.image_url as imageUrl,
+      td.position,
+      CASE
+        WHEN count(t.id) = 0 THEN JSON_ARRAY()
+        ELSE JSON_ARRAYAGG(JSON_OBJECT('id', t.id, 'tag', t.tag))
+      END as tags,
+      td.created_at as createdAt, 
+      td.updated_at as updatedAt 
+    FROM Todos as td
+    LEFT JOIN todo_tags as tt on tt.todo_id = td.id
+    LEFT JOIN tags as t on t.id = tt.tag_id
+    group by td.id
+    having td.id = ?
+    order by td.position DESC
+    `;
+
+    const result = await this.dbService.select<Todo>(query, [id]);
+
+    return TodoMapper.toEntity(result[0]);
+  }
+
   async findManyBy(columnId: number) {
-    const query = `SELECT 
-        id, 
-        assignee_user_id as asigneeUserId,
-        assigner_user_id as assignerUserId,
-        column_id as columnId,
-        title, 
-        content,
-        due_date as dueDate,
-        image_url as imageUrl,
-        position,
-        created_at as createdAt, 
-        updated_at as updatedAt 
-        FROM todos 
-        WHERE column_id = ?
-        ORDER BY position DESC`;
+    const query = `SELECT
+      td.id, 
+      td.assignee_user_id as asigneeUserId,
+      td.assigner_user_id as assignerUserId,
+      td.column_id as columnId,
+      td.title, 
+      td.content,
+      td.due_date as dueDate,
+      td.image_url as imageUrl,
+      td.position,
+      CASE
+        WHEN count(t.id) = 0 THEN JSON_ARRAY()
+        ELSE JSON_ARRAYAGG(JSON_OBJECT('id', t.id, 'tag', t.tag))
+      END as tags,
+      td.created_at as createdAt, 
+      td.updated_at as updatedAt 
+    FROM Todos as td
+    LEFT JOIN todo_tags as tt on tt.todo_id = td.id
+    LEFT JOIN tags as t on t.id = tt.tag_id
+    group by td.id
+    having td.column_id = ?
+    order by td.position DESC
+    `;
 
     const result = await this.dbService.select<Todo>(query, [columnId]);
 

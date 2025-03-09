@@ -7,6 +7,7 @@ import { TodosServiceImpl } from './todos.serviceImpl';
 export interface TodosService {
   create(accessToken: string, createTodoDto: CreateTodoDto, imgFile?: Express.Multer.File): Promise<TodoEntity>;
   findManyBy(columnId: number): Promise<TodoEntity[]>;
+  findOneBy(id: number): Promise<TodoEntity>;
   deleteOneBy(id: number): Promise<TodoEntity>;
 }
 

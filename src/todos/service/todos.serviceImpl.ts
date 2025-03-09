@@ -11,6 +11,7 @@ import { TagMapper } from '../../tags/tag.mapper';
 import { TagService, TagServiceToken } from '../../tags/service';
 import { TodoTagService, TodoTagServiceToken } from '../../tags/todo-tags/service';
 import { DBConnectionService } from '../../db/db.service';
+import { TodoEntity } from '../todos.entity';
 
 @Injectable()
 export class TodosServiceImpl implements TodosService {
@@ -38,18 +39,23 @@ export class TodosServiceImpl implements TodosService {
 
     const tagEntityList = TagMapper.toEntityList(tags.map((tag) => ({ tag })));
     const todoEntity = TodoMapper.toEntity(rest);
-    if (!!imgFile) {
-      const imageUrl = await this.storageService.uploadOne({
-        email,
-        file: imgFile,
-      });
-      todoEntity.imageUrl = imageUrl;
-    }
 
     const queries = async () => {
+      if (!!imgFile) {
+        const imageUrl = await this.storageService.uploadOne({
+          email,
+          file: imgFile,
+        });
+        todoEntity.imageUrl = imageUrl;
+      }
       const newTodo = await this.todosRepository.create(todoEntity);
-      const newTags = await this.tagService.create(tagEntityList);
-      await this.todoTagsService.link(newTodo.id!, newTags);
+
+      let newTags: TodoEntity['tags'] = [];
+      if (tags.length !== 0) {
+        newTags = await this.tagService.create(tagEntityList);
+        await this.todoTagsService.link(newTodo.id!, newTags);
+      }
+
       newTodo.tags = newTags;
       return newTodo;
     };
@@ -59,6 +65,10 @@ export class TodosServiceImpl implements TodosService {
 
   async findManyBy(columnId: number) {
     return await this.todosRepository.findManyBy(columnId);
+  }
+
+  async findOneBy(id: number): Promise<TodoEntity> {
+    return await this.todosRepository.findOneBy(id);
   }
 
   async deleteOneBy(id: number) {

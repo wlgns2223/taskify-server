@@ -36,6 +36,12 @@ export class TodosController {
     return TodoMapper.toDTO(todo);
   }
 
+  @Get(':id')
+  async findOneBy(@Param('id', ParseIntPipe) id: number) {
+    const todo = await this.todosService.findOneBy(id);
+    return TodoMapper.toDTO(todo);
+  }
+
   @Get()
   async getTodosByColumnId(@Query('columnId', ParseIntPipe) columnId: number) {
     const todos = await this.todosService.findManyBy(columnId);
