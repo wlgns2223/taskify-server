@@ -1,5 +1,6 @@
 import { Base, BaseEntity } from '../common/entity';
 import { Tag } from '../tags/tag.entity';
+import { User } from '../users/users.entity';
 
 export interface Todo extends Base {
   assigneeUserId: number;
@@ -11,6 +12,7 @@ export interface Todo extends Base {
   imageUrl?: string | null;
   position?: number | null;
   tags?: Tag[];
+  assignee?: User;
 }
 
 export class TodoEntity extends BaseEntity implements Todo {
@@ -23,6 +25,7 @@ export class TodoEntity extends BaseEntity implements Todo {
   private _imageUrl?: string | null;
   private _position?: number | null;
   private _tags?: Tag[];
+  private _assignee?: User;
 
   constructor(param: Todo) {
     super({
@@ -39,6 +42,11 @@ export class TodoEntity extends BaseEntity implements Todo {
     this._imageUrl = param.imageUrl ?? null;
     this._position = param.position ?? null;
     this._tags = param.tags;
+    this._assignee = param.assignee;
+  }
+
+  get assignee(): User | undefined {
+    return this._assignee;
   }
 
   get tags(): Tag[] | undefined {

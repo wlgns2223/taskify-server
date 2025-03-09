@@ -4,6 +4,8 @@ import { BaseDTO } from '../../common/dto';
 import { InternalServerException } from '../../common/exceptions/exceptions';
 import { Tag } from '../../tags/tag.entity';
 import { TagDTO } from '../../tags/dto/tag.dto';
+import { UserDTO } from '../../users/dto/user.dto';
+import { User } from '../../users/users.entity';
 
 type ITodoDTO = Required<Omit<Todo, 'imageUrl' | 'position'>> & { imageUrl?: string | null; position?: number | null };
 
@@ -35,9 +37,16 @@ export class TodoDTO extends BaseDTO implements ITodoDTO {
   @Exclude()
   private _tags: Tag[];
 
+  @Exclude()
+  private _assignee: User;
+
   constructor(param: Todo) {
     if (!param.id || !param.createdAt || !param.updatedAt) {
       throw InternalServerException('ColumnDTO.constructor: invalid column entity');
+    }
+
+    if (!param.assignee) {
+      throw InternalServerException('TodoDTO.constructor: invalid assignee entity');
     }
 
     super({
@@ -54,6 +63,13 @@ export class TodoDTO extends BaseDTO implements ITodoDTO {
     this._imageUrl = param.imageUrl;
     this._position = param.position;
     this._tags = param.tags ?? [];
+    this._assignee = param.assignee;
+  }
+
+  @Expose()
+  @Type(() => UserDTO)
+  get assignee() {
+    return this._assignee;
   }
 
   @Expose()

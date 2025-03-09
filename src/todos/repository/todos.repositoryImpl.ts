@@ -52,8 +52,16 @@ export class TodosRepositoryImpl implements TodosRepository {
     const query = `
     SELECT
       td.id, 
-      td.assignee_user_id as asigneeUserId,
+      td.assignee_user_id as assigneeUserId,
       td.assigner_user_id as assignerUserId,
+      json_object(
+        'id', u.id, 
+        'email', u.email, 
+        'nickname', u.nickname,
+        'password', u.password,
+        'createdAt',u.created_at,
+        'updatedAt',u.updated_at
+        ) as assignee,
       td.column_id as columnId,
       td.title, 
       td.content,
@@ -69,6 +77,7 @@ export class TodosRepositoryImpl implements TodosRepository {
     FROM Todos as td
     LEFT JOIN todo_tags as tt on tt.todo_id = td.id
     LEFT JOIN tags as t on t.id = tt.tag_id
+    LEFT JOIN users as u on u.id = td.assignee_user_id
     group by td.id
     having td.id = ?
     order by td.position DESC
@@ -82,8 +91,16 @@ export class TodosRepositoryImpl implements TodosRepository {
   async findManyBy(columnId: number) {
     const query = `SELECT
       td.id, 
-      td.assignee_user_id as asigneeUserId,
+      td.assignee_user_id as assigneeUserId,
       td.assigner_user_id as assignerUserId,
+      json_object(
+        'id', u.id, 
+        'email', u.email, 
+        'nickname', u.nickname,
+        'password', u.password,
+        'createdAt',u.created_at,
+        'updatedAt',u.updated_at
+        ) as assignee,
       td.column_id as columnId,
       td.title, 
       td.content,
@@ -99,6 +116,7 @@ export class TodosRepositoryImpl implements TodosRepository {
     FROM Todos as td
     LEFT JOIN todo_tags as tt on tt.todo_id = td.id
     LEFT JOIN tags as t on t.id = tt.tag_id
+    LEFT JOIN users as u on u.id = td.assignee_user_id
     group by td.id
     having td.column_id = ?
     order by td.position DESC
