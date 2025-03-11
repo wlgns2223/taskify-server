@@ -3,7 +3,7 @@ import { ServiceException } from './serviceException';
 import { DATA_ALREADY_EXISTS, DATA_NOT_FOUND, INTERNAL_SERVER_ERROR, INVALID_INPUT, UNAUTHORIZED } from './errors';
 
 export const InternalServerException = (message?: string) => {
-  return new InternalServerErrorException(INTERNAL_SERVER_ERROR, message);
+  return new ServiceException(INTERNAL_SERVER_ERROR, message);
 };
 
 export const EntityNotFoundException = (message?: string) => {

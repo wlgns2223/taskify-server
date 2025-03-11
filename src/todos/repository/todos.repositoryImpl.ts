@@ -10,20 +10,39 @@ export class TodosRepositoryImpl implements TodosRepository {
   constructor(private dbService: DBConnectionService) {}
 
   private async getData(id: number) {
-    const query = `SELECT 
-        id, 
-        assignee_user_id as asigneeUserId,
-        assigner_user_id as assignerUserId,
-        column_id as columnId,
-        title, 
-        content,
-        due_date as dueDate,
-        image_url as imageUrl,
-        position,
-        created_at as createdAt, 
-        updated_at as updatedAt 
-        FROM todos 
-        WHERE id = ?`;
+    const query = `
+    SELECT
+      td.id, 
+      td.assignee_user_id as assigneeUserId,
+      td.assigner_user_id as assignerUserId,
+      json_object(
+        'id', u.id, 
+        'email', u.email, 
+        'nickname', u.nickname,
+        'password', u.password,
+        'createdAt',u.created_at,
+        'updatedAt',u.updated_at
+        ) as assignee,
+      td.column_id as columnId,
+      td.title, 
+      td.content,
+      td.due_date as dueDate,
+      td.image_url as imageUrl,
+      td.position,
+      CASE
+        WHEN count(t.id) = 0 THEN JSON_ARRAY()
+        ELSE JSON_ARRAYAGG(JSON_OBJECT('id', t.id, 'tag', t.tag))
+      END as tags,
+      td.created_at as createdAt, 
+      td.updated_at as updatedAt 
+    FROM Todos as td
+    LEFT JOIN todo_tags as tt on tt.todo_id = td.id
+    LEFT JOIN tags as t on t.id = tt.tag_id
+    LEFT JOIN users as u on u.id = td.assignee_user_id
+    group by td.id
+    having td.id = ?
+    order by td.position DESC
+    `;
 
     const result = await this.dbService.select<Todo>(query, [id]);
     return result;

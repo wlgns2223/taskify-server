@@ -30,6 +30,7 @@ export class TodosController {
   async createTodo(
     @TokenFromReq(TokenType.ACCESS) accessToken: string,
     @Body() createTodoDto: CreateTodoDto,
+    @Body() body,
     @UploadedFile() image?: Express.Multer.File,
   ) {
     const todo = await this.todosService.create(accessToken, createTodoDto, image);

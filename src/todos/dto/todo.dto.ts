@@ -42,7 +42,7 @@ export class TodoDTO extends BaseDTO implements ITodoDTO {
 
   constructor(param: Todo) {
     if (!param.id || !param.createdAt || !param.updatedAt) {
-      throw InternalServerException('ColumnDTO.constructor: invalid column entity');
+      throw InternalServerException('TodoDTO.constructor: invalid column entity');
     }
 
     if (!param.assignee) {
@@ -54,6 +54,7 @@ export class TodoDTO extends BaseDTO implements ITodoDTO {
       createdAt: param.createdAt,
       updatedAt: param.updatedAt,
     });
+
     this._assigneeUserId = param.assigneeUserId;
     this._assignerUserId = param.assignerUserId;
     this._columnId = param.columnId;

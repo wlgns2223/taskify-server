@@ -4,6 +4,7 @@ import { TodoDTO } from './todo.dto';
 
 export class TodoMapper {
   static toDTO(entity: TodoEntity): TodoDTO {
+    console.log('entity', entity);
     const todoDTO = TodoDTO.from(TodoDTO, entity);
     return instanceToPlain(todoDTO) as TodoDTO;
   }

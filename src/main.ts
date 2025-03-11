@@ -20,6 +20,7 @@ async function bootstrap() {
     new ValidationPipe({
       whitelist: true,
       transform: true,
+
       exceptionFactory: (errors: ValidationError[]) => {
         const messages = errors.map((error) => {
           return {
