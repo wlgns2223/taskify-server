@@ -54,12 +54,15 @@ export class DashboardsRepositoryImpl implements DashboardsRepository {
     D.updated_at as updatedAt
     FROM members as M
     JOIN dashboards as D ON D.id = M.dashboard_id
-    WHERE M.member_id = ${userId}
+    WHERE M.member_id = ?
     ORDER BY D.id DESC
-    LIMIT ${pageSize} OFFSET ${(page - 1) * pageSize}
+    LIMIT ? OFFSET ?
   `;
 
-    const result = await this.dbService.select<Dashboard>(query);
+    const limit = pageSize;
+    const offset = (page - 1) * pageSize;
+
+    const result = await this.dbService.select<Dashboard>(query, [userId, limit, offset]);
 
     return DashboardMapper.toEntityList(result);
   }

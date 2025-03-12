@@ -17,7 +17,6 @@ import { OffsetPaginationRequestDto } from './dto/offsetPagination.dto';
 import { DashboardsService, DashboardsServiceToken } from './service';
 import { DashboardMapper } from './dashboard.mapper';
 import { OffsetPaginationMapper } from './dto/offsetPagination.mapper';
-import { LoggingInterceptor } from '../common/interceptors/log.interceptor';
 
 @Controller('dashboards')
 // @UseInterceptors(LoggingInterceptor)
