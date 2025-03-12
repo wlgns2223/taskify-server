@@ -2,8 +2,6 @@ import { Inject, Injectable } from '@nestjs/common';
 import { CreateInvitationDto } from '../dto/createInvitation.dto';
 import { Invitation, InvitationStatus } from '../invitations.entity';
 import { EmailService } from '../email.service';
-import { OffsetPaginationResponse, OffsetPaginationResponseDto } from '../../dashboard/dto/offsetPagination.dto';
-import { instanceToPlain } from 'class-transformer';
 import { InvitationOffsetPaginationWithSearchRequestDto } from '../dto/readhInvitation.dto';
 import { DBConnectionService } from '../../db/db.service';
 import { InvitationsService } from './invitations.service.provider';
@@ -13,12 +11,9 @@ import { UsersService, UsersServiceToken } from '../../users/service/users.provi
 import { EntityNotFoundException, InternalServerException } from '../../common/exceptions/exceptions';
 import { InvitationsMapper } from '../invitations.mapper';
 import { AuthService } from '../../auth/auth.service';
-import { OffsetPaginationMapper } from '../../dashboard/dto/offsetPagination.mapper';
 import { MembersMapper } from '../../members/members.mapper';
 import { DashboardsService, DashboardsServiceToken } from '../../dashboard/service';
 import { CreateEmailDTO } from '../dto/createEmail.dto';
-import { UserMapper } from '../../users/dto/user.mapper';
-import { UserEntity } from '../../users/users.entity';
 
 @Injectable()
 export class InvitationsServiceImpl implements InvitationsService {

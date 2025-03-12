@@ -46,7 +46,6 @@ export class InvitationsController {
       paginationQuery,
       accessToken,
     );
-    console.log('invitations', invitations);
     const offsetPaginationResponse: OffsetPaginationResponse<Invitation> = {
       currentPage: paginationQuery.page,
       data: InvitationsMapper.toDTOList(invitations),
