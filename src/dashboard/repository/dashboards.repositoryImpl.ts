@@ -61,8 +61,9 @@ export class DashboardsRepositoryImpl implements DashboardsRepository {
 
     const limit = pageSize;
     const offset = (page - 1) * pageSize;
+    const params = [userId, limit, offset].map((v) => v.toString());
 
-    const result = await this.dbService.select<Dashboard>(query, [userId, limit, offset]);
+    const result = await this.dbService.select<Dashboard>(query, params);
 
     return DashboardMapper.toEntityList(result);
   }
