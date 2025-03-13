@@ -12,6 +12,7 @@ export interface TodosRepository {
     offsetPaginationRequest: OffsetPaginationRequestDto,
     columnId: number,
   ) => Promise<TodoEntity[]>;
+  countAllBy: (columnId: number) => Promise<number>;
 }
 
 export const TodosRepositoryToken = Symbol('TodosRepository');

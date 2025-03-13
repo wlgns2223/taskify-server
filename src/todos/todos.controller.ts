@@ -17,6 +17,14 @@ import { TokenFromReq } from '../auth/decorators/tokenFromReq.decorator';
 import { TokenType } from '../auth/types/type';
 import { TodoServiceToken, TodosService } from './service/todo.provider';
 import { TodoMapper } from './dto/todo.mapper';
+import {
+  OffsetPaginationRequestDto,
+  OffsetPaginationResponse,
+  OffsetPaginationResponseDto,
+} from '../dashboard/dto/offsetPagination.dto';
+import { Todo } from './todos.entity';
+import { OffsetPaginationMapper } from '../dashboard/dto/offsetPagination.mapper';
+import { TodoDTO } from './dto/todo.dto';
 
 @Controller('todos')
 export class TodosController {
@@ -30,7 +38,6 @@ export class TodosController {
   async createTodo(
     @TokenFromReq(TokenType.ACCESS) accessToken: string,
     @Body() createTodoDto: CreateTodoDto,
-    @Body() body,
     @UploadedFile() image?: Express.Multer.File,
   ) {
     const todo = await this.todosService.create(accessToken, createTodoDto, image);
@@ -53,5 +60,23 @@ export class TodosController {
   async deleteOneBy(@Param('id', ParseIntPipe) id: number) {
     const todo = await this.todosService.deleteOneBy(id);
     return TodoMapper.toDTO(todo);
+  }
+
+  @Get('/column/:columnId/pagination')
+  async getTodosWithPagination(
+    @Param('columnId', ParseIntPipe) columnId: number,
+    @Query() offsetPaginationRequestDto: OffsetPaginationRequestDto,
+  ) {
+    const { totalNumberOfTodos, todos } = await this.todosService.findManyWithPagination(
+      offsetPaginationRequestDto,
+      columnId,
+    );
+    const offsetPaginationResponse: OffsetPaginationResponse<TodoDTO> = {
+      currentPage: offsetPaginationRequestDto.page,
+      data: TodoMapper.toDTOList(todos),
+      totalNumberOfData: totalNumberOfTodos,
+      pageSize: offsetPaginationRequestDto.pageSize,
+    };
+    return OffsetPaginationMapper.toDTO(offsetPaginationResponse);
   }
 }

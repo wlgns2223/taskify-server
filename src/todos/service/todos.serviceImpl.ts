@@ -12,6 +12,7 @@ import { TagService, TagServiceToken } from '../../tags/service';
 import { TodoTagService, TodoTagServiceToken } from '../../tags/todo-tags/service';
 import { DBConnectionService } from '../../db/db.service';
 import { TodoEntity } from '../todos.entity';
+import { OffsetPaginationRequestDto } from '../../dashboard/dto/offsetPagination.dto';
 
 @Injectable()
 export class TodosServiceImpl implements TodosService {
@@ -32,6 +33,15 @@ export class TodosServiceImpl implements TodosService {
 
     private authService: AuthService,
   ) {}
+
+  async findManyWithPagination(offsetPaginationDto: OffsetPaginationRequestDto, columnId: number) {
+    const totalNumberOfTodos = await this.todosRepository.countAllBy(columnId);
+    const todos = await this.todosRepository.findManyWithPagination(offsetPaginationDto, columnId);
+    return {
+      totalNumberOfTodos,
+      todos,
+    };
+  }
 
   async create(accessToken: string, createTodoDto: CreateTodoDto, imgFile?: Express.Multer.File) {
     const { email } = await this.authService.verify(accessToken, TokenType.ACCESS);

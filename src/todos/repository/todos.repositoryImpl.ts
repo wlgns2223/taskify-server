@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { DBConnectionService } from '../../db/db.service';
 import { TodosRepository } from './todos.provider';
 import { TodoMapper } from '../dto/todo.mapper';
-import { PlainOf } from '../../common/types';
 import { Todo, TodoEntity } from '../todos.entity';
 import { OffsetPaginationRequestDto } from '../../dashboard/dto/offsetPagination.dto';
 
@@ -183,7 +182,8 @@ export class TodosRepositoryImpl implements TodosRepository {
     `;
     const limit = offsetPaginationRequest.pageSize;
     const offset = (offsetPaginationRequest.page - 1) * offsetPaginationRequest.pageSize;
-    const result = await this.dbService.select<Todo>(query, [columnId, limit, offset]);
+    const param = [columnId, limit, offset].map((v) => v.toString());
+    const result = await this.dbService.select<Todo>(query, param);
 
     return TodoMapper.toEntityList(result);
   }
@@ -205,5 +205,11 @@ export class TodosRepositoryImpl implements TodosRepository {
     SET position = position - 1
     WHERE column_id = ? AND position > ?`;
     await this.dbService.mutate(query, [columnId, position]);
+  }
+
+  async countAllBy(columnId: number) {
+    const query = `select count(*) as total from todos where column_id = ?`;
+    const result = await this.dbService.select<{ total: number }>(query, [columnId]);
+    return result[0].total;
   }
 }

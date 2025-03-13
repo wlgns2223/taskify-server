@@ -42,7 +42,7 @@ export class InvitationsController {
     @Query() paginationQuery: InvitationOffsetPaginationWithSearchRequestDto,
     @TokenFromReq(TokenType.ACCESS) accessToken: string,
   ) {
-    const { invitations, totalNumberOfInvitations, user } = await this.invitationService.findAllByWithPagination(
+    const { invitations, totalNumberOfInvitations } = await this.invitationService.findAllByWithPagination(
       paginationQuery,
       accessToken,
     );
