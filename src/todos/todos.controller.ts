@@ -17,12 +17,7 @@ import { TokenFromReq } from '../auth/decorators/tokenFromReq.decorator';
 import { TokenType } from '../auth/types/type';
 import { TodoServiceToken, TodosService } from './service/todo.provider';
 import { TodoMapper } from './dto/todo.mapper';
-import {
-  OffsetPaginationRequestDto,
-  OffsetPaginationResponse,
-  OffsetPaginationResponseDto,
-} from '../dashboard/dto/offsetPagination.dto';
-import { Todo } from './todos.entity';
+import { OffsetPaginationRequestDto, OffsetPaginationResponse } from '../dashboard/dto/offsetPagination.dto';
 import { OffsetPaginationMapper } from '../dashboard/dto/offsetPagination.mapper';
 import { TodoDTO } from './dto/todo.dto';
 
