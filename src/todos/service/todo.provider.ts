@@ -1,7 +1,6 @@
 import { Provider } from '@nestjs/common';
-import { PlainOf } from '../../common/types';
 import { CreateTodoDto } from '../dto/createTodo.dto';
-import { Todo, TodoEntity } from '../todos.entity';
+import { TodoEntity } from '../todos.entity';
 import { TodosServiceImpl } from './todos.serviceImpl';
 import { OffsetPaginationRequestDto } from '../../dashboard/dto/offsetPagination.dto';
 
