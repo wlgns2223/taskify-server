@@ -2,7 +2,7 @@ import { Comment, CommentEntity } from '../comments.entity';
 import { CommentsRepositoryImpl } from './comments.repository.impl';
 
 export interface CommentsRepository {
-  create: (comment: Comment) => Promise<CommentEntity>;
+  createParentComment: (comment: Comment) => Promise<CommentEntity>;
   //   findManyBy: (todoId: string) => Promise<CommentEntity[]>;
 }
 
