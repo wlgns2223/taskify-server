@@ -42,7 +42,7 @@ export class TodosController {
   @Get(':id')
   async findOneBy(@Param('id', ParseIntPipe) id: number) {
     const todo = await this.todosService.findOneBy(id);
-    return TodoMapper.toDTO(todo);
+    return !!todo ? TodoMapper.toDTO(todo) : todo;
   }
 
   @Get()

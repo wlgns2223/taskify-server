@@ -9,7 +9,7 @@ export interface Comment extends Base {
   ref?: number;
   refOrder?: number;
   replyCount?: number;
-  step: number;
+  step?: number;
   writer?: User;
 }
 
@@ -21,7 +21,7 @@ export class CommentEntity extends BaseEntity {
   private _ref?: number;
   private _refOrder?: number;
   private _replyCount?: number;
-  private _step: number;
+  private _step?: number;
   private _writer?: User;
 
   constructor(data: Comment) {
@@ -70,7 +70,7 @@ export class CommentEntity extends BaseEntity {
     return this._replyCount;
   }
 
-  get step(): number {
+  get step(): number | undefined {
     return this._step;
   }
 

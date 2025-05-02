@@ -50,7 +50,7 @@ export class CommentDTO extends BaseDTO implements Required<Comment> {
     this._ref = param.ref!;
     this._refOrder = param.refOrder!;
     this._replyCount = param.replyCount!;
-    this._step = param.step;
+    this._step = param.step!;
     this._writer = param.writer!;
   }
 

@@ -77,7 +77,7 @@ export class TodosServiceImpl implements TodosService {
     return await this.todosRepository.findManyBy(columnId);
   }
 
-  async findOneBy(id: number): Promise<TodoEntity> {
+  async findOneBy(id: number) {
     return await this.todosRepository.findOneBy(id);
   }
 

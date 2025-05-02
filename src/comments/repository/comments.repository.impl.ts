@@ -32,15 +32,20 @@ export class CommentsRepositoryImpl implements CommentsRepository {
         ) as writer
       from comments as c
       join users as u on u.id = c.writer_id
-      where c.id = $1;`;
+      where c.id = ?;`;
     const result = await this.dbService.select<Comment>(query, [commentId]);
     return result;
   }
 
   async createParentComment(comment: Comment): Promise<CommentEntity> {
-    const query = `insert into comments (writer_id,todo_id, comment) values ($1, $2, $3)`;
-    const insertedComment = await this.dbService.mutate(query, [comment.writerId, comment.todoId, comment.comment]);
-    const newComment = await this.getData(insertedComment[0].id);
+    const query = `insert into comments (writer_id,todo_id, comment, parent_id) values (?, ?, ?,?)`;
+    const insertedComment = await this.dbService.mutate(query, [
+      comment.writerId,
+      comment.todoId,
+      comment.comment,
+      comment.parentId,
+    ]);
+    const newComment = await this.getData(insertedComment.insertId);
     return CommentMapper.toEntity(newComment[0]);
   }
 }

@@ -10,5 +10,6 @@ import { TagModule } from '../tags/tag.module';
   imports: [StorageModule, AuthModule, TagModule],
   controllers: [TodosController],
   providers: [TodosRepositoryProvider, TodoServiceProvider],
+  exports: [TodoServiceProvider],
 })
 export class TodosModule {}

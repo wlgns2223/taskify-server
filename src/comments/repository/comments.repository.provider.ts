@@ -1,3 +1,4 @@
+import { Provider } from '@nestjs/common';
 import { Comment, CommentEntity } from '../comments.entity';
 import { CommentsRepositoryImpl } from './comments.repository.impl';
 
@@ -7,7 +8,7 @@ export interface CommentsRepository {
 }
 
 export const CommentsRepositoryToken = Symbol('CommentsRepository');
-export const CommentsRepositoryProvider = {
+export const CommentsRepositoryProvider: Provider<CommentsRepository> = {
   provide: CommentsRepositoryToken,
   useClass: CommentsRepositoryImpl,
 };

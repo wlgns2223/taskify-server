@@ -14,6 +14,7 @@ import { StorageModule } from './storage/storage.module';
 import { ClsModule } from 'nestjs-cls';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { LoggingInterceptor } from './common/interceptors/log.interceptor';
+import { CommentsModule } from './comments/comments.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { LoggingInterceptor } from './common/interceptors/log.interceptor';
     InvitationsModule,
     MembersModule,
     StorageModule,
+    CommentsModule,
   ],
   controllers: [AppController],
   providers: [

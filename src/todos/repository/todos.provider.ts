@@ -7,7 +7,7 @@ export interface TodosRepository {
   create: (todo: Todo) => Promise<TodoEntity>;
   findManyBy: (columnId: number) => Promise<TodoEntity[]>;
   deleteOneBy: (id: number) => Promise<TodoEntity>;
-  findOneBy: (id: number) => Promise<TodoEntity>;
+  findOneBy: (id: number) => Promise<TodoEntity | null>;
   findManyWithPagination: (
     offsetPaginationRequest: OffsetPaginationRequestDto,
     columnId: number,

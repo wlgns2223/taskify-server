@@ -7,7 +7,7 @@ import { OffsetPaginationRequestDto } from '../../dashboard/dto/offsetPagination
 export interface TodosService {
   create(accessToken: string, createTodoDto: CreateTodoDto, imgFile?: Express.Multer.File): Promise<TodoEntity>;
   findManyBy(columnId: number): Promise<TodoEntity[]>;
-  findOneBy(id: number): Promise<TodoEntity>;
+  findOneBy(id: number): Promise<TodoEntity | null>;
   deleteOneBy(id: number): Promise<TodoEntity>;
   findManyWithPagination: (
     offsetPaginationRequest: OffsetPaginationRequestDto,

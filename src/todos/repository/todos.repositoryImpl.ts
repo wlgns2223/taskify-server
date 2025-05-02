@@ -104,7 +104,7 @@ export class TodosRepositoryImpl implements TodosRepository {
 
     const result = await this.dbService.select<Todo>(query, [id]);
 
-    return TodoMapper.toEntity(result[0]);
+    return result.length > 0 ? TodoMapper.toEntity(result[0]) : null;
   }
 
   async findManyBy(columnId: number) {
