@@ -3,6 +3,8 @@ import { CommentsRepository } from './comments.repository.provider';
 import { DBConnectionService } from '../../db/db.service';
 import { Comment, CommentEntity } from '../comments.entity';
 import { CommentMapper } from '../dto/comment.mapper';
+import { UpdateColumnsDto } from '../../columns/dto/updateColumns.dto';
+import { UpdateCommentDTO } from '../dto/updateComment.dto';
 
 @Injectable()
 export class CommentsRepositoryImpl implements CommentsRepository {
@@ -47,5 +49,10 @@ export class CommentsRepositoryImpl implements CommentsRepository {
     ]);
     const newComment = await this.getData(insertedComment.insertId);
     return CommentMapper.toEntity(newComment[0]);
+  }
+
+  async updateReplyCount(commentId: number) {
+    let query = `UPDATE comments SET reply_count = reply_count + 1 where id = ?`;
+    await this.dbService.mutate(query, [commentId]);
   }
 }

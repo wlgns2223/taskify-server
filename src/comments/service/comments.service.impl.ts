@@ -6,6 +6,7 @@ import { TodoServiceToken, TodosService } from '../../todos/service/todo.provide
 import { UsersService, UsersServiceToken } from '../../users/service/users.provider';
 import { EntityNotFoundException } from '../../common/exceptions/exceptions';
 import { CommentMapper } from '../dto/comment.mapper';
+import { DBConnectionService } from '../../db/db.service';
 
 @Injectable()
 export class CommentServiceImpl implements CommentsService {
@@ -15,6 +16,7 @@ export class CommentServiceImpl implements CommentsService {
     private todoService: TodosService,
     @Inject(UsersServiceToken)
     private userService: UsersService,
+    private dbService: DBConnectionService,
   ) {}
 
   async create(creatCommentDTO: CreateCommentDTO) {
@@ -30,6 +32,15 @@ export class CommentServiceImpl implements CommentsService {
     }
     const newComment = CommentMapper.toEntity(creatCommentDTO);
 
-    return await this.commentRepository.createParentComment(newComment);
+    const queries = async () => {
+      const result = await this.commentRepository.createParentComment(newComment);
+      if (newComment.parentId) {
+        await this.commentRepository.updateReplyCount(newComment.parentId);
+      }
+
+      return result;
+    };
+
+    return await this.dbService.transaction(queries);
   }
 }

@@ -4,7 +4,6 @@ import { Column } from '../columns.entity';
 import { ColumnsRepository } from './columns.repository.provider';
 import { ColumnsMapper } from '../columns.mapper';
 import { InternalServerException } from '../../common/exceptions/exceptions';
-import { PoolConnection } from 'mysql2/promise';
 
 @Injectable()
 export class ColumnsRepositoryImpl implements ColumnsRepository {
